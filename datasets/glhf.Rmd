@@ -1,6 +1,6 @@
 
 ```{r}
-file_of_interest <- read.csv("new_data/rna-seq_szablon.txt", sep='\t')
+file_of_interest <- read.csv("new_data/abrB1.2_table5.txt", sep='\t')
 data_genome <- read.csv("genes_scoelicolor.txt", sep = '')
 
 ```
@@ -15,6 +15,6 @@ data_genome <- read.csv("genes_scoelicolor.txt", sep = '')
  
  merged_data <- merged_data[, c("gene", "start", "end", "strand", "logFC", "p.value", "FDR", "add.variable")]
   
- write.csv(merged, "final_data/abrB1.2_coelicolor_table4.csv", row.names = FALSE)
+ write.csv(merged_data, "final_data/abrB1.2_table5.csv", row.names = FALSE)
 ```
 

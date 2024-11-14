@@ -12,6 +12,7 @@ library(bslib)
 
 #### UI ####
 
+
 options_app <- c("genomeplot", "RNAplot", "CHIPplot", "logFCplot", "pvalueVulcano")
 genelist <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
 gene_list_database <- c("all", genelist$gene)
@@ -31,7 +32,7 @@ ui <- fluidPage(
                                                            choices = c("CHIP_seq_data", "HupAmacs")),
                                                selectInput('options', 'Show/hide visualizations', options_app,
                                                            multiple=TRUE, selectize=TRUE,
-                                                           selected = c('RNAplot', 'CHIPplot', 'logFCplot')),
+                                                           selected = c('RNAplot')),
                                                selectInput("select_gene", label = h3("Choose gene from list"), 
                                                            choices = gene_list_database),
                                       ),
