@@ -1,0 +1,7 @@
+Przeformatowywanie danych
+1. wybierz plik z data_magist
+2. Otwórz pli i przeanalizuj zawartość
+3. przenieś dane do rna-seq szblon
+4. wyeksportuj jako txt oddzielony tabulatorami, zapisz w new data, nazwij plik nazwą forlderu i tak żeby wiadomo było który to plik z folderu
+5. przepuść plik przez glhf.rmd w celu przydzielenia wartośći start i end i zapisz w final_data
+6. mam nadzieje że gotowe

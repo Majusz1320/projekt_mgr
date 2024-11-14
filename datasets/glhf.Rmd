@@ -1,0 +1,13 @@
+
+```{r}
+file_of_interest <- read.csv("datasets/rna-seq_szablon.txt", sep='\t')
+data_genome <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
+
+```
+
+```{r}
+
+ merged <- merge(file_of_interest, data_genome, by = 'gene')
+  write.csv(merged, "datasets/data_under_constr/new_data_rna_seq.csv", row.names = FALSE)
+```
+
