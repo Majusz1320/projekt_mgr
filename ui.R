@@ -9,10 +9,15 @@ library(tidyHeatmap)
 library(BiocManager)
 library(plotly)
 library(bslib)
+source("loading_data.R")
 
 #### UI ####
+abrB1.2_table4 <- read.csv("datasets/final_data/abrB1.2_table4.csv")
+abrB1.2_table5 <- read.csv("datasets/final_data/abrB1.2_table5.csv")
+data_hupAS_RNAseq <- read.csv("datasets/final_data/data_hupAS_RNAseq.csv")
 
-
+loading_data_function()
+data_loaded <- c("abrB1.2_table4", "abrB1.2_table5", "data_hupAS_RNAseq")
 options_app <- c("genomeplot", "RNAplot", "CHIPplot", "logFCplot", "pvalueVulcano")
 genelist <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
 gene_list_database <- c("all", genelist$gene)
@@ -35,6 +40,8 @@ ui <- fluidPage(
                                                            selected = c('RNAplot')),
                                                selectInput("select_gene", label = h3("Choose gene from list"), 
                                                            choices = gene_list_database),
+                                               selectInput("select_dataset", label = h3("Choose dataset from list"), 
+                                                           choices = data_loaded),
                                       ),
                                       tabPanel("Plot settings",
                                                numericInput("lower_value", label = h3("Minimal value of plot"), value = 4000000, step = 10000),

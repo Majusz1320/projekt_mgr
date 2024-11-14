@@ -14,28 +14,37 @@ server <- function(input, output) {
   })
   
   
-  
   plotRNAseqInput <- reactive({
     if(input$select_gene == "all") {
-      if (input$select_rna == "RNA_seq_data") {
-        dane1 <- read.csv("datasets/data_hupAS_RNAseq.txt", sep = '')
-        dane2 <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
-        dane1 <- rename(dane1, gene = genes)
-        zmergowane <- merge(dane1, dane2, by = "gene")
-        plot_data <- zmergowane #%>% distinct(gene, .keep_all = TRUE)
-      } else {
-        plot_data <- read.csv("datasets/data_hupA_chipseq_macs.txt", sep=" ")
-      }}
-    else{
-      input$select_gene -> selected_gene
-      dane1 <- read.csv("datasets/data_hupAS_RNAseq.txt", sep = '')
-      dane2 <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
-      dane1 <- rename(dane1, gene = genes)
-      zmergowane <- merge(dane1, dane2, by = "gene")
-      plot_data <- zmergowane %>% filter(gene == selected_gene)
+      if (input$select_dataset == "abrB1.2_table4") {
+        return(abrB1.2_table4)
+      } else if (input$select_dataset == "abrB1.2_table5") {
+        return(abrB1.2_table5)
+      } else if (input$select_dataset == "data_hupAS_RNAseq") {
+        return(data_hupAS_RNAseq)
+      }
     }
-    return(plot_data)
+    else { 
+      input$select_gene -> selected_gene
+      if (input$select_dataset == "abrB1.2_table4") {
+        abrB1.2_table4 <- abrB1.2_table4 %>% filter(gene == selected_gene)
+        return(abrB1.2_table4)
+      } else if (input$select_dataset == "abrB1.2_table5") {
+        abrB1.2_table5 <- abrB1.2_table5 %>% filter(gene == selected_gene)
+        return(abrB1.2_table5)
+      } else if (input$select_dataset == "data_hupAS_RNAseq") {
+        data_hupAS_RNAseq <- data_hupAS_RNAseq %>% filter(gene == selected_gene)
+        return(data_hupAS_RNAseq)
+      }
+     
+       }
+    
   })
+  
+
+  
+  
+ 
   
   
   
@@ -202,7 +211,7 @@ server <- function(input, output) {
     p_value_above_logFC <- p_value_data %>% filter(logFC >= highlogFC)
     p_value_below_logFC <- p_value_data %>% filter(logFC <= lowlogFC)
     p_value_data_logFC_filtered <- rbind(p_value_below_logFC, p_value_above_logFC)
-    plot_data_rna_pvalue_filtered <- p_value_data_logFC_filtered %>% mutate(pvalue_filtered = ifelse(PValue >= 0.05, 1, 2))
+    plot_data_rna_pvalue_filtered <- p_value_data_logFC_filtered %>% mutate(pvalue_filtered = ifelse(p.value >= 0.05, 1, 2))
     vulcano_plot <- plot_data_rna_pvalue_filtered %>% ggplot(aes(x=logFC, y=-log10(PValue), group=contrast))+
       geom_point(aes(col=plot_data_rna_pvalue_filtered$pvalue_filtered, shape=contrast), size=3)
     return(vulcano_plot)
