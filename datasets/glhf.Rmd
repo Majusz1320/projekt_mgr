@@ -13,7 +13,7 @@ data_genome <- read.csv("genes_scoelicolor.txt", sep = '')
  merged_data$end <- merged_data$end.y
  merged_data$strand <- merged_data$strand.y
  
- merged_data <- merged_data[, c("gene", "start", "end", "strand", "logFC", "p.value", "FDR", "add.value")]
+ merged_data <- merged_data[, c("gene", "start", "end", "strand", "logFC", "p.value", "FDR", "add.variable")]
   
  write.csv(merged, "final_data/abrB1.2_coelicolor_table4.csv", row.names = FALSE)
 ```
