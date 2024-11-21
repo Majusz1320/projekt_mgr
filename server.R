@@ -14,42 +14,65 @@ server <- function(input, output) {
   })
   
   
-  plotRNAseqInput <- reactive({
-    if(input$select_gene == "all") {
-      if (input$select_dataset == "abrB1.2_table4") {
-        return(abrB1.2_table4)
-      } else if (input$select_dataset == "abrB1.2_table5") {
-        return(abrB1.2_table5)
-      } else if (input$select_dataset == "data_hupAS_RNAseq") {
-        return(data_hupAS_RNAseq)
-      }
-    }
-    else { 
-      input$select_gene -> selected_gene
-      if (input$select_dataset == "abrB1.2_table4") {
-        abrB1.2_table4 <- abrB1.2_table4 %>% filter(gene == selected_gene)
-        return(abrB1.2_table4)
-      } else if (input$select_dataset == "abrB1.2_table5") {
-        abrB1.2_table5 <- abrB1.2_table5 %>% filter(gene == selected_gene)
-        return(abrB1.2_table5)
-      } else if (input$select_dataset == "data_hupAS_RNAseq") {
-        data_hupAS_RNAseq <- data_hupAS_RNAseq %>% filter(gene == selected_gene)
-        return(data_hupAS_RNAseq)
-      }
-     
-       }
-    
-  })
   
-
+  data_loaded_rna <- c("abrB1.2_table4", "abrB1.2_table5", "data_hupAS_RNAseq")
+  
+  dataselection_rnaseq_before_LHfilter <- reactive({
+    
+    ###tutaj dopisujesz następne jak będą
+    abrB1.2_table4 <- abrB1.2_table4_load()
+    abrB1.2_table5 <- abrB1.2_table5_load()
+    data_hupAS_RNAseq <- data_hupAS_RNAseq_load()
+    data_list <- list(abrB1.2_table4, abrB1.2_table5, data_hupAS_RNAseq)
+    choosen_data <- which(data_loaded_rna %in% input$rna_select)
+    choosen_data_list <- data_list[choosen_data]
+    data_rna_final <- do.call(rbind, choosen_data_list)
+    
+    return(data_rna_final)
+  })
   
   
  
+  ##LOWER/HUGHERVALUE
+  
+  
+  lower_value <- reactive({ 
+    if (input$select_gene == "all")
+    { data_rna <- dataselection_rnaseq_before_LHfilter()
+      lower_value <- min(data_rna$start, na.rm = TRUE)}
+    else 
+    {input$select_gene -> selected_gene
+      data_rna <- dataselection_rnaseq_before_LHfilter()
+      data_rna <- data_rna %>% filter(gene == selected_gene)
+      lower_value <- min(data_rna$start, na.rm = TRUE)
+    }
+    return(lower_value)
+    })
+  
+  higher_value <- reactive({ 
+    if (input$select_gene == "all")
+    { data_rna <- dataselection_rnaseq_before_LHfilter()
+    higher_value <- max(data_rna$end, na.rm = TRUE)}
+    else 
+    {input$select_gene -> selected_gene
+      data_rna <- dataselection_rnaseq_before_LHfilter()
+      data_rna <- data_rna %>% filter(gene == selected_gene)
+      higher_value <- max(data_rna$end, na.rm = TRUE)
+    }
+    return(higher_value)
+  })
   
   
   
-  lower_value <- reactive({ input$lower_value })
-  higher_value <- reactive ({ input$higher_value })
+  dataselection_rnaseq <- reactive({
+    data_rna <- dataselection_rnaseq_before_LHfilter()
+    lower <- lower_value()
+    higher <- higher_value()
+    data_rna <- data_rna %>% filter(start >= lower, end <= higher)
+    return(data_rna)
+    })
+  
+  
   lower_logFC <- reactive({ input$lower_logFC })
   higher_logFC <- reactive({ input$higher_logFC })
   
@@ -65,17 +88,7 @@ server <- function(input, output) {
     return(plot_data_genome_filter)
   })
   
-  filterRNAdata <- reactive({
-    lower <- lower_value()
-    higher <- higher_value()
-    
-    plot_data_rna <- plotRNAseqInput()
-    plot_data_rna_filter <- plot_data_rna %>% filter(start >= lower, end <= higher)
-    
-    return(plot_data_rna_filter)
-  })
-  
-  
+ 
   #### PLOTS CODE ####
   
   genomeplot <- reactive({
@@ -97,12 +110,13 @@ server <- function(input, output) {
   RNAplot <- reactive({
     lower <- lower_value()
     higher <- higher_value()
-    plot_data_rna <- filterRNAdata()
+    plot_data_rna <- dataselection_rnaseq()
     plot_data_rna <- plot_data_rna %>% mutate(strand_plot = ifelse(strand == '+', 1, 0))
-    plot_data_rna <- plot_data_rna %>% distinct(gene, .keep_all = TRUE)
     
-    rna_plot <- ggplot(plot_data_rna, aes(xmin = start, xmax = end, y = "geny", label = gene, fill = strand, forward = strand_plot)) +
+    
+    rna_plot <- plot_data_rna %>% ggplot(aes(xmin = start, xmax = end, y = data_name, label = gene, fill = data_name, forward = strand_plot)) +
       geom_gene_arrow(arrowhead_height = grid::unit(6, "mm"), arrow_body_height = grid::unit(5, "mm")) +
+      facet_wrap(~data_name, scales= 'free', ncol = 1) +
       geom_gene_label(align = "left") +
       scale_fill_brewer(palette = "Set3")+
       coord_cartesian(xlim = c(lower, higher)) +
@@ -185,7 +199,7 @@ server <- function(input, output) {
     higher <- higher_value()
     lowlogFC <- lower_logFC()
     highlogFC <- higher_logFC()
-    plot_data_rna <- filterRNAdata()
+    plot_data_rna <- dataselection_rnaseq()
     plot_data_rna_highlog <- plot_data_rna %>% filter(logFC >= highlogFC)
     plot_data_rna_lowlog <- plot_data_rna %>% filter(logFC <= lowlogFC)
     plot_data_rna_logFC_filtered <- rbind(plot_data_rna_lowlog, plot_data_rna_highlog)
@@ -206,7 +220,7 @@ server <- function(input, output) {
     higher <- higher_value()
     lowlogFC <- lower_logFC()
     highlogFC <- higher_logFC()
-    plot_data_rna <- filterRNAdata()
+    plot_data_rna <- dataselection_rnaseq()
     p_value_data <- plot_data_rna %>% mutate(logFC = ifelse(is.na(logFC), 0, logFC))
     p_value_above_logFC <- p_value_data %>% filter(logFC >= highlogFC)
     p_value_below_logFC <- p_value_data %>% filter(logFC <= lowlogFC)
@@ -224,7 +238,7 @@ server <- function(input, output) {
   output$heatmap <- renderPlot({
     lowlogFC <- lower_logFC()
     highlogFC <- higher_logFC()
-    heat_data <- filterRNAdata()
+    heat_data <- dataselection_rnaseq()
     heat_data <- heat_data %>% mutate(logFC = ifelse(is.na(logFC), 0, logFC))
     heat_above_logFC <- heat_data %>% filter(logFC >= highlogFC)
     heat_below_logFC <- heat_data %>% filter(logFC <= lowlogFC)
@@ -243,7 +257,7 @@ server <- function(input, output) {
   #### TABLES INPUT ####
   
   tableInput_rna <- reactive({
-    table_data <- filterRNAdata()
+    table_data <- dataselection_rnaseq()
     lowlogFC <- lower_logFC()
     highlogFC <- higher_logFC()
     table_data_rna_lowlog <- table_data %>% filter(logFC >= highlogFC)
