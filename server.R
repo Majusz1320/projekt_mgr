@@ -13,17 +13,42 @@ server <- function(input, output) {
     return(plot_data)
   })
   
+  user_data_upload <- reactive({
+    user_file <- input$uploaded_file
+    if(is.null(user_file)){
+      return(NULL)}
+    else
+    {
+      user_file <- read.csv(user_file)
+      return(user_file)
+    }
+  })
   
+  merged_user <- reactive({
+    if(is.null(user_data_upload))
+    {return(NULL)}
+    else{
+    genome <- plotgenomeInput()
+    user_data <- user_data_upload()
+    merged_user_data <- merge(user_data, genome, by="gene", all.x = TRUE)
+    merged_user_data$start <- merged_user_data$start.y
+    merged_user_data$end <- merged_user_data$end.y
+    merged_user_data$strand <- merged_user_data$strand.y
+    merged_user_data <- merged_user_data[, c("gene", "start", "end", "strand", "logFC", "p.value", "FDR", "add.variable")]
+    return(merged_user_data)
+    }
+  })
   
-  data_loaded_rna <- c("abrB1.2_table4", "abrB1.2_table5", "data_hupAS_RNAseq")
+  data_loaded_rna <- c("abrB1.2_table4", "abrB1.2_table5", "data_hupAS_RNAseq", "user_uploaded_file")
   
   dataselection_rnaseq_before_LHfilter <- reactive({
     
     ###tutaj dopisujesz następne jak będą
+    user_uploaded_file <- merged_user()
     abrB1.2_table4 <- abrB1.2_table4_load()
     abrB1.2_table5 <- abrB1.2_table5_load()
     data_hupAS_RNAseq <- data_hupAS_RNAseq_load()
-    data_list <- list(abrB1.2_table4, abrB1.2_table5, data_hupAS_RNAseq)
+    data_list <- list(abrB1.2_table4, abrB1.2_table5, data_hupAS_RNAseq, user_uploaded_file)
     choosen_data <- which(data_loaded_rna %in% input$rna_select)
     choosen_data_list <- data_list[choosen_data]
     data_rna_final <- do.call(rbind, choosen_data_list)

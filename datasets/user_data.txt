@@ -1,0 +1,16 @@
+gene	start	end	width	strand	logFC	p.value	FDR	add.variable
+SCO1550					-2,2	4,5E-18		
+SCO2165					-14,1	2,0E-14		
+SCO2166					-10,8	1,7E-16		
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								

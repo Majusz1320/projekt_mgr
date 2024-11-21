@@ -15,7 +15,7 @@ source("loading_data.R")
 
 
 
-data_loaded_rna <- c("abrB1.2_table4", "abrB1.2_table5", "data_hupAS_RNAseq")
+data_loaded_rna <- c("abrB1.2_table4", "abrB1.2_table5", "data_hupAS_RNAseq", "user_uploaded_file")
 options_app <- c("genomeplot", "RNAplot", "CHIPplot", "logFCplot", "pvalueVulcano")
 genelist <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
 gene_list_database <- c("all", genelist$gene)
@@ -29,6 +29,7 @@ ui <- fluidPage(
                         sidebarPanel(
                           tabsetPanel(type = "pills",
                                       tabPanel("Selection",
+                                               fileInput("uploaded_file", "Choose a File"),
                                                selectInput('options', 'Show/hide visualizations', options_app,
                                                            multiple=TRUE, selectize=TRUE,
                                                            selected = c('genomeplot', 'RNAplot')),
