@@ -15,8 +15,8 @@ source("loading_data.R")
 
 
 
-data_loaded_rna <- c("abrB1.2_table4", "abrB1.2_table5", "data_hupAS_RNAseq", "user_uploaded_file")
-options_app <- c("genomeplot", "RNAplot", "CHIPplot", "logFCplot", "pvalueVulcano")
+data_loaded_rna <- c("no data selected", "abrB1.2_table4", "abrB1.2_table5", "data_hupAS_RNAseq", "user_uploaded_file")
+options_app <- c("RNAplot", "CHIPplot", "logFCplot", "pvalueVulcano")
 genelist <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
 gene_list_database <- c("all", genelist$gene)
 
@@ -32,17 +32,21 @@ ui <- fluidPage(
                                                fileInput("uploaded_file", "Choose a File"),
                                                selectInput('options', 'Show/hide visualizations', options_app,
                                                            multiple=TRUE, selectize=TRUE,
-                                                           selected = c('genomeplot', 'RNAplot')),
-                                               selectInput("select_gene", label = h3("Choose gene from list"), 
+                                                           selected = c('RNAplot')),
+                                               selectInput("select_gene", label = "Choose gene from list", 
                                                            choices = gene_list_database),
-                                               selectInput('rna_select', label = 'Choose data for RNA-seqplot', 
-                                                           choices = data_loaded_rna, selected = c('abrB1.2_table4'),
-                                                           multiple = TRUE, selectize = TRUE),
+                                               selectInput('rna_select_1', label = h3('Choose data for RNA-seqplot'), selected = "no data selected",
+                                                           choices = data_loaded_rna, selectize = TRUE),
+                                               selectInput('rna_select_2', label = ' ',  selected = "no data selected",
+                                                           choices = data_loaded_rna, selectize = TRUE),
+                                               selectInput('rna_select_3', label = ' ',  selected = "no data selected",
+                                                           choices = data_loaded_rna, selectize = TRUE),
                                                selectInput('wybor', label = 'Choose data for ChIP-seqplot', 
                                                            choices = c('edgeR', 'macs'), selected = c('edgeR'),
                                                            multiple = TRUE, selectize = TRUE),
                                                numericInput("lower_value", label = h3("Minimal value of plot"), value = 4000000, step = 10000),
                                                numericInput("higher_value", label = h3("Maximum value of plot"), value = 4200000, step = 10000),
+                                               actionButton("apply_changes", "Apply Changes"),
                                       ),
                                       tabPanel("Plot settings",
                                                numericInput("higher_logFC", label = h3("Maximum value of logFC shown"), value = 0),
@@ -61,7 +65,8 @@ ui <- fluidPage(
                           
                           tabsetPanel(type = "pills",
                                       tabPanel("Maing plots",
-                                               plotOutput("all_plots", height = '1200px')
+                                               plotOutput("genome_plot", height= '400px'),
+                                               plotOutput("all_plots", height = '800px')
                                       ),
                                       tabPanel("Heatmap",
                                                plotOutput("heatmap")

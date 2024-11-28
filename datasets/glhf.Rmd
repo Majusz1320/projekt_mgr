@@ -1,20 +1,20 @@
 
 ```{r}
-file_of_interest <- read.csv("new_data/data_hupAS_RNAseq.txt", sep='\t')
+file_of_interest <- read.csv("new_data/abrB1.2_table4.txt", sep='\t')
 data_genome <- read.csv("genes_scoelicolor.txt", sep = '')
 
 ```
 
 ```{r}
 
- merged_data <- merge(file_of_interest, data_genome, by="gene", all.x = TRUE)
-
- merged_data$start <- merged_data$start.y
- merged_data$end <- merged_data$end.y
- merged_data$strand <- merged_data$strand.y
- 
- merged_data <- merged_data[, c("gene", "start", "end", "strand", "logFC", "p.value", "FDR", "add.variable")]
+merged_data <- file_of_interest %>%
+  left_join(data_genome, by = "gene")
   
- write.csv(merged_data, "final_data/data_hupAS_RNAseq.csv", row.names = FALSE)
+ write.csv(merged_data, "final_data/abrB1.2_table4.csv", row.names = FALSE)
+
+```
+
+```{r}
+getwd()
 ```
 

@@ -2,7 +2,18 @@
 
 server <- function(input, output) {
   
+  # Create a reactive value to store the trigger state
+  changes_applied <- reactiveVal(FALSE)  # This will store whether the button has been pressed
+  
+  # Observe the action button press
+  observeEvent(input$apply_changes, {
+    changes_applied(TRUE)  # Set the value to TRUE when the button is pressed
+  })
+  
   plotgenomeInput <- reactive({
+    
+    req(changes_applied())
+    
     if(input$select_gene == "all") {
       plot_data <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
     } else {
@@ -14,28 +25,38 @@ server <- function(input, output) {
   })
   
   user_data_upload <- reactive({
-    user_file <- input$uploaded_file
+    
+    req(changes_applied())
+    
+    user_file <- input$uploaded_file$datapath
     if(is.null(user_file)){
       return(NULL)}
     else
     {
-      user_file <- read.csv(user_file)
+      user_file <- read.csv(user_file, sep = "\t")
+      user_file$add_variable <- "user_file"
+      user_file$data_name <- "user_file"
       return(user_file)
     }
   })
   
   merged_user <- reactive({
-    if(is.null(user_data_upload))
-    {return(NULL)}
-    else{
-    genome <- plotgenomeInput()
+    
+    req(changes_applied())
+    
     user_data <- user_data_upload()
-    merged_user_data <- merge(user_data, genome, by="gene", all.x = TRUE)
-    merged_user_data$start <- merged_user_data$start.y
-    merged_user_data$end <- merged_user_data$end.y
-    merged_user_data$strand <- merged_user_data$strand.y
-    merged_user_data <- merged_user_data[, c("gene", "start", "end", "strand", "logFC", "p.value", "FDR", "add.variable")]
-    return(merged_user_data)
+    print(class(user_data))
+    data_genome <- plotgenomeInput()
+    print(class(data_genome))
+    
+    if (is.null(user_data)) {
+      return(NULL)
+    } else {
+      
+      merged_data <- user_data %>%
+        left_join(data_genome, by = "gene")
+      
+      return(merged_data)
     }
   })
   
@@ -43,13 +64,15 @@ server <- function(input, output) {
   
   dataselection_rnaseq_before_LHfilter <- reactive({
     
+    req(changes_applied())
+    
     ###tutaj dopisujesz następne jak będą
     user_uploaded_file <- merged_user()
     abrB1.2_table4 <- abrB1.2_table4_load()
     abrB1.2_table5 <- abrB1.2_table5_load()
     data_hupAS_RNAseq <- data_hupAS_RNAseq_load()
     data_list <- list(abrB1.2_table4, abrB1.2_table5, data_hupAS_RNAseq, user_uploaded_file)
-    choosen_data <- which(data_loaded_rna %in% input$rna_select)
+    choosen_data <- which(data_loaded_rna %in% c(input$rna_select_1, input$rna_select_2, input$rna_select_3))
     choosen_data_list <- data_list[choosen_data]
     data_rna_final <- do.call(rbind, choosen_data_list)
     
@@ -61,35 +84,40 @@ server <- function(input, output) {
   ##LOWER/HUGHERVALUE
   
   
-  lower_value <- reactive({ 
-    if (input$select_gene == "all")
-    { data_rna <- dataselection_rnaseq_before_LHfilter()
-      lower_value <- min(data_rna$start, na.rm = TRUE)}
-    else 
-    {input$select_gene -> selected_gene
-      data_rna <- dataselection_rnaseq_before_LHfilter()
-      data_rna <- data_rna %>% filter(gene == selected_gene)
-      lower_value <- min(data_rna$start, na.rm = TRUE)
-    }
-    return(lower_value)
-    })
+  lower_value <- reactive({
+    input$lower_value
+    
+  })
   
-  higher_value <- reactive({ 
-    if (input$select_gene == "all")
-    { data_rna <- dataselection_rnaseq_before_LHfilter()
-    higher_value <- max(data_rna$end, na.rm = TRUE)}
-    else 
-    {input$select_gene -> selected_gene
-      data_rna <- dataselection_rnaseq_before_LHfilter()
-      data_rna <- data_rna %>% filter(gene == selected_gene)
-      higher_value <- max(data_rna$end, na.rm = TRUE)
+  observeEvent(input$select_gene,{
+    if(input$select_gene != 'all'){
+      updateNumericInput(
+        session = session, inputId = "lower_value", value = plotgenomeInput()$start
+      )
     }
-    return(higher_value)
+  })
+  
+  higher_value <- reactive({
+    input$higher_value
+    
+  })
+  
+  
+  
+  observeEvent(input$select_gene,{
+    if(input$select_gene != 'all'){
+      updateNumericInput(
+        session = session, inputId = "higher_value", value = plotgenomeInput()$end
+      )
+    }
   })
   
   
   
   dataselection_rnaseq <- reactive({
+    
+    req(changes_applied())
+    
     data_rna <- dataselection_rnaseq_before_LHfilter()
     lower <- lower_value()
     higher <- higher_value()
@@ -104,10 +132,13 @@ server <- function(input, output) {
   #### FILTERING DATA ####
   
   filtergenomedata <- reactive({
+    
+    req(changes_applied())
+    
     lower <- lower_value()
     higher <- higher_value()
     
-    plot_data_genome <- plotgenomeInput()
+    plot_data_genome <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
     plot_data_genome_filter <- plot_data_genome %>% filter(start >= lower, end <= higher)
     
     return(plot_data_genome_filter)
@@ -117,6 +148,9 @@ server <- function(input, output) {
   #### PLOTS CODE ####
   
   genomeplot <- reactive({
+    
+    req(changes_applied())
+    
     lower <- lower_value()
     higher <- higher_value()
     plot_data_genome <- filtergenomedata()
@@ -133,17 +167,20 @@ server <- function(input, output) {
   })
   
   RNAplot <- reactive({
+    
+    req(changes_applied())
+    
     lower <- lower_value()
     higher <- higher_value()
     plot_data_rna <- dataselection_rnaseq()
     plot_data_rna <- plot_data_rna %>% mutate(strand_plot = ifelse(strand == '+', 1, 0))
     
     
-    rna_plot <- plot_data_rna %>% ggplot(aes(xmin = start, xmax = end, y = data_name, label = gene, fill = data_name, forward = strand_plot)) +
+    rna_plot <- plot_data_rna %>% ggplot(aes(xmin = start, xmax = end, y = add_variable, label = gene, fill = logFC, forward = strand_plot)) +
       geom_gene_arrow(arrowhead_height = grid::unit(6, "mm"), arrow_body_height = grid::unit(5, "mm")) +
-      facet_wrap(~data_name, scales= 'free', ncol = 1) +
+      facet_wrap(~add_variable, scales= 'free', ncol = 1) +
       geom_gene_label(align = "left") +
-      scale_fill_brewer(palette = "Set3")+
+      scale_fill_gradient(low = "red", high = "green")+
       coord_cartesian(xlim = c(lower, higher)) +
       theme_classic()
     return(rna_plot)
@@ -156,6 +193,9 @@ server <- function(input, output) {
   plot_chip_macs <- read.csv("datasets/data_hupA_chipseq_macs.txt", sep=" ") 
   
   filterCHIPedgerdata <- reactive({
+    
+    req(changes_applied())
+    
     lower <- lower_value()
     higher <- higher_value()
     plot_data_chip_edger <- plot_chip_edger
@@ -164,6 +204,9 @@ server <- function(input, output) {
   })
   
   filterCHIPmacsdata <- reactive({
+    
+    req(changes_applied())
+    
     lower <- lower_value()
     higher <- higher_value()
     plot_data_chip_macs <- plot_chip_macs
@@ -172,6 +215,9 @@ server <- function(input, output) {
   })
   
   chipedgerselect <- reactive({
+    
+    req(changes_applied())
+    
     dane <- filterCHIPedgerdata()
     dane0.1 <- dane %>% select(start, end, best.pos, rodzaj)
     dane0.1 <- dane0.1 %>% mutate(rep = "edgeR")
@@ -179,6 +225,9 @@ server <- function(input, output) {
   })
   
   chipmacsselect <- reactive({
+    
+    req(changes_applied())
+    
     dane <- filterCHIPmacsdata()
     dane0.2 <- dane %>% select(start, end, best.pos, rodzaj)
     dane0.2 <- dane0.2 %>% mutate(rep = "macs")
@@ -189,6 +238,9 @@ server <- function(input, output) {
   options_chip <- c('edgeR', 'macs')
   
   dataselectionchipseq <- reactive({
+    
+    req(changes_applied())
+    
     macs_data <- chipmacsselect()
     edger_data <- chipedgerselect()
     data_list <- list(macs_data, edger_data)
@@ -199,6 +251,9 @@ server <- function(input, output) {
   })
   
   draw_chip_plot <- reactive({
+    
+    req(changes_applied())
+    
     lower <- lower_value()
     higher <- higher_value()
     
@@ -220,6 +275,9 @@ server <- function(input, output) {
   
   
   RPKMplot <- reactive({
+    
+    req(changes_applied())
+    
     lower <- lower_value()
     higher <- higher_value()
     lowlogFC <- lower_logFC()
@@ -241,6 +299,9 @@ server <- function(input, output) {
   
   
   Vulcanoplot <- reactive({
+    
+    req(changes_applied())
+    
     lower <- lower_value()
     higher <- higher_value()
     lowlogFC <- lower_logFC()
@@ -250,7 +311,7 @@ server <- function(input, output) {
     p_value_above_logFC <- p_value_data %>% filter(logFC >= highlogFC)
     p_value_below_logFC <- p_value_data %>% filter(logFC <= lowlogFC)
     p_value_data_logFC_filtered <- rbind(p_value_below_logFC, p_value_above_logFC)
-    plot_data_rna_pvalue_filtered <- p_value_data_logFC_filtered %>% mutate(pvalue_filtered = ifelse(p.value >= 0.05, 1, 2))
+    plot_data_rna_pvalue_filtered <- p_value_data_logFC_filtered %>% mutate(pvalue_filtered = ifelse(FDR >= 0.05, 1, 2))
     vulcano_plot <- plot_data_rna_pvalue_filtered %>% ggplot(aes(x=logFC, y=-log10(PValue), group=contrast))+
       geom_point(aes(col=plot_data_rna_pvalue_filtered$pvalue_filtered, shape=contrast), size=3)
     return(vulcano_plot)
@@ -261,6 +322,9 @@ server <- function(input, output) {
   #### HEATMAP? ####
   
   output$heatmap <- renderPlot({
+    
+    req(changes_applied())
+    
     lowlogFC <- lower_logFC()
     highlogFC <- higher_logFC()
     heat_data <- dataselection_rnaseq()
@@ -282,6 +346,9 @@ server <- function(input, output) {
   #### TABLES INPUT ####
   
   tableInput_rna <- reactive({
+    
+    req(changes_applied())
+    
     table_data <- dataselection_rnaseq()
     lowlogFC <- lower_logFC()
     highlogFC <- higher_logFC()
@@ -291,20 +358,32 @@ server <- function(input, output) {
     return(table_data_rna_logFC_filtered)
   })
   output$rna_table <- renderDataTable({
+    
+    req(changes_applied())
+    
     table_data <- tableInput_rna()
     return(table_data)
   })
   
   tableInput_chip <- reactive({
+    
+    req(changes_applied())
+    
     table_data1 <- dataselectionchipseq()
     return(table_data1)
   })
   output$chip_table <- renderDataTable({
+    
+    req(changes_applied())
+    
     table_data1 <- tableInput_chip()
     return(table_data1)
   })
   
   textInput_dataofgene <- reactive({
+    
+    req(changes_applied())
+    
     if(input$select_gene == "all") {
       data_for_gene_info_end <- ("Sorry, no specific gene selected :/")
     }
@@ -328,28 +407,37 @@ server <- function(input, output) {
   })
   
   output$gene_protein_data <- renderText({
+    
+    req(changes_applied())
+    
     data_of_gene <- textInput_dataofgene()
     return(paste(data_of_gene, collapse = "\n"))
   })
   
+  output$genome_plot <- renderPlot({
+    genome_plot_output <- genomeplot()
+    return(genome_plot_output)
+  })
+  
   plot_all_patchwork <- reactive({
-    all_possible_choices <- c('genomeplot', 'RNAplot', 'CHIPplot', 'logFCplot', 'pvalueVulcano')
+    
+    req(changes_applied())
+    
+    all_possible_choices <- c('RNAplot', 'CHIPplot', 'logFCplot', 'pvalueVulcano')
     selected_plots <- input$options
     selected_number <- which(all_possible_choices %in% selected_plots)
     
-    p_genomeplot <- genomeplot()
     p_rnaplot <- RNAplot()
     p_chipplot <- draw_chip_plot()
     p_rpkmplot <- RPKMplot()
     p_vulcano_pvalue <- Vulcanoplot()
     
-    plot_list <- list(`genomeplot` = p_genomeplot,
-                      `RNAplot` = p_rnaplot,
+    plot_list <- list(`RNAplot` = p_rnaplot,
                       `CHIPplot` = p_chipplot,
                       `logFCplot` = p_rpkmplot,
                       `pvalueVulcano` = p_vulcano_pvalue)
     
-    heights <- c(10, 10, 5, 10, 10)
+    heights <- c(10, 5, 10, 10)
     
     p_all <- patchwork::wrap_plots(plot_list[selected_number], ncol = 1, heights = heights[selected_number])
     
