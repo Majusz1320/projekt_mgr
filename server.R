@@ -1,14 +1,22 @@
 #### SERVER #####
 
-server <- function(input, output) {
+server <- function(input, output, session) {
   
   # Create a reactive value to store the trigger state
   changes_applied <- reactiveVal(FALSE)  # This will store whether the button has been pressed
-  
+
   # Observe the action button press
   observeEvent(input$apply_changes, {
     changes_applied(TRUE)  # Set the value to TRUE when the button is pressed
   })
+
+  changes_applied_lower <- eventReactive(input$apply_changes, {
+    input$lower_value
+  }, ignoreNULL = FALSE)
+  
+  changes_applied_higher <- eventReactive(input$apply_changes, {
+    input$higher_value
+  }, ignoreNULL = FALSE)
   
   plotgenomeInput <- reactive({
     
@@ -81,14 +89,15 @@ server <- function(input, output) {
   
   
  
-  ##LOWER/HUGHERVALUE
+  ##LOWER/HIGHERVALUE
   
   
-  lower_value <- reactive({
-    input$lower_value
-    
-  })
+  # lower_value <- reactive({
+  #   input$lower_value
+  #   
+  # })
   
+
   observeEvent(input$select_gene,{
     if(input$select_gene != 'all'){
       updateNumericInput(
@@ -119,8 +128,8 @@ server <- function(input, output) {
     req(changes_applied())
     
     data_rna <- dataselection_rnaseq_before_LHfilter()
-    lower <- lower_value()
-    higher <- higher_value()
+    lower <- changes_applied_lower()
+    higher <- changes_applied_higher()
     data_rna <- data_rna %>% filter(start >= lower, end <= higher)
     return(data_rna)
     })
@@ -135,8 +144,8 @@ server <- function(input, output) {
     
     req(changes_applied())
     
-    lower <- lower_value()
-    higher <- higher_value()
+    lower <- changes_applied_lower()
+    higher <- changes_applied_higher()
     
     plot_data_genome <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
     plot_data_genome_filter <- plot_data_genome %>% filter(start >= lower, end <= higher)
@@ -151,8 +160,8 @@ server <- function(input, output) {
     
     req(changes_applied())
     
-    lower <- lower_value()
-    higher <- higher_value()
+    lower <- changes_applied_lower()
+    higher <- changes_applied_higher()
     plot_data_genome <- filtergenomedata()
     plot_data_genome <- plot_data_genome %>% mutate(strand_plot = ifelse(strand == '+', 1, 0))
     plot_data_genome <- plot_data_genome %>% distinct(gene, .keep_all = TRUE)
@@ -170,15 +179,15 @@ server <- function(input, output) {
     
     req(changes_applied())
     
-    lower <- lower_value()
-    higher <- higher_value()
+    lower <- changes_applied_lower()
+    higher <- changes_applied_higher()
     plot_data_rna <- dataselection_rnaseq()
     plot_data_rna <- plot_data_rna %>% mutate(strand_plot = ifelse(strand == '+', 1, 0))
     
     
     rna_plot <- plot_data_rna %>% ggplot(aes(xmin = start, xmax = end, y = add_variable, label = gene, fill = logFC, forward = strand_plot)) +
       geom_gene_arrow(arrowhead_height = grid::unit(6, "mm"), arrow_body_height = grid::unit(5, "mm")) +
-      facet_wrap(~add_variable, scales= 'free', ncol = 1) +
+      facet_wrap(~data_name, scales= 'free', ncol = 1) +
       geom_gene_label(align = "left") +
       scale_fill_gradient(low = "red", high = "green")+
       coord_cartesian(xlim = c(lower, higher)) +
@@ -196,8 +205,8 @@ server <- function(input, output) {
     
     req(changes_applied())
     
-    lower <- lower_value()
-    higher <- higher_value()
+    lower <- changes_applied_lower()
+    higher <- changes_applied_higher()
     plot_data_chip_edger <- plot_chip_edger
     plot_data_chip_edger_filter <- plot_data_chip_edger %>% filter(start >= lower, end <= higher)
     return(plot_data_chip_edger_filter)
@@ -207,8 +216,8 @@ server <- function(input, output) {
     
     req(changes_applied())
     
-    lower <- lower_value()
-    higher <- higher_value()
+    lower <- changes_applied_lower()
+    higher <- changes_applied_higher()
     plot_data_chip_macs <- plot_chip_macs
     plot_data_chip_macs_filter <- plot_data_chip_macs %>% filter(start >= lower, end <= higher)
     return(plot_data_chip_macs_filter)
@@ -254,8 +263,8 @@ server <- function(input, output) {
     
     req(changes_applied())
     
-    lower <- lower_value()
-    higher <- higher_value()
+    lower <- changes_applied_lower()
+    higher <- changes_applied_higher()
     
     if(is.null(input$wybor)){
       return(NULL)}
@@ -278,8 +287,8 @@ server <- function(input, output) {
     
     req(changes_applied())
     
-    lower <- lower_value()
-    higher <- higher_value()
+    lower <- changes_applied_lower()
+    higher <- changes_applied_higher()
     lowlogFC <- lower_logFC()
     highlogFC <- higher_logFC()
     plot_data_rna <- dataselection_rnaseq()
@@ -302,8 +311,8 @@ server <- function(input, output) {
     
     req(changes_applied())
     
-    lower <- lower_value()
-    higher <- higher_value()
+    lower <- changes_applied_lower()
+    higher <- changes_applied_higher()
     lowlogFC <- lower_logFC()
     highlogFC <- higher_logFC()
     plot_data_rna <- dataselection_rnaseq()
