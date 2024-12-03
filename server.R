@@ -107,10 +107,11 @@ server <- function(input, output, session) {
     }
   })
   
-  higher_value <- reactive({
-    input$higher_value
+
+  #  higher_value <- reactive({
+   # input$higher_value
     
-  })
+#  })
   
   
   
@@ -121,6 +122,9 @@ server <- function(input, output, session) {
       )
     }
   })
+  
+  
+  
   
   
   
@@ -135,12 +139,26 @@ server <- function(input, output, session) {
     return(data_rna)
     })
   
+  
+  
+  #checkbox
+  
   checkbox_list <- reactive({
     data_rna <- dataselection_rnaseq()
-    data_list <- list(table(data_rna$add_variable))
+    data_list <- unique(c(data_rna$add_variable))
     return(data_list)
   })
   
+  observeEvent(input$rna_select_1,{
+    if(input$rna_select_1 != "no data selected"){
+      data_list <- checkbox_list()
+      updateCheckboxGroupInput(
+        session = session, inputId = "contrast_choice", choices = data_list
+      )
+    }
+  })
+  
+
   
   lower_logFC <- reactive({ input$lower_logFC })
   higher_logFC <- reactive({ input$higher_logFC })

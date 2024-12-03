@@ -44,6 +44,8 @@ ui <- fluidPage(
                                                selectInput('wybor', label = 'Choose data for ChIP-seqplot', 
                                                            choices = c('edgeR', 'macs'), selected = c('edgeR'),
                                                            multiple = TRUE, selectize = TRUE),
+                                               checkboxGroupInput("contrast_choice", label = h3("Contrast"), 
+                                                                  choices = list("no choices avalible")),
                                                numericInput("lower_value", label = h3("Minimal value of plot"), value = 4000000, step = 10000),
                                                numericInput("higher_value", label = h3("Maximum value of plot"), value = 4200000, step = 10000),
                                                actionButton("apply_changes", "Apply Changes"),

@@ -20,7 +20,8 @@ getwd()
 
 ```{r}
 
-data_list <- list(table(merged_data$add_variable))
+data_list <- unique(c(bajojajo$add_variable))
+uq_data_list <- unique(data_list)
 
 ```
 
