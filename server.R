@@ -88,6 +88,7 @@ server <- function(input, output, session) {
   })
   
   
+  
  
   ##LOWER/HIGHERVALUE
   
@@ -134,6 +135,12 @@ server <- function(input, output, session) {
     return(data_rna)
     })
   
+  checkbox_list <- reactive({
+    data_rna <- dataselection_rnaseq()
+    data_list <- list(table(data_rna$add_variable))
+    return(data_list)
+  })
+  
   
   lower_logFC <- reactive({ input$lower_logFC })
   higher_logFC <- reactive({ input$higher_logFC })
@@ -166,12 +173,28 @@ server <- function(input, output, session) {
     plot_data_genome <- plot_data_genome %>% mutate(strand_plot = ifelse(strand == '+', 1, 0))
     plot_data_genome <- plot_data_genome %>% distinct(gene, .keep_all = TRUE)
     
-    genome_plot <- ggplot(plot_data_genome, aes(xmin = start, xmax = end, y = "genes", label = gene, fill = strand, forward = strand_plot)) +
-      geom_gene_arrow(arrowhead_height = grid::unit(6, "mm"), arrow_body_height = grid::unit(5, "mm")) +
+    genome_plot <- ggplot(plot_data_genome, aes(
+      xmin = start,
+      xmax = end,
+      y = "genes",
+      label = gene,
+      fill = strand,
+      forward = strand_plot
+    )) +
+      geom_gene_arrow(arrowhead_height = grid::unit(10, "mm"),
+                      arrow_body_height = grid::unit(8, "mm")) +
       geom_gene_label(align = "left") +
-      scale_fill_brewer(palette = "Set3")+
-      coord_cartesian(xlim = c(lower, higher)) +
-      theme_classic()
+      scale_fill_brewer(palette = "Set3") +
+      coord_cartesian(xlim = c(lower, higher), expand = FALSE) +  # Prevents ggplot from adding padding
+      scale_x_continuous(expand = c(0, 0)) +  # Removes extra space on x-axis
+      theme_classic() +
+      theme(
+        plot.margin = margin(5, 5, 5, 5),       # Adjust margins (top, right, bottom, left)
+        axis.title.x = element_blank(),         # Optionally remove axis labels if not necessary
+        axis.text.x = element_text(size = 10),
+        legend.position = "bottom",             # Adjust legend position to save space
+        legend.margin = margin(0, 0, 0, 0)
+      )
     return(genome_plot)
   })
   
@@ -186,12 +209,20 @@ server <- function(input, output, session) {
     
     
     rna_plot <- plot_data_rna %>% ggplot(aes(xmin = start, xmax = end, y = add_variable, label = gene, fill = logFC, forward = strand_plot)) +
-      geom_gene_arrow(arrowhead_height = grid::unit(6, "mm"), arrow_body_height = grid::unit(5, "mm")) +
+      geom_gene_arrow(arrowhead_height = grid::unit(10, "mm"), arrow_body_height = grid::unit(8, "mm")) +
       facet_wrap(~data_name, scales= 'free', ncol = 1) +
       geom_gene_label(align = "left") +
-      scale_fill_gradient(low = "red", high = "green")+
-      coord_cartesian(xlim = c(lower, higher)) +
-      theme_classic()
+      scale_fill_gradient(low = "red", high = "blue")+
+      coord_cartesian(xlim = c(lower, higher), expand = FALSE) +
+      scale_x_continuous(expand = c(0,0))+
+      theme_classic()+
+       theme(
+        plot.margin = margin(5, 5, 5, 5),       # Adjust margins (top, right, bottom, left)
+        axis.title.x = element_blank(),         # Optionally remove axis labels if not necessary
+        axis.text.x = element_text(size = 10),
+        legend.position = "bottom",             # Adjust legend position to save space
+        legend.margin = margin(0, 0, 0, 0)
+      )
     return(rna_plot)
   })
   

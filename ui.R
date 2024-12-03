@@ -65,7 +65,7 @@ ui <- fluidPage(
                           
                           tabsetPanel(type = "pills",
                                       tabPanel("Maing plots",
-                                               plotOutput("genome_plot", height= '400px'),
+                                               plotOutput("genome_plot", height= '200px'),
                                                plotOutput("all_plots", height = '800px')
                                       ),
                                       tabPanel("Heatmap",
