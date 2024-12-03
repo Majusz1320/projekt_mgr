@@ -16,7 +16,7 @@ source("loading_data.R")
 
 
 data_loaded_rna <- c("no data selected", "abrB1.2_table4", "abrB1.2_table5", "data_hupAS_RNAseq", "user_uploaded_file")
-options_app <- c("RNAplot", "CHIPplot", "logFCplot", "pvalueVulcano")
+options_app <- c("genome", "RNAplot", "CHIPplot", "logFCplot", "pvalueVulcano")
 genelist <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
 gene_list_database <- c("all", genelist$gene)
 
@@ -32,7 +32,7 @@ ui <- fluidPage(
                                                fileInput("uploaded_file", "Choose a File"),
                                                selectInput('options', 'Show/hide visualizations', options_app,
                                                            multiple=TRUE, selectize=TRUE,
-                                                           selected = c('RNAplot')),
+                                                           selected = c('genome', 'RNAplot')),
                                                selectInput("select_gene", label = "Choose gene from list", 
                                                            choices = gene_list_database),
                                                selectInput('rna_select_1', label = h3('Choose data for RNA-seqplot'), selected = "no data selected",
@@ -67,7 +67,6 @@ ui <- fluidPage(
                           
                           tabsetPanel(type = "pills",
                                       tabPanel("Maing plots",
-                                               plotOutput("genome_plot", height= '200px'),
                                                plotOutput("all_plots", height = '800px')
                                       ),
                                       tabPanel("Heatmap",

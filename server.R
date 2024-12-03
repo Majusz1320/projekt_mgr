@@ -472,25 +472,24 @@ server <- function(input, output, session) {
     return(paste(data_of_gene, collapse = "\n"))
   })
   
-  output$genome_plot <- renderPlot({
-    genome_plot_output <- genomeplot()
-    return(genome_plot_output)
-  })
+
   
   plot_all_patchwork <- reactive({
     
     req(changes_applied())
     
-    all_possible_choices <- c('RNAplot', 'CHIPplot', 'logFCplot', 'pvalueVulcano')
+    all_possible_choices <- c('genome', 'RNAplot', 'CHIPplot', 'logFCplot', 'pvalueVulcano')
     selected_plots <- input$options
     selected_number <- which(all_possible_choices %in% selected_plots)
     
+    p_genome <- genomeplot()
     p_rnaplot <- RNAplot()
     p_chipplot <- draw_chip_plot()
     p_rpkmplot <- RPKMplot()
     p_vulcano_pvalue <- Vulcanoplot()
     
-    plot_list <- list(`RNAplot` = p_rnaplot,
+    plot_list <- list(`genome`= p_genome,
+                      `RNAplot` = p_rnaplot,
                       `CHIPplot` = p_chipplot,
                       `logFCplot` = p_rpkmplot,
                       `pvalueVulcano` = p_vulcano_pvalue)
