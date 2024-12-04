@@ -230,7 +230,8 @@ server <- function(input, output, session) {
       geom_gene_arrow(arrowhead_height = grid::unit(10, "mm"), arrow_body_height = grid::unit(8, "mm")) +
       facet_wrap(~data_name, scales= 'free', ncol = 1) +
       geom_gene_label(align = "left") +
-      scale_fill_gradient(low = "red", high = "blue")+
+      #scale_fill_gradient(low = "red", high = "blue")+
+      scale_fill_distiller(palette = 'RdBu')+
       coord_cartesian(xlim = c(lower, higher), expand = FALSE) +
       scale_x_continuous(expand = c(0,0))+
       theme_classic()+
