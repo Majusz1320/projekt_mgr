@@ -37,6 +37,9 @@ ui <- fluidPage(
                                                            choices = gene_list_database),
                                                selectInput('rna_select_1', label = h3('Choose data for RNA-seqplot'), selected = "no data selected",
                                                            choices = data_loaded_rna, selectize = TRUE),
+                                               conditionalPanel(condition = 'input.rna_select_1 != "no data selected"',
+                                                                uiOutput('contrast_1')
+                                               ),
                                                selectInput('rna_select_2', label = ' ',  selected = "no data selected",
                                                            choices = data_loaded_rna, selectize = TRUE),
                                                selectInput('rna_select_3', label = ' ',  selected = "no data selected",

@@ -135,7 +135,7 @@ server <- function(input, output, session) {
     data_rna <- dataselection_rnaseq_before_LHfilter()
     lower <- changes_applied_lower()
     higher <- changes_applied_higher()
-    data_rna <- data_rna %>% filter(start >= lower, end <= higher)
+    data_rna <- data_rna %>% filter(start >= lower, end <= higher, add_variable %in% input$contrast_1)
     return(data_rna)
     })
   
@@ -156,6 +156,22 @@ server <- function(input, output, session) {
         session = session, inputId = "contrast_choice", choices = data_list
       )
     }
+  })
+  
+  # AS tworzy selectInput do wyboru kontrastów na podstawie danych wybranych w rna_select_1
+  output$contrast_1 <- renderUI({
+    if (input$rna_select_1 == 'no data selected'){
+      return(NULL)
+    }
+    
+    data_rna <- dataselection_rnaseq_before_LHfilter()
+    
+    # AS wszystkie unikalne kontrasty w danych 
+    grupy <- data_rna %>% filter(data_name == input$rna_select_1) %>% pull(add_variable) %>% unique()
+    
+    selectInput("contrast_1", "Choose contrasts for analysis",
+                choices = grupy, selected = grupy[1], multiple = TRUE)
+    
   })
   
 
@@ -205,6 +221,7 @@ server <- function(input, output, session) {
       scale_fill_brewer(palette = "Set3") +
       coord_cartesian(xlim = c(lower, higher), expand = FALSE) +  # Prevents ggplot from adding padding
       scale_x_continuous(expand = c(0, 0)) +  # Removes extra space on x-axis
+      scale_y_discrete(expand = c(0, 0)) +  # Removes extra space on x-axis
       theme_classic() +
       theme(
         plot.margin = margin(5, 5, 5, 5),       # Adjust margins (top, right, bottom, left)
@@ -231,7 +248,7 @@ server <- function(input, output, session) {
       facet_wrap(~data_name, scales= 'free', ncol = 1) +
       geom_gene_label(align = "left") +
       #scale_fill_gradient(low = "red", high = "blue")+
-      scale_fill_distiller(palette = 'RdBu')+
+      scale_fill_distiller(palette = 'RdBu', direction = 1, limits = c(-2, 2), oob = scales::squish)+
       coord_cartesian(xlim = c(lower, higher), expand = FALSE) +
       scale_x_continuous(expand = c(0,0))+
       theme_classic()+
@@ -495,7 +512,7 @@ server <- function(input, output, session) {
                       `logFCplot` = p_rpkmplot,
                       `pvalueVulcano` = p_vulcano_pvalue)
     
-    heights <- c(10, 5, 10, 10)
+    heights <- c(1, 5, 10, 10)
     
     p_all <- patchwork::wrap_plots(plot_list[selected_number], ncol = 1, heights = heights[selected_number])
     
