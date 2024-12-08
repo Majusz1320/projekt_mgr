@@ -25,3 +25,105 @@ uq_data_list <- unique(data_list)
 
 ```
 
+
+
+```{r}
+ 
+M145vsMGM10 <- read.csv("raw_data/RNAseq_Martyna/M145vsMGM10.csv", sep = ";")
+M145vsMGM11 <- read.csv("raw_data/RNAseq_Martyna/M145vsMGM11.csv", sep = ";")
+M145vsMGM12 <- read.csv("raw_data/RNAseq_Martyna/M145vsMGM12.csv", sep = ";")
+M145vsMGM14 <- read.csv("raw_data/RNAseq_Martyna/M145vsMGM14.csv", sep = "\t")
+PS04vsMGHM5 <- read.csv("raw_data/RNAseq_Martyna/PS04vsMGHM5.csv", sep = ";")
+PS04vsMGP10 <- read.csv("raw_data/RNAseq_Martyna/PS04vsMGP10.csv", sep = ";")
+PS04vsMGP11 <- read.csv("raw_data/RNAseq_Martyna/PS04vsMGP11.csv", sep = ";")
+PS04vsMGP12 <- read.csv("raw_data/RNAseq_Martyna/PS04vsMGP12.csv", sep = ";")
+PS04vsMGP14 <- read.csv("raw_data/RNAseq_Martyna/PS04vsMGP14.csv", sep = ";")
+
+ 
+M145vsMGM10$add_variable <- "M145vsMGM10"
+M145vsMGM11$add_variable <- "M145vsMGM11"
+M145vsMGM12$add_variable <- "M145vsMGM12"
+M145vsMGM14$add_variable <- "M145vsMGM14"
+PS04vsMGHM5$add_variable <- "PS04vsMGHM5"
+PS04vsMGP10$add_variable <- "PS04vsMGP10"
+PS04vsMGP11$add_variable <- "PS04vsMGP11"
+PS04vsMGP12$add_variable <- "PS04vsMGP12"
+PS04vsMGP14$add_variable <- "PS04vsMGP14"
+
+PS04vsMGP14 <- PS04vsMGP14[, -c(9, 10)]
+
+
+###M145vsMGM10, M145vsMGM11, M145vsMGM12, M145vsMGM14, PS04vsMGHM5, PS04vsMGP10, PS04vsMGP11, PS04vsMGP12, PS04vsMGP14
+
+
+
+
+RNAseq_Martyna <- rbind(M145vsMGM10, M145vsMGM11, M145vsMGM12, M145vsMGM14, PS04vsMGHM5, PS04vsMGP10, PS04vsMGP11, PS04vsMGP12, PS04vsMGP14)
+
+
+```
+
+```{r}
+names(M145vsMGM10)
+names(M145vsMGM11)
+names(M145vsMGM12)
+names(M145vsMGM14)
+names(PS04vsMGHM5)
+names(PS04vsMGP10)
+names(PS04vsMGP11)
+names(PS04vsMGP12)
+names(PS04vsMGP14)
+
+colnames(M145vsMGM14)[11] <- "log2.fold."
+
+```
+
+
+```{r}
+RNAseq_Martyna_merged <- RNAseq_Martyna %>%
+  mutate(
+    start = coalesce(Transcription.Start, Translation.Start),  # Take start1 if available, otherwise take start2
+    end = coalesce(Translation.Stop, Transcription.Stop)         # Take end1 if available, otherwise take end2
+  ) %>%
+  select(-Transcription.Start, -Translation.Start, -Translation.Stop, -Transcription.Stop)
+
+jajko <- list("gene", "logFC", "FDR", "add_variable", 'start', 'end', 'width', 'strand', 'data_name' )
+
+##RNAseq_Martyna_merged_właściwe <- data.frame(jajko)
+##colnames(RNAseq_Martyna_merged_właściwe) <- jajko
+
+char_vector <- RNAseq_Martyna_merged$log2.fold.
+RNAseq_Martyna_merged$log2.fold. <- gsub(",", ".", RNAseq_Martyna_merged$log2.fold.)
+RNAseq_Martyna_merged$qValue <- gsub(",", ".", RNAseq_Martyna_merged$qValue)
+
+RNAseq_Martyna_merged$gene <- RNAseq_Martyna_merged$Synonym
+RNAseq_Martyna_merged$logFC <- as.numeric(RNAseq_Martyna_merged$log2.fold.)
+RNAseq_Martyna_merged$wchich_numeric <- non_numeric
+RNAseq_Martyna_merged$FDR <- as.numeric(RNAseq_Martyna_merged$qValue)
+RNAseq_Martyna_merged$add_variable <- RNAseq_Martyna_merged$add_variable
+RNAseq_Martyna_merged$start <- RNAseq_Martyna_merged$start
+RNAseq_Martyna_merged$end <- RNAseq_Martyna_merged$end
+RNAseq_Martyna_merged$strand <- RNAseq_Martyna_merged$Strand
+RNAseq_Martyna_merged$width <- RNAseq_Martyna_merged$fold
+RNAseq_Martyna_merged$data_name <- "RNAseq_Martyna"
+RNAseq_Martyna_merged_właściwe1 <- RNAseq_Martyna_merged %>% select("gene", "logFC", "FDR", "add_variable", 'start', 'end', 'width', 'strand', 'data_name' )
+
+RNAseq_Martyna <- read.csv("final_data/RNAseq_Martyna.csv", sep = ";")
+RNAseq_Martyna$logFC <- as.numeric(RNAseq_Martyna$logFC)
+
+typeof(RNAseq_Martyna_merged$log2.fold.)
+RNAseq_Martyna_merged_właściwe1$strand <- gsub("+", "1", RNAseq_Martyna_merged_właściwe1$strand)
+RNAseq_Martyna_merged_właściwe1$strand <- gsub("-", "0", RNAseq_Martyna_merged_właściwe1$strand)
+
+
+write.csv(RNAseq_Martyna_merged_właściwe1, "final_data/RNAseq_Martyna.csv", row.names = FALSE)
+
+
+
+RNAseq_Martyna_merged_właściwe1 <- RNAseq_Martyna_merged_właściwe1 %>% mutate(strand_plot = ifelse(strand == '-', 0, 1))
+
+RNAseq_Martyna_merged_właściwe1 <- RNAseq_Martyna_merged_właściwe1[, -c(10)]
+
+```
+
+

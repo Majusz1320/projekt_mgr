@@ -15,8 +15,9 @@ source("loading_data.R")
 
 
 
-data_loaded_rna <- c("no data selected", "abrB1.2_table4", "abrB1.2_table5", "data_hupAS_RNAseq", "user_uploaded_file")
+data_loaded_rna <- c("no data selected", "abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "user_uploaded_file")
 options_app <- c("genome", "RNAplot", "CHIPplot", "logFCplot", "pvalueVulcano")
+chip_choice <- c('data_hupA_chipseq_edgeR', 'data_hupA_chipseq_macs')
 genelist <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
 gene_list_database <- c("all", genelist$gene)
 
@@ -42,13 +43,17 @@ ui <- fluidPage(
                                                ),
                                                selectInput('rna_select_2', label = ' ',  selected = "no data selected",
                                                            choices = data_loaded_rna, selectize = TRUE),
+                                               conditionalPanel(condition = 'input.rna_select_2 != "no data selected"',
+                                                                uiOutput('contrast_2')
+                                               ),
                                                selectInput('rna_select_3', label = ' ',  selected = "no data selected",
                                                            choices = data_loaded_rna, selectize = TRUE),
+                                               conditionalPanel(condition = 'input.rna_select_3 != "no data selected"',
+                                                                uiOutput('contrast_3')
+                                               ),
                                                selectInput('wybor', label = 'Choose data for ChIP-seqplot', 
-                                                           choices = c('edgeR', 'macs'), selected = c('edgeR'),
+                                                           choices = chip_choice,
                                                            multiple = TRUE, selectize = TRUE),
-                                               checkboxGroupInput("contrast_choice", label = h3("Contrast"), 
-                                                                  choices = list("no choices avalible")),
                                                numericInput("lower_value", label = h3("Minimal value of plot"), value = 4000000, step = 10000),
                                                numericInput("higher_value", label = h3("Maximum value of plot"), value = 4200000, step = 10000),
                                                actionButton("apply_changes", "Apply Changes"),

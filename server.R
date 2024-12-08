@@ -63,23 +63,23 @@ server <- function(input, output, session) {
       
       merged_data <- user_data %>%
         left_join(data_genome, by = "gene")
-      
+      print(merged_data)
       return(merged_data)
     }
   })
   
-  data_loaded_rna <- c("abrB1.2_table4", "abrB1.2_table5", "data_hupAS_RNAseq", "user_uploaded_file")
+  data_loaded_rna <- c("abrB1.2_table", "data_hupAS_RNAseq","RNAseq_Martyna", "user_uploaded_file")
   
   dataselection_rnaseq_before_LHfilter <- reactive({
     
     req(changes_applied())
     
     ###tutaj dopisujesz następne jak będą
+    RNAseq_Martyna <- RNAseq_Martyna_load()
     user_uploaded_file <- merged_user()
-    abrB1.2_table4 <- abrB1.2_table4_load()
-    abrB1.2_table5 <- abrB1.2_table5_load()
+    abrB1.2_table <- abrB1.2_table_load()
     data_hupAS_RNAseq <- data_hupAS_RNAseq_load()
-    data_list <- list(abrB1.2_table4, abrB1.2_table5, data_hupAS_RNAseq, user_uploaded_file)
+    data_list <- list(abrB1.2_table, data_hupAS_RNAseq, RNAseq_Martyna, user_uploaded_file)
     choosen_data <- which(data_loaded_rna %in% c(input$rna_select_1, input$rna_select_2, input$rna_select_3))
     choosen_data_list <- data_list[choosen_data]
     data_rna_final <- do.call(rbind, choosen_data_list)
@@ -135,28 +135,16 @@ server <- function(input, output, session) {
     data_rna <- dataselection_rnaseq_before_LHfilter()
     lower <- changes_applied_lower()
     higher <- changes_applied_higher()
-    data_rna <- data_rna %>% filter(start >= lower, end <= higher, add_variable %in% input$contrast_1)
+    
+    data_rna <- data_rna %>% filter(start >= lower, end <= higher, add_variable %in% c(input$contrast_1, input$contrast_2, input$contrast_3))
     return(data_rna)
     })
   
   
   
-  #checkbox
+
+  ####CONDITIONAL FOR CONTRASTS
   
-  checkbox_list <- reactive({
-    data_rna <- dataselection_rnaseq()
-    data_list <- unique(c(data_rna$add_variable))
-    return(data_list)
-  })
-  
-  observeEvent(input$rna_select_1,{
-    if(input$rna_select_1 != "no data selected"){
-      data_list <- checkbox_list()
-      updateCheckboxGroupInput(
-        session = session, inputId = "contrast_choice", choices = data_list
-      )
-    }
-  })
   
   # AS tworzy selectInput do wyboru kontrastów na podstawie danych wybranych w rna_select_1
   output$contrast_1 <- renderUI({
@@ -174,7 +162,39 @@ server <- function(input, output, session) {
     
   })
   
-
+  # AS tworzy selectInput do wyboru kontrastów na podstawie danych wybranych w rna_select_1
+  output$contrast_2 <- renderUI({
+    if (input$rna_select_2 == 'no data selected'){
+      return(NULL)
+    }
+    
+    data_rna <- dataselection_rnaseq_before_LHfilter()
+    
+    # AS wszystkie unikalne kontrasty w danych 
+    grupy <- data_rna %>% filter(data_name == input$rna_select_2) %>% pull(add_variable) %>% unique()
+    
+    selectInput("contrast_2", "Choose contrasts for analysis",
+                choices = grupy, selected = grupy[1], multiple = TRUE)
+    
+  })
+  
+  
+  # AS tworzy selectInput do wyboru kontrastów na podstawie danych wybranych w rna_select_1
+  output$contrast_3 <- renderUI({
+    if (input$rna_select_3 == 'no data selected'){
+      return(NULL)
+    }
+    
+    data_rna <- dataselection_rnaseq_before_LHfilter()
+    
+    # AS wszystkie unikalne kontrasty w danych 
+    grupy <- data_rna %>% filter(data_name == input$rna_select_3) %>% pull(add_variable) %>% unique()
+    
+    selectInput("contrast_3", "Choose contrasts for analysis",
+                choices = grupy, selected = grupy[1], multiple = TRUE)
+    
+  })
+  
   
   lower_logFC <- reactive({ input$lower_logFC })
   higher_logFC <- reactive({ input$higher_logFC })
@@ -224,12 +244,24 @@ server <- function(input, output, session) {
       scale_y_discrete(expand = c(0, 0)) +  # Removes extra space on x-axis
       theme_classic() +
       theme(
-        plot.margin = margin(5, 5, 5, 5),       # Adjust margins (top, right, bottom, left)
-        axis.title.x = element_blank(),         # Optionally remove axis labels if not necessary
-        axis.text.x = element_text(size = 10),
-        legend.position = "bottom",             # Adjust legend position to save space
-        legend.margin = margin(0, 0, 0, 0)
+        axis.title.y = element_blank(),       
+        axis.text.y = element_blank(),        
+        axis.ticks.y = element_blank(),       
+        axis.line.y = element_blank(),
+        axis.line.x = element_blank(),
+        axis.title = element_text(size = 16),        # Axis titles
+        axis.text = element_text(size = 14),
+        legend.position = "none",    # Legend title
+        plot.title = element_text(size = 18, face = "bold"),  # Plot title
+        strip.text = element_text(size = 14)
       )
+     # theme(
+      #  plot.margin = margin(5, 5, 5, 5),       # Adjust margins (top, right, bottom, left)
+       # axis.title.x = element_blank(),         # Optionally remove axis labels if not necessary
+        #axis.text.x = element_text(size = 10),
+        #legend.position = "bottom",             # Adjust legend position to save space
+        #legend.margin = margin(0, 0, 0, 0)
+      #)
     return(genome_plot)
   })
   
@@ -240,24 +272,29 @@ server <- function(input, output, session) {
     lower <- changes_applied_lower()
     higher <- changes_applied_higher()
     plot_data_rna <- dataselection_rnaseq()
-    plot_data_rna <- plot_data_rna %>% mutate(strand_plot = ifelse(strand == '+', 1, 0))
+    plot_data_rna <- plot_data_rna %>% mutate(strand_plot = ifelse(strand == '-', 0, 1))
+    print(tail(plot_data_rna))
     
     
-    rna_plot <- plot_data_rna %>% ggplot(aes(xmin = start, xmax = end, y = add_variable, label = gene, fill = logFC, forward = strand_plot)) +
+    rna_plot <- plot_data_rna %>% ggplot(aes(xmin = start, xmax = end, y = data_name, label = gene, fill = logFC, forward = strand_plot)) +
       geom_gene_arrow(arrowhead_height = grid::unit(10, "mm"), arrow_body_height = grid::unit(8, "mm")) +
-      facet_wrap(~data_name, scales= 'free', ncol = 1) +
+      facet_wrap(~add_variable, scales= 'free', ncol = 1, strip.position = "left") +
       geom_gene_label(align = "left") +
       #scale_fill_gradient(low = "red", high = "blue")+
       scale_fill_distiller(palette = 'RdBu', direction = 1, limits = c(-2, 2), oob = scales::squish)+
       coord_cartesian(xlim = c(lower, higher), expand = FALSE) +
       scale_x_continuous(expand = c(0,0))+
-      theme_classic()+
-       theme(
-        plot.margin = margin(5, 5, 5, 5),       # Adjust margins (top, right, bottom, left)
-        axis.title.x = element_blank(),         # Optionally remove axis labels if not necessary
-        axis.text.x = element_text(size = 10),
-        legend.position = "bottom",             # Adjust legend position to save space
-        legend.margin = margin(0, 0, 0, 0)
+      theme_classic() +
+      theme(
+        axis.title.y = element_blank(),      
+        axis.text.y = element_blank(),       
+        axis.ticks.y = element_blank(),       
+        axis.line.y = element_blank(),
+        axis.line.x = element_blank(),
+        axis.title = element_text(size = 16),        # Axis titles
+        axis.text = element_text(size = 14),         # Axis text labels
+        plot.title = element_text(size = 18, face = "bold"),  # Plot title
+        strip.text = element_text(size = 14)
       )
     return(rna_plot)
   })
@@ -311,15 +348,15 @@ server <- function(input, output, session) {
   })
   
   
-  options_chip <- c('edgeR', 'macs')
+  options_chip <- c('data_hupA_chipseq_macs', 'data_hupA_chipseq_edgeR')
   
   dataselectionchipseq <- reactive({
     
     req(changes_applied())
     
-    macs_data <- chipmacsselect()
-    edger_data <- chipedgerselect()
-    data_list <- list(macs_data, edger_data)
+    data_hupA_chipseq_macs <- chipmacsselect()
+    data_hupA_chipseq_edgeR <- chipedgerselect()
+    data_list <- list(data_hupA_chipseq_macs, data_hupA_chipseq_edgeR)
     choosen_data <- which(options_chip %in% input$wybor)
     choosen_data_list <- data_list[choosen_data]
     data_chip_final <- do.call(rbind, choosen_data_list)
@@ -342,6 +379,17 @@ server <- function(input, output, session) {
       theme_classic() +
       scale_color_viridis_c(guide = 'none') +
       theme_classic()+
+      theme(
+        axis.title.y = element_blank(),       
+        axis.text.y = element_blank(),        
+        axis.ticks.y = element_blank(),       
+        axis.line.y = element_blank(),
+        axis.line.x = element_blank(),
+        axis.title = element_text(size = 16),        # Axis titles
+        axis.text = element_text(size = 14),             # Legend title
+        plot.title = element_text(size = 18, face = "bold"),  # Plot title
+        strip.text = element_text(size = 14)
+      )+
       coord_cartesian(xlim = c(lower, higher)) -> chip_seq_final_plot
     return(chip_seq_final_plot)
     
@@ -512,7 +560,7 @@ server <- function(input, output, session) {
                       `logFCplot` = p_rpkmplot,
                       `pvalueVulcano` = p_vulcano_pvalue)
     
-    heights <- c(1, 5, 10, 10)
+    heights <- c(1, 8, 2, 5)
     
     p_all <- patchwork::wrap_plots(plot_list[selected_number], ncol = 1, heights = heights[selected_number])
     
