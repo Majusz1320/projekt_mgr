@@ -71,7 +71,7 @@ server <- function(input, output, session) {
     }
   })
   
-  data_loaded_rna <- c("abrB1.2_table", "data_hupAS_RNAseq","RNAseq_Martyna", "user_uploaded_file")
+  data_loaded_rna <- c("abrB1.2_table", "data_hupAS_RNAseq","RNAseq_Martyna","szafran2019", "user_uploaded_file")
   
   dataselection_rnaseq_before_LHfilter <- reactive({
     
@@ -80,10 +80,10 @@ server <- function(input, output, session) {
     ###tutaj dopisujesz następne jak będą
     RNAseq_Martyna <- RNAseq_Martyna_load()
     user_uploaded_file <- merged_user()
-    
+    szafran2019 <- data_szafran2019_load()
     abrB1.2_table <- abrB1.2_table_load()
     data_hupAS_RNAseq <- data_hupAS_RNAseq_load()
-    data_list <- list(abrB1.2_table, data_hupAS_RNAseq, RNAseq_Martyna, user_uploaded_file)
+    data_list <- list(abrB1.2_table, data_hupAS_RNAseq, RNAseq_Martyna, szafran2019, user_uploaded_file)
     choosen_data <- which(data_loaded_rna %in% c(input$rna_select_1, input$rna_select_2, input$rna_select_3))
     choosen_data_list <- data_list[choosen_data]
     data_rna_final <- do.call(rbind, choosen_data_list)

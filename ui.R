@@ -15,7 +15,7 @@ source("loading_data.R")
 
 
 
-data_loaded_rna <- c("no data selected", "abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "user_uploaded_file")
+data_loaded_rna <- c("no data selected", "abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "user_uploaded_file")
 options_app <- c("genome", "RNAplot", "CHIPplot", "logFCplot", "pvalueVulcano")
 chip_choice <- c('data_hupA_chipseq_edgeR', 'data_hupA_chipseq_macs')
 genelist <- read.csv("datasets/genes_scoelicolor.txt", sep = '')

@@ -144,3 +144,147 @@ write.csv(dane_martyna, "final_data/RNAseq_Martyna.csv", row.names = FALSE)
 
 ```
 
+```{r}
+
+M145PS04 <- read.csv("raw_data/szafran2019/M145PS04.txt", sep = "\t")
+M145PS04novobiocyna <- read.csv("raw_data/szafran2019/M145PS04novobiocyna.txt", sep = "\t")
+M145PS04thio <- read.csv("raw_data/szafran2019/M145PS04thio.txt", sep = "\t")
+##processed_1M145_PS04Thio <- read.csv("raw_data/szafran2019/processed_1M145_PS04Thio.txt", sep = "\t")
+##processed_1M145_PS04 <- read.csv("raw_data/szafran2019/processed_1M145_PS04.txt", sep = "\t")
+##processed_1M145_M145Novob <- read.csv("raw_data/szafran2019/processed_1M145_M145Novob.txt", sep = "\t")
+
+processed_1M145_PS04 <- read.csv("raw_data/szafran2019/processed_1M145_PS04.txt", 
+                                sep = "\t",
+                                fileEncoding = "UTF-16",
+                                check.names = TRUE,
+                                stringsAsFactors = FALSE)
+processed_1M145_PS04Thio <- read.csv("raw_data/szafran2019/processed_1M145_PS04Thio.txt", 
+                                sep = "\t",
+                                fileEncoding = "UTF-16",
+                                check.names = TRUE,
+                                stringsAsFactors = FALSE)
+processed_1M145_M145Novob <- read.csv("raw_data/szafran2019/processed_1M145_M145Novob.txt", 
+                                sep = "\t",
+                                fileEncoding = "UTF-16",
+                                check.names = TRUE,
+                                stringsAsFactors = FALSE)
+```
+
+```{r}
+
+#mean_wildtype_M145PS04 <- rowMeans(cbind(M145PS04$Normalized.Counts.wildtype.Replicate.1, M145PS04$Normalized.Counts.wildtype.Replicate.2,
+                             #   M145PS04$Normalized.Counts.wildtype.Replicate.3, M145PS04$Normalized.Counts.wildtype.Replicate.4))
+
+#mean_novo10_M145PS04 <- rowMeans(cbind(M145PS04$Normalized.Counts.TopA_depletion.Replicate.1, M145PS04$Normalized.Counts.TopA_depletion.Replicate.2,
+                               # M145PS04$Normalized.Counts.TopA_depletion.Replicate.3, M145PS04$Normalized.Counts.TopA_depletion.Replicate.4))
+
+#mean_wildtype_M145PS04novobiocyna <- rowMeans(cbind(M145PS04novobiocyna$Normalized.Counts.wildtype.Replicate.1, M145PS04novobiocyna$Normalized.Counts.wildtype.Replicate.2,
+                               # M145PS04novobiocyna$Normalized.Counts.wildtype.Replicate.3, M145PS04novobiocyna$Normalized.Counts.wildtype.Replicate.4))
+
+#mean_novo10_M145PS04novobiocyna <- rowMeans(cbind(M145PS04novobiocyna$Normalized.Counts.novo10.Replicate.1, M145PS04novobiocyna$Normalized.Counts.novo10.Replicate.2))
+
+#mean_wildtype_M145PS04thio <- rowMeans(cbind(M145PS04thio$Normalized.Counts.wildtype.Replicate.1, M145PS04thio$Normalized.Counts.wildtype.Replicate.2,
+ #                               M145PS04thio$Normalized.Counts.wildtype.Replicate.3, M145PS04thio$Normalized.Counts.wildtype.Replicate.4))
+
+#mean_novo10_M145PS04thio <- rowMeans(cbind(M145PS04thio$Normalized.Counts.TopA_overexpression.Replicate.1, #M145PS04thio$Normalized.Counts.TopA_overexpression.Replicate.2,
+                              #  M145PS04thio$Normalized.Counts.TopA_overexpression.Replicate.3))
+
+##mean_wildtype_processed_1M145_PS04 <- rowMeans(cbind(processed_1M145_PS04$Normalized.Counts.wildtype.Replicate.1, processed_1M145_PS04$Normalized.Counts.wildtype.Replicate.2,
+                              #  processed_1M145_PS04$Normalized.Counts.wildtype.Replicate.3, processed_1M145_PS04$Normalized.Counts.wildtype.Replicate.4))
+
+##mean_novo10_processed_1M145_PS04 <- rowMeans(cbind(processed_1M145_PS04$Normalized.Counts.TopA_depletion.Replicate.1, processed_1M145_PS04$Normalized.Counts.TopA_depletion.Replicate.2,
+                               # processed_1M145_PS04$Normalized.Counts.TopA_depletion.Replicate.3, processed_1M145_PS04$Normalized.Counts.TopA_depletion.Replicate.4))
+
+#mean_wildtype_processed_1M145_M145Novob <- rowMeans(cbind(processed_1M145_M145Novob$Normalized.Counts.wildtype.Replicate.1, processed_1M145_M145Novob$Normalized.Counts.wildtype.Replicate.2,
+ #                               processed_1M145_M145Novob$Normalized.Counts.wildtype.Replicate.3, processed_1M145_M145Novob$Normalized.Counts.wildtype.Replicate.4))
+
+#mean_novo10_processed_1M145_M145Novob <- rowMeans(cbind(processed_1M145_M145Novob$Normalized.Counts.novo10.Replicate.1, processed_1M145_M145Novob$Normalized.Counts.novo10.Replicate.2))
+
+#mean_wildtype_processed_1M145_PS04Thio <- rowMeans(cbind(processed_1M145_PS04Thio$Normalized.Counts.wildtype.Replicate.1, processed_1M145_PS04Thio$Normalized.Counts.wildtype.Replicate.2,
+ #                               processed_1M145_PS04Thio$Normalized.Counts.wildtype.Replicate.3, processed_1M145_PS04Thio$Normalized.Counts.wildtype.Replicate.4))
+
+#mean_novo10_processed_1M145_PS04Thio <- rowMeans(cbind(processed_1M145_PS04Thio$Normalized.Counts.TopA_overexpression.Replicate.1, processed_1M145_PS04Thio$Normalized.Counts.TopA_overexpression.Replicate.2,
+ #                               processed_1M145_PS04Thio$Normalized.Counts.TopA_overexpression.Replicate.3, processed_1M145_PS04Thio$Normalized.Counts.TopA_overexpression.Replicate.4))
+
+```
+
+
+
+
+
+
+```{r}
+
+
+logFC_M145PS04 <- log2(mean_wildtype_M145PS04/mean_novo10_M145PS04)
+logFC_M145PS04novobiocyna <- log2(mean_wildtype_M145PS04novobiocyna/mean_novo10_M145PS04novobiocyna)
+logFC_M145PS04thio <- log2(mean_wildtype_M145PS04thio/mean_novo10_M145PS04thio)
+logFC_processed_1M145_PS04Thio <- log2(mean_wildtype_processed_1M145_PS04Thio/mean_novo10_processed_1M145_PS04Thio)
+logFC_processed_1M145_PS04 <- log2(mean_wildtype_processed_1M145_PS04/mean_novo10_processed_1M145_PS04)
+logFC_processed_1M145_M145Novob <- log2(mean_wildtype_processed_1M145_M145Novob/mean_novo10_processed_1M145_M145Novob)
+
+
+M145PS04$logFC <- logFC_M145PS04
+M145PS04novobiocyna$logFC <- logFC_M145PS04novobiocyna
+M145PS04thio$logFC <- logFC_M145PS04thio
+processed_1M145_PS04Thio$logFC <- logFC_processed_1M145_PS04Thio
+processed_1M145_PS04$logFC <- logFC_processed_1M145_PS04
+processed_1M145_M145Novob$logFC <- logFC_processed_1M145_M145Novob
+
+
+M145PS04 <- M145PS04 %>% select(Synonym, logFC, qValue.wildtype.vs.TopA_depletion)
+M145PS04novobiocyna <- M145PS04novobiocyna %>% select(Synonym, logFC, qValue.wildtype.vs.novo10)
+M145PS04thio <- M145PS04thio %>% select(Synonym, logFC, qValue.wildtype.vs.TopA_overexpression)
+processed_1M145_PS04Thio <- processed_1M145_PS04Thio %>% select(Synonym, logFC, qValue.wildtype.vs.TopA_overexpression)
+processed_1M145_M145Novob <- processed_1M145_M145Novob %>% select(Synonym, logFC, qValue.wildtype.vs.novo10)
+processed_1M145_PS04 <- processed_1M145_PS04 %>% select(Synonym, logFC, qValue.wildtype.vs.TopA_depletion)
+
+M145PS04
+M145PS04novobiocyna
+M145PS04thio
+processed_1M145_PS04Thio
+processed_1M145_M145Novob
+processed_1M145_PS04
+
+dane_martyna %>% select(gene, logFC, FDR, add_variable, data_name) %>%
+  left_join(data_genome) %>%
+  select(gene, logFC, FDR, add_variable, start, end, width, strand, data_name) -> dane_martyna
+
+M145PS04$add_variable <- "M145PS04" 
+M145PS04novobiocyna$add_variable <- "M145PS04novobiocyna" 
+M145PS04thio$add_variable <- "M145PS04thio" 
+processed_1M145_PS04Thio$add_variable <- "processed_1M145_PS04Thio" 
+processed_1M145_M145Novob$add_variable <- "processed_1M145_M145Novob" 
+processed_1M145_PS04$add_variable <- "processed_1M145_PS04" 
+
+M145PS04$data_name <- "szafran2019"
+M145PS04novobiocyna$data_name <- "szafran2019"
+M145PS04thio$data_name <- "szafran2019"
+processed_1M145_PS04Thio$data_name <- "szafran2019"
+processed_1M145_M145Novob$data_name <- "szafran2019"
+processed_1M145_PS04$data_name <- "szafran2019"
+
+colnames(M145PS04) <- c("gene", "logFC", "FDR", "add_variable", "data_name")
+colnames(M145PS04novobiocyna) <- c("gene", "logFC", "FDR", "add_variable", "data_name")
+colnames(M145PS04thio) <- c("gene", "logFC", "FDR", "add_variable", "data_name")
+colnames(processed_1M145_PS04Thio) <- c("gene", "logFC", "FDR", "add_variable", "data_name")
+colnames(processed_1M145_M145Novob) <- c("gene", "logFC", "FDR", "add_variable", "data_name")
+colnames(processed_1M145_PS04) <- c("gene", "logFC", "FDR", "add_variable", "data_name")
+
+
+data_szafran2019 <- rbind(M145PS04, M145PS04novobiocyna, M145PS04thio, processed_1M145_PS04Thio, processed_1M145_M145Novob, processed_1M145_PS04)
+
+data_szafran2019 %>% select(gene, logFC, FDR, add_variable, data_name) %>%
+  left_join(data_genome) %>%
+  select(gene, logFC, FDR, add_variable, start, end, width, strand, data_name) -> data_szafran2019
+
+data_szafran2019$FDR <- gsub(",", ".", data_szafran2019$FDR)
+data_szafran2019$FDR <- as.numeric(data_szafran2019$FDR)
+data_szafran2019 <- data_szafran2019 %>% mutate(strand_plot = ifelse(strand == '-', 0, 1))
+
+summary(data_szafran2019)
+
+write.csv(data_szafran2019, "final_data/data_szafran2019.csv", row.names = FALSE)
+
+```
+

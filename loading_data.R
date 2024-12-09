@@ -23,4 +23,7 @@ RNAseq_Martyna_load <- function(){
   return(RNAseq_Martyna)
 }
 
-
+data_szafran2019_load <- function(){
+  data_szafran2019 <- read.csv("datasets/final_data/data_szafran2019.csv")
+  return(data_szafran2019)
+}
