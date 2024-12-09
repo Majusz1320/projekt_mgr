@@ -237,7 +237,7 @@ server <- function(input, output, session) {
     )) +
       geom_gene_arrow(arrowhead_height = grid::unit(10, "mm"),
                       arrow_body_height = grid::unit(8, "mm")) +
-      geom_gene_label(align = "left") +
+      geom_gene_label(grow = TRUE, height = grid::unit(5, "mm")) +
       scale_fill_brewer(palette = "Set3") +
       coord_cartesian(xlim = c(lower, higher), expand = FALSE) +  # Prevents ggplot from adding padding
       scale_x_continuous(expand = c(0, 0)) +  # Removes extra space on x-axis
@@ -276,19 +276,20 @@ server <- function(input, output, session) {
     print(tail(plot_data_rna))
     
     
-    rna_plot <- plot_data_rna %>% ggplot(aes(xmin = start, xmax = end, y = data_name, label = gene, fill = logFC, forward = strand_plot)) +
+    rna_plot <- plot_data_rna %>% ggplot(aes(xmin = start, xmax = end, y = add_variable, label = gene, fill = logFC, forward = strand_plot)) +
       geom_gene_arrow(arrowhead_height = grid::unit(10, "mm"), arrow_body_height = grid::unit(8, "mm")) +
-      facet_wrap(~add_variable, scales= 'free', ncol = 1, strip.position = "left") +
-      geom_gene_label(align = "left") +
+       facet_wrap(~data_name, scales = 'free', ncol = 1, strip.position = "right") +
+       geom_gene_label(grow = TRUE, height = grid::unit(5, "mm")) +
       #scale_fill_gradient(low = "red", high = "blue")+
       scale_fill_distiller(palette = 'RdBu', direction = 1, limits = c(-2, 2), oob = scales::squish)+
-      coord_cartesian(xlim = c(lower, higher), expand = FALSE) +
+      coord_cartesian(xlim = c(lower, higher)) +
       scale_x_continuous(expand = c(0,0))+
+      #theme_genes()+
       theme_classic() +
       theme(
-        axis.title.y = element_blank(),      
-        axis.text.y = element_blank(),       
-        axis.ticks.y = element_blank(),       
+        axis.title.y = element_blank(),
+        #axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
         axis.line.y = element_blank(),
         axis.line.x = element_blank(),
         axis.title = element_text(size = 16),        # Axis titles

@@ -126,4 +126,21 @@ RNAseq_Martyna_merged_właściwe1 <- RNAseq_Martyna_merged_właściwe1[, -c(10)]
 
 ```
 
+AS Problemem jest to, że w RNAseq_Martyna_merged starty i końce genów nie zawsze zgadzają się z tymi, które są w genes_scoelicolor.txt.
+
+Ten RNA-seq był robiony już jakiś czas temu, możliwe, że na innej wersji chromosomu Streptomyces. Myślę, że trzeba by to wszystko ujednolicić i zamienić wartości kolumn start, end, width i strand na pochodzące z genes_scoelicolor.txt
+
+Twój kod powyżej nie do końca mi działa  -  nie powstaje RNAseq_Martyna, bo nie zgadzają się nazwy kolumn. Zamiast wszystko teraz zmieniać poprawię tylko plik wyjściowy, może to później ujednolicisz?
+
+```{r}
+library(dplyr)
+dane_martyna <- read.csv('final_data/RNAseq_Martyna.csv')
+
+dane_martyna %>% select(gene, logFC, FDR, add_variable, data_name) %>%
+  left_join(data_genome) %>%
+  select(gene, logFC, FDR, add_variable, start, end, width, strand, data_name) -> dane_martyna
+
+write.csv(dane_martyna, "final_data/RNAseq_Martyna.csv", row.names = FALSE)
+
+```
 
