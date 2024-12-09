@@ -42,8 +42,7 @@ server <- function(input, output, session) {
     else
     {
       user_file <- read.csv(user_file, sep = "\t")
-      user_file$add_variable <- "user_file"
-      user_file$data_name <- "user_file"
+      user_file$data_name <- "user_uploaded_file"
       return(user_file)
     }
   })
@@ -60,9 +59,13 @@ server <- function(input, output, session) {
     if (is.null(user_data)) {
       return(NULL)
     } else {
-      
+      user_data <- user_data_upload()
+      data_genome <- plotgenomeInput()
       merged_data <- user_data %>%
         left_join(data_genome, by = "gene")
+  
+      merged_data <- na.omit(merged_data)
+      
       print(merged_data)
       return(merged_data)
     }
@@ -77,6 +80,7 @@ server <- function(input, output, session) {
     ###tutaj dopisujesz następne jak będą
     RNAseq_Martyna <- RNAseq_Martyna_load()
     user_uploaded_file <- merged_user()
+    
     abrB1.2_table <- abrB1.2_table_load()
     data_hupAS_RNAseq <- data_hupAS_RNAseq_load()
     data_list <- list(abrB1.2_table, data_hupAS_RNAseq, RNAseq_Martyna, user_uploaded_file)
@@ -133,10 +137,12 @@ server <- function(input, output, session) {
     req(changes_applied())
     
     data_rna <- dataselection_rnaseq_before_LHfilter()
+    
     lower <- changes_applied_lower()
     higher <- changes_applied_higher()
     
     data_rna <- data_rna %>% filter(start >= lower, end <= higher, add_variable %in% c(input$contrast_1, input$contrast_2, input$contrast_3))
+    print(data_rna)
     return(data_rna)
     })
   
