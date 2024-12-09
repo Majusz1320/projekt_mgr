@@ -59,8 +59,10 @@ ui <- fluidPage(
                                                actionButton("apply_changes", "Apply Changes"),
                                       ),
                                       tabPanel("Plot settings",
-                                               numericInput("higher_logFC", label = h3("Maximum value of logFC shown"), value = 0),
-                                               numericInput("lower_logFC", label = h3("Minimal value of logFC shown"), value = 0),
+                                               numericInput("higher_logFC", label = h3("Filter logFC \n- higher value"), value = 0),
+                                               numericInput("lower_logFC", label = h3("-lower value"), value = 0),
+                                               input_switch("my_switch", "Filter out genes with FDR >= 0,05", value = FALSE),
+                                               textOutput("switch_status")
                                                
                                       ),
                                       tabPanel("Plot & Graph Download",

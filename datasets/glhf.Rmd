@@ -284,6 +284,8 @@ data_szafran2019 <- data_szafran2019 %>% mutate(strand_plot = ifelse(strand == '
 
 summary(data_szafran2019)
 
+data_szafran2019 <- data_szafran2019[, -c(10)]
+
 write.csv(data_szafran2019, "final_data/data_szafran2019.csv", row.names = FALSE)
 
 ```

@@ -18,6 +18,22 @@ server <- function(input, output, session) {
     input$higher_value
   }, ignoreNULL = FALSE)
   
+  
+  
+  switch_state <- reactive({
+    input$my_switch
+  })
+  
+  output$switch_status <- renderText({
+    if(switch_state()) {
+      "ON"
+    } else {
+      "OFF"
+    }
+  })
+  
+  
+  
   plotgenomeInput <- reactive({
     
     req(changes_applied())
@@ -128,7 +144,15 @@ server <- function(input, output, session) {
   })
   
   
-  
+  dataselection_rnaseq_FDR_filter <- reactive({
+    data_rna <- dataselection_rnaseq_before_LHfilter()
+    if(switch_state()) {
+      data_rna <- data_rna %>% filter(FDR >= 0.05)
+      return(data_rna)
+    } else {
+      return(data_rna)
+    }
+  })
   
   
   
@@ -136,7 +160,7 @@ server <- function(input, output, session) {
     
     req(changes_applied())
     
-    data_rna <- dataselection_rnaseq_before_LHfilter()
+    data_rna <- dataselection_rnaseq_FDR_filter()
     
     lower <- changes_applied_lower()
     higher <- changes_applied_higher()
@@ -274,11 +298,15 @@ server <- function(input, output, session) {
   RNAplot <- reactive({
     
     req(changes_applied())
-    
+    lowlogFC <- lower_logFC()
+    highlogFC <- higher_logFC()
     lower <- changes_applied_lower()
     higher <- changes_applied_higher()
     plot_data_rna <- dataselection_rnaseq()
-    plot_data_rna <- plot_data_rna %>% mutate(strand_plot = ifelse(strand == '-', 0, 1))
+    plot_data_rna_highlog <- plot_data_rna %>% filter(logFC >= highlogFC)
+    plot_data_rna_lowlog <- plot_data_rna %>% filter(logFC <= lowlogFC)
+    plot_data_rna_logFC_filtered <- rbind(plot_data_rna_lowlog, plot_data_rna_highlog)
+    plot_data_rna <- plot_data_rna_logFC_filtered %>% mutate(strand_plot = ifelse(strand == '-', 0, 1))
     print(tail(plot_data_rna))
     
     
