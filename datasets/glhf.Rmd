@@ -223,56 +223,64 @@ logFC_processed_1M145_PS04Thio <- log2(mean_wildtype_processed_1M145_PS04Thio/me
 logFC_processed_1M145_PS04 <- log2(mean_wildtype_processed_1M145_PS04/mean_novo10_processed_1M145_PS04)
 logFC_processed_1M145_M145Novob <- log2(mean_wildtype_processed_1M145_M145Novob/mean_novo10_processed_1M145_M145Novob)
 
+# AS zmieniłam żeby wartości zgadzały się z tymi opublikowanymi w Szafran 2019 et al
+
+logFC_M145PS04 <- log2(M145PS04$Expression.TopA_depletion/M145PS04$Expression.wildtype)
+logFC_M145PS04novobiocyna <- log2(M145PS04novobiocyna$Expression.novo10/M145PS04novobiocyna$Expression.wildtype)
+logFC_M145PS04thio <- log2(M145PS04thio$Expression.TopA_overexpression/M145PS04thio$Expression.wildtype)
+
 
 M145PS04$logFC <- logFC_M145PS04
 M145PS04novobiocyna$logFC <- logFC_M145PS04novobiocyna
 M145PS04thio$logFC <- logFC_M145PS04thio
-processed_1M145_PS04Thio$logFC <- logFC_processed_1M145_PS04Thio
-processed_1M145_PS04$logFC <- logFC_processed_1M145_PS04
-processed_1M145_M145Novob$logFC <- logFC_processed_1M145_M145Novob
+# processed_1M145_PS04Thio$logFC <- logFC_processed_1M145_PS04Thio
+# processed_1M145_PS04$logFC <- logFC_processed_1M145_PS04
+# processed_1M145_M145Novob$logFC <- logFC_processed_1M145_M145Novob
 
 
 M145PS04 <- M145PS04 %>% select(Synonym, logFC, qValue.wildtype.vs.TopA_depletion)
 M145PS04novobiocyna <- M145PS04novobiocyna %>% select(Synonym, logFC, qValue.wildtype.vs.novo10)
 M145PS04thio <- M145PS04thio %>% select(Synonym, logFC, qValue.wildtype.vs.TopA_overexpression)
-processed_1M145_PS04Thio <- processed_1M145_PS04Thio %>% select(Synonym, logFC, qValue.wildtype.vs.TopA_overexpression)
-processed_1M145_M145Novob <- processed_1M145_M145Novob %>% select(Synonym, logFC, qValue.wildtype.vs.novo10)
-processed_1M145_PS04 <- processed_1M145_PS04 %>% select(Synonym, logFC, qValue.wildtype.vs.TopA_depletion)
+# processed_1M145_PS04Thio <- processed_1M145_PS04Thio %>% select(Synonym, logFC, qValue.wildtype.vs.TopA_overexpression)
+# processed_1M145_M145Novob <- processed_1M145_M145Novob %>% select(Synonym, logFC, qValue.wildtype.vs.novo10)
+# processed_1M145_PS04 <- processed_1M145_PS04 %>% select(Synonym, logFC, qValue.wildtype.vs.TopA_depletion)
 
 M145PS04
 M145PS04novobiocyna
 M145PS04thio
-processed_1M145_PS04Thio
-processed_1M145_M145Novob
-processed_1M145_PS04
+# processed_1M145_PS04Thio
+# processed_1M145_M145Novob
+# processed_1M145_PS04
 
-dane_martyna %>% select(gene, logFC, FDR, add_variable, data_name) %>%
-  left_join(data_genome) %>%
-  select(gene, logFC, FDR, add_variable, start, end, width, strand, data_name) -> dane_martyna
+# dane_martyna %>% select(gene, logFC, FDR, add_variable, data_name) %>%
+#   left_join(data_genome) %>%
+#   select(gene, logFC, FDR, add_variable, start, end, width, strand, data_name) -> dane_martyna
 
 M145PS04$add_variable <- "M145PS04" 
 M145PS04novobiocyna$add_variable <- "M145PS04novobiocyna" 
 M145PS04thio$add_variable <- "M145PS04thio" 
-processed_1M145_PS04Thio$add_variable <- "processed_1M145_PS04Thio" 
-processed_1M145_M145Novob$add_variable <- "processed_1M145_M145Novob" 
-processed_1M145_PS04$add_variable <- "processed_1M145_PS04" 
+# processed_1M145_PS04Thio$add_variable <- "processed_1M145_PS04Thio" 
+# processed_1M145_M145Novob$add_variable <- "processed_1M145_M145Novob" 
+# processed_1M145_PS04$add_variable <- "processed_1M145_PS04" 
 
 M145PS04$data_name <- "szafran2019"
 M145PS04novobiocyna$data_name <- "szafran2019"
 M145PS04thio$data_name <- "szafran2019"
-processed_1M145_PS04Thio$data_name <- "szafran2019"
-processed_1M145_M145Novob$data_name <- "szafran2019"
-processed_1M145_PS04$data_name <- "szafran2019"
+# processed_1M145_PS04Thio$data_name <- "szafran2019"
+# processed_1M145_M145Novob$data_name <- "szafran2019"
+# processed_1M145_PS04$data_name <- "szafran2019"
 
 colnames(M145PS04) <- c("gene", "logFC", "FDR", "add_variable", "data_name")
 colnames(M145PS04novobiocyna) <- c("gene", "logFC", "FDR", "add_variable", "data_name")
 colnames(M145PS04thio) <- c("gene", "logFC", "FDR", "add_variable", "data_name")
-colnames(processed_1M145_PS04Thio) <- c("gene", "logFC", "FDR", "add_variable", "data_name")
-colnames(processed_1M145_M145Novob) <- c("gene", "logFC", "FDR", "add_variable", "data_name")
-colnames(processed_1M145_PS04) <- c("gene", "logFC", "FDR", "add_variable", "data_name")
+# colnames(processed_1M145_PS04Thio) <- c("gene", "logFC", "FDR", "add_variable", "data_name")
+# colnames(processed_1M145_M145Novob) <- c("gene", "logFC", "FDR", "add_variable", "data_name")
+# colnames(processed_1M145_PS04) <- c("gene", "logFC", "FDR", "add_variable", "data_name")
 
 
-data_szafran2019 <- rbind(M145PS04, M145PS04novobiocyna, M145PS04thio, processed_1M145_PS04Thio, processed_1M145_M145Novob, processed_1M145_PS04)
+# data_szafran2019 <- rbind(M145PS04, M145PS04novobiocyna, M145PS04thio, processed_1M145_PS04Thio, processed_1M145_M145Novob, processed_1M145_PS04)
+data_szafran2019 <- rbind(M145PS04, M145PS04novobiocyna, M145PS04thio)
+
 
 data_szafran2019 %>% select(gene, logFC, FDR, add_variable, data_name) %>%
   left_join(data_genome) %>%

@@ -1,5 +1,6 @@
 #### SERVER #####
-
+# AS added to allow shiny to load files bigger than default 5 Mb
+options(shiny.maxRequestSize=30*1024^2) 
 server <- function(input, output, session) {
   
   # Create a reactive value to store the trigger state
@@ -76,13 +77,13 @@ server <- function(input, output, session) {
       return(NULL)
     } else {
       user_data <- user_data_upload()
-      data_genome <- plotgenomeInput()
+      data_genome <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
       merged_data <- user_data %>%
         left_join(data_genome, by = "gene")
   
       merged_data <- na.omit(merged_data)
       
-      print(merged_data)
+      #print(merged_data)
       return(merged_data)
     }
   })
@@ -147,7 +148,7 @@ server <- function(input, output, session) {
   dataselection_rnaseq_FDR_filter <- reactive({
     data_rna <- dataselection_rnaseq_before_LHfilter()
     if(switch_state()) {
-      data_rna <- data_rna %>% filter(FDR >= 0.05)
+      data_rna <- data_rna %>% filter(FDR <= 0.05)
       return(data_rna)
     } else {
       return(data_rna)
@@ -166,7 +167,7 @@ server <- function(input, output, session) {
     higher <- changes_applied_higher()
     
     data_rna <- data_rna %>% filter(start >= lower, end <= higher, add_variable %in% c(input$contrast_1, input$contrast_2, input$contrast_3))
-    print(data_rna)
+    #print(data_rna)
     return(data_rna)
     })
   
@@ -307,7 +308,7 @@ server <- function(input, output, session) {
     plot_data_rna_lowlog <- plot_data_rna %>% filter(logFC <= lowlogFC)
     plot_data_rna_logFC_filtered <- rbind(plot_data_rna_lowlog, plot_data_rna_highlog)
     plot_data_rna <- plot_data_rna_logFC_filtered %>% mutate(strand_plot = ifelse(strand == '-', 0, 1))
-    print(tail(plot_data_rna))
+    #print(tail(plot_data_rna))
     
     
     rna_plot <- plot_data_rna %>% ggplot(aes(xmin = start, xmax = end, y = add_variable, label = gene, fill = logFC, forward = strand_plot)) +
