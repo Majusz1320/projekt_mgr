@@ -1,7 +1,26 @@
 #### SERVER #####
+
+
+
+
 # AS added to allow shiny to load files bigger than default 5 Mb
 options(shiny.maxRequestSize=30*1024^2) 
 server <- function(input, output, session) {
+  
+  #### server-side select choice of genes ####
+  # In the server function, add this at the beginning:
+  observeEvent(session$clientData$url_protocol, {  # This ensures it runs when the app starts
+    # Load the gene list
+    genelist <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
+    gene_list_database <- c("all", genelist$gene)
+    # Update the selectize input with all choices
+    updateSelectizeInput(session, 
+                         inputId = "select_gene", 
+                         choices = gene_list_database,
+                         selected = "all",
+                         server = TRUE)
+  }, once = TRUE)  # once=TRUE means it only runs once when the app starts
+  
   
   # Create a reactive value to store the trigger state
   changes_applied <- reactiveVal(FALSE)  # This will store whether the button has been pressed
@@ -10,14 +29,78 @@ server <- function(input, output, session) {
   observeEvent(input$apply_changes, {
     changes_applied(TRUE)  # Set the value to TRUE when the button is pressed
   })
+  
+  
+  #### APPLY CHANGES BUTTON ####
 
-  changes_applied_lower <- eventReactive(input$apply_changes, {
+  changes_applied_lower <- eventReactive(c(input$apply_changes, input$btn_left, input$btn_right, input$btn_in, input$btn_out), {
     input$lower_value
   }, ignoreNULL = FALSE)
   
-  changes_applied_higher <- eventReactive(input$apply_changes, {
+  changes_applied_higher <- eventReactive(c(input$apply_changes, input$btn_left, input$btn_right, input$btn_in, input$btn_out), {
     input$higher_value
   }, ignoreNULL = FALSE)
+  
+  
+  #### ZOOM BUTTONS ####
+  button_states <- reactiveValues(
+    b1 = FALSE,
+    b2 = FALSE,
+    b3 = FALSE,
+    b4 = FALSE
+  )
+  
+  ### button left
+  
+  observeEvent(input$btn_left, {
+    button_states$b1 <- TRUE
+    new_value_low <- input$lower_value - 10000
+    new_value_high <- input$higher_value - 10000
+    updateNumericInput(
+      session = session, inputId = "lower_value", value = new_value_low)
+    updateNumericInput(
+      session = session, inputId = "higher_value", value = new_value_high)
+    button_states$b1 <- FALSE
+  })
+  
+  ### button right
+  
+  observeEvent(input$btn_right, {
+    button_states$b2 <- TRUE
+    new_value_low <- input$lower_value + 10000
+    new_value_high <- input$higher_value + 10000
+    updateNumericInput(
+      session = session, inputId = "lower_value", value = new_value_low)
+    updateNumericInput(
+      session = session, inputId = "higher_value", value = new_value_high)
+    button_states$b2 <- FALSE
+  })
+  
+  ### button in
+  
+  observeEvent(input$btn_in, {
+    button_states$b3 <- TRUE
+    new_value_low <- input$lower_value + 10000
+    new_value_high <- input$higher_value - 10000
+    updateNumericInput(
+      session = session, inputId = "lower_value", value = new_value_low)
+    updateNumericInput(
+      session = session, inputId = "higher_value", value = new_value_high)
+    button_states$b3 <- FALSE
+  })
+  
+  ### button out
+  
+  observeEvent(input$btn_out, {
+    button_states$b4 <- TRUE
+    new_value_low <- input$lower_value - 10000
+    new_value_high <- input$higher_value + 10000
+    updateNumericInput(
+      session = session, inputId = "lower_value", value = new_value_low)
+    updateNumericInput(
+      session = session, inputId = "higher_value", value = new_value_high)
+    button_states$b4 <- FALSE
+  })
   
   
   
@@ -34,6 +117,7 @@ server <- function(input, output, session) {
   })
   
   
+  #### PLOT GENOME INPUT ####
   
   plotgenomeInput <- reactive({
     
@@ -49,20 +133,29 @@ server <- function(input, output, session) {
     return(plot_data)
   })
   
-  user_data_upload <- reactive({
-    
+  
+  
+  
+  #### USER DATA UPLOAD ####
+  
+ user_data_upload <- reactive({
     req(changes_applied())
     
     user_file <- input$uploaded_file$datapath
     if(is.null(user_file)){
-      return(NULL)}
-    else
-    {
-      user_file <- read.csv(user_file, sep = "\t")
-      user_file$data_name <- "user_uploaded_file"
-      return(user_file)
+        return(NULL)
+    } else {
+        user_file <- read.csv(user_file, sep = "\t")
+        # Use input$file_name directly here
+        user_file$data_name <- input$file_name
+        return(user_file)
     }
-  })
+})
+  
+  
+
+  
+  #### MERGING USER DATA ####
   
   merged_user <- reactive({
     
@@ -88,30 +181,73 @@ server <- function(input, output, session) {
     }
   })
   
-  data_loaded_rna <- c("abrB1.2_table", "data_hupAS_RNAseq","RNAseq_Martyna","szafran2019", "user_uploaded_file")
+  output$fileUploaded <- reactive({
+  !is.null(input$uploaded_file)
+})
+outputOptions(output, "fileUploaded", suspendWhenHidden = FALSE)
+
   
-  dataselection_rnaseq_before_LHfilter <- reactive({
-    
-    req(changes_applied())
-    
-    ###tutaj dopisujesz następne jak będą
-    RNAseq_Martyna <- RNAseq_Martyna_load()
-    user_uploaded_file <- merged_user()
-    szafran2019 <- data_szafran2019_load()
-    abrB1.2_table <- abrB1.2_table_load()
-    data_hupAS_RNAseq <- data_hupAS_RNAseq_load()
-    data_list <- list(abrB1.2_table, data_hupAS_RNAseq, RNAseq_Martyna, szafran2019, user_uploaded_file)
-    choosen_data <- which(data_loaded_rna %in% c(input$rna_select_1, input$rna_select_2, input$rna_select_3))
-    choosen_data_list <- data_list[choosen_data]
-    data_rna_final <- do.call(rbind, choosen_data_list)
-    
-    return(data_rna_final)
-  })
   
+  #### LOADING RNA-SEQ DATA ####
+  
+data_loaded_rna <- reactive({
+  if (!is.null(input$file_name)) {
+    c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", input$file_name)
+  } else {
+    c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019")
+  }
+})
+
+observe({
+  # Get the current data options
+  choices <- c("no data selected", data_loaded_rna())
+  
+  # Update all three select inputs
+  updateSelectInput(session, "rna_select_1", choices = choices)
+  updateSelectInput(session, "rna_select_2", choices = choices)
+  updateSelectInput(session, "rna_select_3", choices = choices)
+})
+
+
+
+dataselection_rnaseq_before_LHfilter <- reactive({
+  
+  req(changes_applied())
+  
+  ###tutaj dopisujesz następne jak będą
+  RNAseq_Martyna <- RNAseq_Martyna_load()
+  user_data <- merged_user()
+  szafran2019 <- data_szafran2019_load()
+  abrB1.2_table <- abrB1.2_table_load()
+  data_hupAS_RNAseq <- data_hupAS_RNAseq_load()
+  
+  # Create a list of data frames, handling the user data separately
+  data_list <- list(
+    abrB1.2_table = abrB1.2_table,
+    data_hupAS_RNAseq = data_hupAS_RNAseq,
+    RNAseq_Martyna = RNAseq_Martyna,
+    szafran2019 = szafran2019
+  )
+  
+  # Add user data to the list if it exists
+  if (!is.null(user_data)) {
+    data_list[[input$file_name]] <- user_data
+  }
+  
+  # Get selected datasets
+  selected_datasets <- c(input$rna_select_1, input$rna_select_2, input$rna_select_3)
+  selected_datasets <- selected_datasets[selected_datasets != "no data selected"]
+  
+  # Filter and combine the selected datasets
+  selected_data <- data_list[selected_datasets]
+  data_rna_final <- do.call(rbind, selected_data)
+  
+  return(data_rna_final)
+})
   
   
  
-  ##LOWER/HIGHERVALUE
+  #### LOWER/HIGHERVALUE ####
   
   
   # lower_value <- reactive({
@@ -145,6 +281,9 @@ server <- function(input, output, session) {
   })
   
   
+  #### FDR FILTER ####
+  
+  
   dataselection_rnaseq_FDR_filter <- reactive({
     data_rna <- dataselection_rnaseq_before_LHfilter()
     if(switch_state()) {
@@ -156,6 +295,7 @@ server <- function(input, output, session) {
   })
   
   
+  #### RNA SELECTION LOW/HIGH FILTER ####
   
   dataselection_rnaseq <- reactive({
     
@@ -174,7 +314,7 @@ server <- function(input, output, session) {
   
   
 
-  ####CONDITIONAL FOR CONTRASTS
+  #### CONDITIONAL FOR CONTRASTS ####
   
   
   # AS tworzy selectInput do wyboru kontrastów na podstawie danych wybranych w rna_select_1
@@ -227,10 +367,13 @@ server <- function(input, output, session) {
   })
   
   
+  
+  
+  
   lower_logFC <- reactive({ input$lower_logFC })
   higher_logFC <- reactive({ input$higher_logFC })
   
-  #### FILTERING DATA ####
+  #### FILTERING GENOME DATA ####
   
   filtergenomedata <- reactive({
     
@@ -246,7 +389,9 @@ server <- function(input, output, session) {
   })
   
  
-  #### PLOTS CODE ####
+  
+  
+  #### GENOMEPLOT ####
   
   genomeplot <- reactive({
     
@@ -296,6 +441,13 @@ server <- function(input, output, session) {
     return(genome_plot)
   })
   
+  
+  
+  
+  
+  
+  #### RNAPLOT ####
+  
   RNAplot <- reactive({
     
     req(changes_applied())
@@ -336,7 +488,10 @@ server <- function(input, output, session) {
   })
   
   
-  ####walkazchipseqwybor####
+  
+  
+  
+  #### CHIPSEQ SELECTION ####
   
   plot_chip_edger <- read.csv("datasets/data_hupA_chipseq_edgeR.txt", sep = '')
   plot_chip_macs <- read.csv("datasets/data_hupA_chipseq_macs.txt", sep=" ") 
@@ -351,6 +506,13 @@ server <- function(input, output, session) {
     plot_data_chip_edger_filter <- plot_data_chip_edger %>% filter(start >= lower, end <= higher)
     return(plot_data_chip_edger_filter)
   })
+  
+  
+  
+  
+  
+  
+  
   
   filterCHIPmacsdata <- reactive({
     
@@ -399,6 +561,12 @@ server <- function(input, output, session) {
     return(data_chip_final)
   })
   
+  
+  
+  
+  
+  #### CHIP SEQ PLOT ####
+  
   draw_chip_plot <- reactive({
     
     req(changes_applied())
@@ -433,6 +601,9 @@ server <- function(input, output, session) {
   })
   
   
+  
+  
+  #### 'RPKM' PLOT, VOLCANO PLOT ####
   
   RPKMplot <- reactive({
     
@@ -479,7 +650,7 @@ server <- function(input, output, session) {
   })
   
   
-  #### HEATMAP? ####
+  #### HEATMAP ####
   
   output$heatmap <- renderPlot({
     
@@ -501,6 +672,13 @@ server <- function(input, output, session) {
                            RColorBrewer::brewer.pal(11, "RdBu"))) -> p_heat
     print(p_heat)
   })
+  
+  
+  
+  
+  
+  
+  
   
   
   #### TABLES INPUT ####
@@ -540,6 +718,14 @@ server <- function(input, output, session) {
     return(table_data1)
   })
   
+  
+  
+  
+  
+  
+  
+  #### SELECTED GENE DESCRIPTION ####
+  
   textInput_dataofgene <- reactive({
     
     req(changes_applied())
@@ -576,6 +762,8 @@ server <- function(input, output, session) {
   
 
   
+  #### PATCHWORK PLOTING MAIN PLOTS ####
+  
   plot_all_patchwork <- reactive({
     
     req(changes_applied())
@@ -604,5 +792,106 @@ server <- function(input, output, session) {
   })
   
   output$all_plots <- renderPlot({ plot_all_patchwork() })
+  
+  
+  
+  
+  
+  #### CONDITIONAL FOR CONTRASTS COMPARSION ####
+  
+  
+  # AS tworzy selectInput do wyboru kontrastów na podstawie danych wybranych w rna_select_1
+  output$contrast_venn_1 <- renderUI({
+    if (input$venn_select_1 == 'no data selected'){
+      return(NULL)
+    }
+    
+    data_rna <- dataselection_rnaseq_before_LHfilter()
+    
+    # AS wszystkie unikalne kontrasty w danych 
+    grupy <- data_rna %>% filter(data_name == input$venn_select_1) %>% pull(add_variable) %>% unique()
+    
+    selectInput("contrast_venn_1", "Choose contrasts for analysis",
+                choices = grupy, selected = grupy[1], multiple = TRUE)
+    
+  })
+  
+  # AS tworzy selectInput do wyboru kontrastów na podstawie danych wybranych w rna_select_1
+  output$contrast_venn_2 <- renderUI({
+    if (input$venn_select_2 == 'no data selected'){
+      return(NULL)
+    }
+    
+    data_rna <- dataselection_rnaseq_before_LHfilter()
+    
+    # AS wszystkie unikalne kontrasty w danych 
+    grupy <- data_rna %>% filter(data_name == input$venn_select_2) %>% pull(add_variable) %>% unique()
+    
+    selectInput("contrast_venn_2", "Choose contrasts for analysis",
+                choices = grupy, selected = grupy[1], multiple = TRUE)
+    
+  })
+  
+  
+  #### COMPARSION DATA LOAD ####
+  
+  
+  ## takie już jest, nie trzeba drugi raz
+#  data_loaded_rna <- reactive({
+ #   if (!is.null(input$file_name)) {
+  #    c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", input$file_name)
+   # } else {
+    #  c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019")
+  #  }
+#})
+  
+  observe({
+    # Get the current data options
+    choices <- c("no data selected", data_loaded_rna())
+    
+    # Update all three select inputs
+    updateSelectInput(session, "venn_select_1", choices = choices)
+    updateSelectInput(session, "venn_select_2", choices = choices)
+  })
+  
+  
+  
+  dataselection_venn <- reactive({
+    
+    req(changes_applied())
+    
+    ###tutaj dopisujesz następne jak będą
+    RNAseq_Martyna <- RNAseq_Martyna_load()
+    user_data <- merged_user()
+    szafran2019 <- data_szafran2019_load()
+    abrB1.2_table <- abrB1.2_table_load()
+    data_hupAS_RNAseq <- data_hupAS_RNAseq_load()
+    
+    # Create a list of data frames, handling the user data separately
+    data_list <- list(
+      abrB1.2_table = abrB1.2_table,
+      data_hupAS_RNAseq = data_hupAS_RNAseq,
+      RNAseq_Martyna = RNAseq_Martyna,
+      szafran2019 = szafran2019
+    )
+    
+    # Add user data to the list if it exists
+    if (!is.null(user_data)) {
+      data_list[[input$file_name]] <- user_data
+    }
+    
+    # Get selected datasets
+    selected_datasets <- c(input$venn_select_1, input$venn_select_2)
+    selected_datasets <- selected_datasets[selected_datasets != "no data selected"]
+    
+    # Filter and combine the selected datasets
+    selected_data <- data_list[selected_datasets]
+    data_rna_final <- do.call(rbind, selected_data)
+    
+    return(data_rna_final)
+  })
+  
+  
+  
   
 }
