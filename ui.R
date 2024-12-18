@@ -9,6 +9,7 @@ library(tidyHeatmap)
 library(BiocManager)
 library(plotly)
 library(bslib)
+library(ggvenn)
 source("loading_data.R")
 
 #### UI ####
@@ -134,30 +135,44 @@ ui <- fluidPage(
                         sidebarPanel(
                           tabsetPanel(type = "pills",
                                       tabPanel("Selection",
-                                               selectInput("data_venn_selection", 
-                                                           selectInput('venn_select_1', 
-                                                                       label = h3('Choose data for comparsion plots'), 
-                                                                       selected = "no data selected",
-                                                                       choices = c("no data selected"), # The server will update these choices
-                                                                       selectize = TRUE),
-                                                           conditionalPanel(condition = 'input.venn_select_1 != "no data selected"',
-                                                                            uiOutput('contrast_venn_1')
-                                                           ),
-                                                           selectInput('venn_select_2', 
-                                                                       label = ' ',  
-                                                                       selected = "no data selected",
-                                                                       choices = c("no data selected"), # The server will update these choices
-                                                                       selectize = TRUE),
-                                                           conditionalPanel(condition = 'input.venn_select_2 != "no data selected"',
-                                                                            uiOutput('contrast_venn_2')
-                                                           ))),
-                                      tabPanel("Plot Options"),
-                                      tabPanel("Plot Download"))
-                                      
-                                      
-                                      
+                                               # Remove the nested selectInput
+                                               selectInput('venn_select_1', 
+                                                           label = h3('Choose data for comparison plots'), 
+                                                           selected = "no data selected",
+                                                           choices = c("no data selected"), # The server will update these choices
+                                                           selectize = TRUE),
+                                               conditionalPanel(
+                                                 condition = 'input.venn_select_1 != "no data selected"',
+                                                 uiOutput('contrast_venn_1')
+                                               ),
+                                               selectInput('venn_select_2', 
+                                                           label = ' ',  
+                                                           selected = "no data selected",
+                                                           choices = c("no data selected"), # The server will update these choices
+                                                           selectize = TRUE),
+                                               conditionalPanel(
+                                                 condition = 'input.venn_select_2 != "no data selected"',
+                                                 uiOutput('contrast_venn_2')
+                                               ),
+                                               selectizeInput("select_gene_venn", 
+                                                              label = "Choose gene from list", 
+                                                              choices = "all",
+                                                              selected = "all",
+                                                              multiple = TRUE,
+                                                              options = list(maxOptions = 10000))
                                       ),
-                        mainPanel()
+                                      tabPanel("Plot Options",
+                                               numericInput("higher_logFC_venn", label = ("higher logFC"), value = 0, step = 0.5),
+                                               numericInput("lower_logFC_venn", label = ("lower logFC"), value = 0, step = 0.5),
+                                               input_switch("my_switch_venn", "Leave only significant genes (FDR <= 0.05)", value = FALSE)),
+                                      tabPanel("Plot Download")
+                          )
+                        ),
+                        mainPanel(
+                          tabsetPanel(
+                            type='pills', 
+                            tabPanel("Venn", plotOutput("venn_plot")), tabPanel("Heatmap", plotOutput("heatmap_plot"))                         )
+                        )
                       )
              ),
              tabPanel("Help&Info",

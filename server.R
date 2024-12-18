@@ -21,6 +21,19 @@ server <- function(input, output, session) {
                          server = TRUE)
   }, once = TRUE)  # once=TRUE means it only runs once when the app starts
   
+  observeEvent(session$clientData$url_protocol, {  # This ensures it runs when the app starts
+    # Load the gene list
+    genelist <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
+    gene_list_database <- c("all", genelist$gene)
+    # Update the selectize input with all choices
+    updateSelectizeInput(session, 
+                         inputId = "select_gene_venn", 
+                         choices = gene_list_database,
+                         selected = "all",
+                         server = TRUE)
+  }, once = TRUE)  # once=TRUE means it only runs once when the app starts
+  
+  
   
   # Create a reactive value to store the trigger state
   changes_applied <- reactiveVal(FALSE)  # This will store whether the button has been pressed
@@ -295,7 +308,7 @@ dataselection_rnaseq_before_LHfilter <- reactive({
   })
   
   
-  #### RNA SELECTION LOW/HIGH FILTER ####
+  #### RNA SELECTION LOW/HIGH, contrast FILTER ####
   
   dataselection_rnaseq <- reactive({
     
@@ -650,28 +663,6 @@ dataselection_rnaseq_before_LHfilter <- reactive({
   })
   
   
-  #### HEATMAP ####
-  
-  output$heatmap <- renderPlot({
-    
-    req(changes_applied())
-    
-    lowlogFC <- lower_logFC()
-    highlogFC <- higher_logFC()
-    heat_data <- dataselection_rnaseq()
-    heat_data <- heat_data %>% mutate(logFC = ifelse(is.na(logFC), 0, logFC))
-    heat_above_logFC <- heat_data %>% filter(logFC >= highlogFC)
-    heat_below_logFC <- heat_data %>% filter(logFC <= lowlogFC)
-    heat_data_logFC_filtered <- rbind(heat_below_logFC, heat_above_logFC)
-    tidyHeatmap::heatmap(.data = dplyr::tibble(heat_data_logFC_filtered),
-                         .row = gene,
-                         .column = contrast,
-                         .value = logFC,
-                         palette_value = circlize::colorRamp2(
-                           seq(-5, 5, length.out = 11),
-                           RColorBrewer::brewer.pal(11, "RdBu"))) -> p_heat
-    print(p_heat)
-  })
   
   
   
@@ -806,7 +797,7 @@ dataselection_rnaseq_before_LHfilter <- reactive({
       return(NULL)
     }
     
-    data_rna <- dataselection_rnaseq_before_LHfilter()
+    data_rna <- dataselection_venn()
     
     # AS wszystkie unikalne kontrasty w danych 
     grupy <- data_rna %>% filter(data_name == input$venn_select_1) %>% pull(add_variable) %>% unique()
@@ -822,7 +813,7 @@ dataselection_rnaseq_before_LHfilter <- reactive({
       return(NULL)
     }
     
-    data_rna <- dataselection_rnaseq_before_LHfilter()
+    data_rna <- dataselection_venn()
     
     # AS wszystkie unikalne kontrasty w danych 
     grupy <- data_rna %>% filter(data_name == input$venn_select_2) %>% pull(add_variable) %>% unique()
@@ -858,7 +849,7 @@ dataselection_rnaseq_before_LHfilter <- reactive({
   
   dataselection_venn <- reactive({
     
-    req(changes_applied())
+   
     
     ###tutaj dopisujesz następne jak będą
     RNAseq_Martyna <- RNAseq_Martyna_load()
@@ -891,6 +882,76 @@ dataselection_rnaseq_before_LHfilter <- reactive({
     return(data_rna_final)
   })
   
+  
+  
+  #### FILTERING DATA FOR VENN AND HEAT #####
+  
+  filter_data_for_heatmap <- reactive({
+    data_rna <- dataselection_venn()
+    data_rna <- data_rna %>% filter(gene %in% c(input$select_gene_venn), add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2))
+    return(data_rna)
+  })
+  
+  switch_state_venn <- reactive({
+    input$my_switch_venn
+  })
+  
+  filter_data_for_venn <- reactive({
+    higher_logFC <- input$higher_logFC_venn
+    lower_logFC <- input$lower_logFC_venn
+    data_rna <- dataselection_venn()
+    data_rna1 <- data_rna %>% filter(logFC >= higher_logFC, add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2))
+    data_rna2 <- data_rna %>% filter(logFC <= lower_logFC)
+    data_rna_filtered <- rbind(data_rna1, data_rna2)
+    print(data_rna_filtered)
+    if(switch_state_venn()) {
+      data_rna_filtered <- data_rna_filtered %>% filter(FDR <= 0.05)
+      return(data_rna_filtered)
+    } else {
+      return(data_rna_filtered)
+    }
+  })
+  
+  prep_data_venn <- reactive({
+    data_set_venn <- filter_data_for_venn()
+    gene_lists <- split(data_set_venn$gene, data_set_venn$data_name)
+    return(gene_lists)
+  })
+  
+  output$venn_plot <- renderPlot({
+    gene_lists <- prep_data_venn()
+    
+    ggvenn(
+      gene_lists,
+      fill_color = c("#0073C2FF", "#EFC000FF"),
+      stroke_size = 0.5,
+      set_name_size = 4
+    )
+  })
+ 
+  
+  #### HEATMAP ####
+  
+  output$heatmap_plot <- renderPlot({
+    
+    req(changes_applied())
+    
+    lowlogFC <- input$lower_logFC_venn
+    highlogFC <- input$higher_logFC_venn
+    heat_data <- filter_data_for_heatmap()
+    heat_data <- heat_data %>% mutate(logFC = ifelse(is.na(logFC), 0, logFC))
+    heat_above_logFC <- heat_data %>% filter(logFC >= highlogFC)
+    heat_below_logFC <- heat_data %>% filter(logFC <= lowlogFC)
+    heat_data_logFC_filtered <- rbind(heat_below_logFC, heat_above_logFC)
+    tidyHeatmap::heatmap(.data = dplyr::tibble(heat_data_logFC_filtered),
+                         .row = gene,
+                         .column = add_variable,
+                         .value = logFC,
+                         palette_value = circlize::colorRamp2(
+                           seq(-5, 5, length.out = 11),
+                           RColorBrewer::brewer.pal(11, "RdBu"))) -> p_heat
+    print(p_heat)
+  })
   
   
   

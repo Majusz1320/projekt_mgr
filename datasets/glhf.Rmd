@@ -298,3 +298,42 @@ write.csv(data_szafran2019, "final_data/data_szafran2019.csv", row.names = FALSE
 
 ```
 
+
+```{r}
+jajo <- read.csv("usr_test.txt", sep = "\t")
+
+
+jajo1 <- jajo %>% filter(logFC <= -1)
+
+
+
+getwd()
+```
+
+```{r}
+
+  filter_data_for_venn <- reactive({
+    higher_logFC <- input$higher_logFC_venn
+    lower_logFC <- input$lower_logFC_venn
+    data_rna <- dataselection_venn()
+    data_rna1 <- data_rna %>% filter(logFC >= higher_logFC, add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2))
+    data_rna2 <- data_rna %>% filter(logFC <= lower_logFC)
+    data_rna3 <- data_rna %>% filter(logFC <= higher_logFC, add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2))
+    data_rna4 <- data_rna %>% filter(logFC >= lower_logFC)
+    data_rna3$gene <- gsub("SC", "OD", data_rna3$gene)
+    data_rna4$gene <- gsub("SC", "DO", data_rna4$gene)
+    data_rna_filtered <- rbind(data_rna1, data_rna2, data_rna3, data_rna4)
+    print(data_rna_filtered)
+    if(switch_state_venn()) {
+      data_rna_filtered1 <- data_rna_filtered %>% filter(FDR <= 0.05)
+      data_rna_filtered2 <- data_rna_filtered %>% filter(FDR >= 0.05)
+      data_rna_filtered2$gene <- gsub("SC", "JO", data_rna_filtered2$gene)
+      data_rna_filtered <- rbind(data_rna_filtered1, data_rna_filtered2)
+      return(data_rna_filtered)
+    } else {
+      return(data_rna_filtered)
+    }
+  })
+  
+```
+
