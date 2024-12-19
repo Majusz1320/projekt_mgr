@@ -205,9 +205,9 @@ outputOptions(output, "fileUploaded", suspendWhenHidden = FALSE)
   
 data_loaded_rna <- reactive({
   if (!is.null(input$file_name)) {
-    c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", input$file_name)
+    c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna", input$file_name)
   } else {
-    c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019")
+    c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna")
   }
 })
 
@@ -233,13 +233,17 @@ dataselection_rnaseq_before_LHfilter <- reactive({
   szafran2019 <- data_szafran2019_load()
   abrB1.2_table <- abrB1.2_table_load()
   data_hupAS_RNAseq <- data_hupAS_RNAseq_load()
+  abrc3 <- abrc3_load() 
+  aor1_rna <- aor1_rna_load()
   
   # Create a list of data frames, handling the user data separately
   data_list <- list(
     abrB1.2_table = abrB1.2_table,
     data_hupAS_RNAseq = data_hupAS_RNAseq,
     RNAseq_Martyna = RNAseq_Martyna,
-    szafran2019 = szafran2019
+    szafran2019 = szafran2019,
+    abrc3 = abrc3,
+    aor1_rna = aor1_rna
   )
   
   # Add user data to the list if it exists
@@ -857,13 +861,17 @@ dataselection_rnaseq_before_LHfilter <- reactive({
     szafran2019 <- data_szafran2019_load()
     abrB1.2_table <- abrB1.2_table_load()
     data_hupAS_RNAseq <- data_hupAS_RNAseq_load()
+    abrc3 <- abrc3_load() 
+    aor1_rna <- aor1_rna_load()
     
     # Create a list of data frames, handling the user data separately
     data_list <- list(
       abrB1.2_table = abrB1.2_table,
       data_hupAS_RNAseq = data_hupAS_RNAseq,
       RNAseq_Martyna = RNAseq_Martyna,
-      szafran2019 = szafran2019
+      szafran2019 = szafran2019,
+      abrc3 = abrc3,
+      aor1_rna = aor1_rna
     )
     
     # Add user data to the list if it exists

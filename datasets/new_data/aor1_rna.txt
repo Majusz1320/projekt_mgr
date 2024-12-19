@@ -1,0 +1,299 @@
+gene	FC	no	FDR	no2	add_variable					
+SCO0039	3,22	z	0,00000652	hypothetical protein (HP)	downregulated					
+SCO0070	3,16	z	0,000124	hypothetical protein (HP)	downregulated					
+SCO0124	1,72	z	0,00791	eicosapentaenoic acid cluster (SM)	downregulated					
+SCO0125	2,12	z	0,00111	eicosapentaenoic acid cluster (SM)	downregulated					
+SCO0126	1,98	z	0,0000754	eicosapentaenoic acid cluster (SM)	downregulated					
+SCO0127	2,29	z	0,000000285	eicosapentaenoic acid cluster (SM)	downregulated					
+SCO0224	13,40	z	8,36E-08	conserved hypothetical protein (HP)	downregulated					
+SCO0269	3,20	z	0,0000217	lantibiotic cluster (SM)	downregulated					
+SCO0270	3,07	z	0,00000374	lantibiotic cluster (SM)	downregulated					
+SCO0320	23,70	z	2,81	hypothetical protein (HP)	downregulated					
+SCO0321	3,74	z	0,000000238	putative carboxylesterase (O)	downregulated					
+SCO0381	21,20	z	3,32	deoxysugar cluster (SM)	downregulated					
+SCO0382	16,80	z	5,05	deoxysugar cluster (SM)	downregulated					
+SCO0383	14,10	z	8,63	deoxysugar cluster (SM)	downregulated					
+SCO0384	15,40	z	8,31	deoxysugar cluster (SM)	downregulated					
+SCO0385	15,20	z	1,32	deoxysugar cluster (SM)	downregulated					
+SCO0386	13,70	z	5,03	deoxysugar cluster (SM)	downregulated					
+SCO0387	13,70	z	7,64	deoxysugar cluster (SM)	downregulated					
+SCO0388	15,70	z	7,12	deoxysugar cluster (SM)	downregulated					
+SCO0389	11,70	z	1,22	deoxysugar cluster (SM)	downregulated					
+SCO1053	3,24	z	0,0000594	hypothetical protein (HP)	downregulated					
+SCO1063	3,67	z	0,000000672	putative sugar transport integral membrane protein ABC (MB)	downregulated					
+SCO1065	3,67	z	6	putative sugar transport sugar binding protein ABC (T)	downregulated					
+SCO1072	3,33	z	0,00000884	hypothetical protein (HP)	downregulated					
+SCO1100	3,20	z	1,57	putative integral membrane protein (MB)	downregulated					
+SCO1160	3,03	z	0,0000386	putative membrane protein (MB)	downregulated					
+SCO1178	22,10	z	3,08	hypothetical protein (HP)	downregulated					
+SCO1227	3,35	z	7,38E-08	putative DNA-­?binding protein (RP)	downregulated					
+SCO1266	3,11	z	0,0000782	aromatic polyketide (SM)	downregulated					
+SCO1281	3,05	z	0,000132	putative oxidoreductase (O)	downregulated					
+SCO1356	3,62	z	2,38	secreted iron sulphur protein (S)	downregulated					
+SCO1357	3,45	z	1,6E-09	hypothetical protein (HP)	downregulated					
+SCO1358	3,07	z	5,37E-08	LysR-­?family transcriptional regulator	downregulated					
+SCO1364	5,81	z	1,1	hypothetical protein (HP)	downregulated					
+SCO1366	3,38	z	6,17	conserved hypothetical protein (HP)	downregulated					
+SCO1367	25,60	z	1,68	ABC transport ATP binding (MB)	downregulated					
+SCO1368	16,90	z	1,38	ABC transport (MB)	downregulated					
+SCO1369	5,85	z	9,08	two-­?component system sensor kinase HK (RP)	downregulated					
+SCO1370	4,58	z	3,85	response regulator. NarL family (RP)	downregulated					
+SCO1456	3,40	z	0,000156	hypothetical protein (HP)	downregulated					
+SCO1550	8,48	z	2,27	putative small membrane protein (MB)	downregulated					
+SCO1573	4,37	z	1,14	putative oxidoreductase membrane protein (MB)	downregulated					
+SCO1574	3,27	z	1,11	hypothetical protein (HP)	downregulated					
+SCO1575	3,00	z	2,63E-09	putative thiamine biosynthesis lipoprotein precursor (O)	downregulated					
+SCO1722	3,17	z	0,0000241	putative membrane protein (MB)	downregulated					
+SCO1723	3,40	z	0,0000261	RNA polymerase sigma factor	downregulated					
+SCO1740	3,37	z	0,000249	putative membrane protein (MB)	downregulated					
+SCO0390	10,90	z	1,02	deoxysugar cluster (SM)	downregulated					
+SCO0391	18,80	z	2,23	deoxysugar cluster (SM)	downregulated					
+SCO0392	15,20	z	1,04	deoxysugar cluster (SM)	downregulated					
+SCO0393	13,90	z	1,46	deoxysugar cluster (SM)	downregulated					
+SCO0394	12,30	z	4,74	deoxysugar cluster (SM)	downregulated					
+SCO0395	11,10	z	7,61	deoxysugar cluster (SM)	downregulated					
+SCO0396	10,20	z	2,13	deoxysugar cluster (SM)	downregulated					
+SCO0397	11,10	z	7,31	deoxysugar cluster (SM)	downregulated					
+SCO0398	6,80	z	7,58	deoxysugar cluster (SM)	downregulated					
+SCO0399	9,83	z	5,68	deoxysugar cluster (SM)	downregulated					
+SCO0400	7,75	z	4,26	deoxysugar cluster (SM)	downregulated					
+SCO0401	9,66	z	8,87	deoxysugar cluster (SM)	downregulated					
+SCO0409	5,64	z	8,74	spore asociated protein (O)	downregulated					
+SCO0532	3,08	z	0,0000125	putative sugar transporter membrane protein ABC (MB)	downregulated					
+SCO0548	3,37	z	0,000418	putative 3-­?oxoacyl-­?(acyl-­?carrier-­?protein) synthase (O)	downregulated					
+SCO0554	3,15	z	0,00000228	putative secreted beta-­?mannosidase (S)	downregulated					
+SCO0644	4,13	z	4,7	putative membrane protein MB)	downregulated					
+SCO0656	3,39	z	0,00000122	gas vesicle (GV)	downregulated					
+SCO0685	3,28	z	0,00000471	hypothetical protein (HP)	downregulated					
+SCO0729	3,28	z	9,57	conserved hypothetical protein (HP)	downregulated					
+SCO0752	4,47	z	9,62	secreted serin protease (SalO) (S)	downregulated					
+SCO0882	3,35	z	0,0000261	hypothetical protein (HP)	downregulated					
+SCO0909	3,62	z	8,02	conserved hypothetical protein (HP)	downregulated					
+SCO0930	5,49	z	1,55	putative lipoprotein (MB)	downregulated					
+SCO0944	4,77	z	4,59	putative membrane protein (MB)	downregulated					
+SCO0973	9,18	z	5,58	putative integral membrane protein (MB)	downregulated					
+SCO0991	3,34	z	0,000000157	conserved hypothetical protein (HP)	downregulated					
+SCO1767	3,87	z	3,77	putative DNA hydrolase (O)	downregulated					
+SCO1801	4,59	z	8,86	response regulator. NarL family (RP)	downregulated					
+SCO1802	4,14	z	2,25	two-­?component system sensor kinase HK (RP)	downregulated					
+SCO1803	54,50	z	0,00000064	oxido reductase (O)	downregulated					
+SCO1804	44,10	z	0,000000313	SAM tRNA ribosyl transferase (O)	downregulated					
+SCO1839	4,07	z	9,89	putative transcriptional regulator (RP)	downregulated					
+SCO1862	5,21	z	7,06	putative integral membrane protein (MB)	downregulated					
+SCO1868	4,31	z	3,41	conserved hypothetical protein (HP)	downregulated					
+SCO1892	3,12	z	4,68	putative integral membrane efflux protein (MSF-­?MDR) (MD)	downregulated					
+SCO1905	3,31	z	5,07	hypothetical protein (HP)	downregulated					
+SCO1909	13,10	z	7,38	hypothetical protein (HP)	downregulated					
+SCO2028	3,65	z	0,000139	putative membrane protein (MB)	downregulated					
+SCO2029	3,03	z	0,00000733	putative secreted protein (S)	downregulated					
+SCO2056	3,04	z	0,000127	hypothetical protein (HP)	downregulated					
+SCO2217	4,49	z	2,64	putative secreted protein (S)	downregulated					
+SCO2218	7,64	z	5,96	putative lipoprotein (MB)	downregulated					
+SCO2309	5,76	z	0,000000255	putative transmembrane transport protein MDR (MB)	downregulated					
+SCO2408	3,89	z	4,31	putative aminotransferase (O)	downregulated					
+SCO2477	3,15	z	0,00000171	putative 3-­?oxoacyl-­?[acyl-­?carrier protein] reductase (O)	downregulated					
+SCO2478	12,80	z	1,95	putative reductase (O)	downregulated					
+SCO2492	8,69	z	7,55	putative membrane protein (MB)	downregulated					
+SCO2495	3,43	z	8,77	putative membrane protein (MB)	downregulated					
+SCO2511	3,47	z	5,44E-08	hypothetical protein (HP)	downregulated					
+SCO2512	5,14	z	6,68	hypothetical protein (HP)	downregulated					
+SCO2517	6,86	z	4,76	response regulator. NarL family (RP)	downregulated					
+SCO2518	7,99	z	7,91	two-­?component system sensor kinase HK (RP)	downregulated					
+SCO2519	23,60	z	2,15	put prot mb MmpL homolog (RND superfamily) (MB)	downregulated					
+SCO2550	3,71	z	8,31	putative lipoprotein (MB)	downregulated					
+SCO2641	3,31	z	2	putative resistance protein (O)	downregulated					
+SCO2695	14,50	z	1,83	hypothetical protein (HP)	downregulated					
+SCO2696	4,63	z	0,000000398	putative 2-­?hydroxyacid-­?family dehydrogenase (O)	downregulated					
+SCO2706	3,05	z	0,0000021	putative transferase (O)	downregulated					
+SCO2745	3,12	z	2,95	probable LacI-­?family transcriptional regulator	downregulated					
+SCO2861	3,03	z	0,000000276	hypothetical protein (HP)	downregulated					
+SCO2909	3,11	z	1,05	putative membrane protein (MB)	downregulated					
+SCO2937	4,51	z	0,00000119	putative transmembrane transport protein (MB)	downregulated					
+SCO2954	3,00	z	1,72	RNA polymerase sigma-­?70 factor SigU (RP)	downregulated					
+SCO2976	7,47	z	1,54	hypothetical protein (HP)	downregulated					
+SCO2977	3,02	z	5,34	hypothetical protein (HP)	downregulated					
+SCO3111	3,39	z	5,79	putative ABC transport system ATP-­?binding protein (MB)	downregulated					
+SCO3134	4,18	z	2,58	response regulator. NarL family (RP)	downregulated					
+SCO3210	5,91	z	5,7	CDA cluster (SM)	downregulated					
+SCO3211	7,17	z	1,24	CDA cluster (SM)	downregulated					
+SCO3212	5,72	z	1,57	CDA cluster (SM)	downregulated					
+SCO3213	4,54	z	0,000000209	CDA cluster (SM)	downregulated					
+SCO3214	4,86	z	2,58	CDA cluster (SM)	downregulated					
+SCO3215	6,70	z	2,71	CDA cluster (SM)	downregulated					
+SCO3217	1,91	z	0,000678	CDA cluster (SM). cdaR (RP)	downregulated					
+SCO3218	14,00	z	5,57	CDA cluster (SM)	downregulated					
+SCO3220	22,10	z	4,31	CDA cluster (SM)	downregulated					
+SCO3221	14,80	z	5,79	CDA cluster (SM)	downregulated					
+SCO3222	11,50	z	0,00000445	CDA cluster (SM)	downregulated					
+SCO3227	7,39	z	5,03	CDA cluster (SM)	downregulated					
+SCO3228	11,00	z	1,26	CDA cluster (SM)	downregulated					
+SCO3229	12,90	z	1,45	CDA cluster (SM)	downregulated					
+SCO3230	8,81	z	1,23	CDA cluster (SM)	downregulated					
+SCO3231	7,66	z	2,67	CDA cluster (SM)	downregulated					
+SCO3232	8,29	z	1,63	CDA cluster (SM)	downregulated					
+SCO3233	7,41	z	3,69	CDA cluster (SM)	downregulated					
+SCO3234	7,46	z	2,27	CDA cluster (SM)	downregulated					
+SCO3235	8,72	z	6,08	CDA cluster (SM)	downregulated					
+SCO3236	12,70	z	1,13	CDA cluster (SM)	downregulated					
+SCO3237	6,77	z	2,68	CDA cluster (SM)	downregulated					
+SCO3238	8,02	z	8,38	CDA cluster (SM)	downregulated					
+SCO3239	8,53	z	9,93	CDA cluster (SM)	downregulated					
+SCO3240	11,90	z	2,36	CDA cluster (SM)	downregulated					
+SCO3241	9,64	z	1,2	CDA cluster (SM)	downregulated					
+SCO3242	18,00	z	7,17	CDA cluster (SM)	downregulated					
+SCO3243	14,00	z	2,7	CDA cluster (SM)	downregulated					
+SCO3244	12,10	z	5,33	CDA cluster (SM)	downregulated					
+SCO3245	11,60	z	1,23	CDA cluster (SM)	downregulated					
+SCO3246	9,72	z	1,12E-09	CDA cluster (SM)	downregulated					
+SCO3247	11,20	z	8,57	CDA cluster (SM)	downregulated					
+SCO3248	13,20	z	2,76E-09	CDA cluster (SM)	downregulated					
+SCO3249	15,90	z	1,81	CDA cluster (SM)	downregulated					
+SCO3263	5,02	z	0,00000108	conserved hypothetical protein (HP)	downregulated					
+SCO3264	4,68	z	3,14	putative GntR transcriptional regulator (RP)	downregulated					
+SCO3287	3,23	z	0,00000349	putative serine/arginine rich protein (O)	downregulated					
+SCO3713	3,44	z	0,000000804	hypothetical protein (HP)	downregulated					
+SCO3714	4,87	z	2,37E-09	putative transposase (O)	downregulated					
+SCO3750	3,78	z	2,96	two-­?component system sensor kinase HK (RP)	downregulated					
+SCO3999	3,71	z	3,67	putative lipoprotein (MB)	downregulated					
+SCO4005	5,24	z	4,34	putative sigma (RP)	downregulated					
+SCO4118	5,62	z	4,92	AtraA (tetR) (RP)	downregulated					
+SCO4174	4,82	z	1,46	putative integral membrane protein(MB)	downregulated					
+SCO4175	6,82	z	1,64	hypothetical protein (HP)	downregulated					
+SCO4214	111,00	z	3,04	AbaA-­?like (RP)	downregulated					
+SCO4265	4,30	z	1,27	putative transport integral membrane protein MDR (MSF) MB)	downregulated					
+SCO4266	20,20	z	3,57	putative oxidoreductase (O)	downregulated					
+SCO4280	4,93	z	0,0000033	putative reductase (O)	downregulated					
+SCO4291	3,52	z	1,73	putative secreted protein (S)	downregulated					
+SCO4317	3,72	z	2,43	hypothetical protein (HP)	downregulated					
+SCO4332	3,36	z	2,57	putative integral membrane ATPase cation (P-­?ATPase) (MB)	downregulated					
+SCO4562	4,68	z	5,41E-08	NuoA. NADH dehydrogenase subunit (O)	downregulated					
+SCO4563	3,24	z	0,0000507	NuoB. NADH dehydrogenase subunit (O)	downregulated					
+SCO4578	3,21	z	0,0000473	hypothetical protein (HP)	downregulated					
+SCO4617	3,03	z	0,00000289	putative ATP-­?binding protein (O)	downregulated					
+SCO4622	3,53	z	0,00000017	putative integral membrane protein (MB)	downregulated					
+SCO4624	3,25	z	0,00018	hypothetical protein (HP)	downregulated					
+SCO4640	3,91	z	0,00137	tetR-­?family transcriptional regulator	downregulated					
+SCO4641	6,10	z	0,00392	putative transmembrane efflux protein (MSF-­? MDR) (MB)	downregulated					
+SCO4642	10,10	z	0,00202	hypothetical protein (HP)	downregulated					
+SCO4843	3,36	z	0,0000359	putative integral membrane protein (MB)	downregulated					
+SCO4862	3,02	z	6,65	hypothetical protein (HP)	downregulated					
+SCO4903	4,45	z	8,36	putative membrane protein (MB)	downregulated					
+SCO4983	5,01	z	0,0000493	hypothetical protein (HP)	downregulated					
+SCO4999	4,58	z	3,16	hypothetical protein (HP)	downregulated					
+SCO5071	8,73	z	4,43	ACT cluster (SM)	downregulated					
+SCO5072	16,90	z	5,27	ACT cluster (SM)	downregulated					
+SCO5073	15,90	z	8,25	ACT cluster (SM)	downregulated					
+SCO5074	15,20	z	3,11	ACT cluster (SM)	downregulated					
+SCO5075	7,06	z	7,55	ACT cluster (SM)	downregulated					
+SCO5078	3,45	z	6,97	ACT cluster (SM)	downregulated					
+SCO5079	4,22	z	8,37	ACT cluster (SM)	downregulated					
+SCO5080	5,23	z	2,41	ACT cluster (SM)	downregulated					
+SCO5081	4,44	z	8,7	ACT cluster (SM)	downregulated					
+SCO5085	5,86	z	4,85	ACT cluster (SM). ActII-­?ORF4 (RP)	downregulated					
+SCO5086	18,40	z	4,63	ACT cluster (SM)	downregulated					
+SCO5087	11,70	z	2,4	ACT cluster (SM)	downregulated					
+SCO5088	6,98	z	3,14	ACT cluster (SM)	downregulated					
+SCO5089	5,84	z	6,16	ACT cluster (SM)	downregulated					
+SCO5090	6,07	z	1,48	ACT cluster (SM)	downregulated					
+SCO5091	4,46	z	2,36	ACT cluster (SM)	downregulated					
+SCO5092	5,84	z	9,57	ACT cluster (SM)	downregulated					
+SCO5163	3,50	z	0,000000908	hypothetical protein (HP)	downregulated					
+SCO5345	3,39	z	0,000202	conserved hypothetical protein (HP)	downregulated					
+SCO5379	3,96	z	3,85	putative membrane protein (MB)	downregulated					
+SCO5380	3,69	z	0,0000205	putative membrane protein (MB)	downregulated					
+SCO5551	15,30	z	0,0000294	hypothetical protein (HP)	downregulated					
+SCO5644	3,23	z	3,8	hypothetical protein (HP)	downregulated					
+SCO5882	2,53	z	0,00148	RED cluster (SM)	downregulated					
+SCO5883	2,52	z	0,00022	RED cluster (SM)	downregulated					
+SCO5884	1,93	z	0,00522	RED cluster (SM)	downregulated					
+SCO5888	2,40	z	0,000535	RED cluster (SM)	downregulated					
+SCO5891	1,70	z	0,00246	RED cluster (SM)	downregulated					
+SCO5892	1,97	z	0,00938	RED cluster (SM)	downregulated					
+SCO5924	3,12	z	0,0000169	probable integral membrane protein iron III ABC (MB)	downregulated					
+SCO6021	3,16	z	8,95	conserved hypothetical protein (HP)	downregulated					
+SCO6091	5,20	z	2,47	putative integral membrane protein (RND) MDR	downregulated					
+SCO6197	4,05	z	4,81E-08	putative secreted protein (S)	downregulated					
+SCO6198	4,38	z	0,000134	putative secreted (S)	downregulated					
+SCO6199	3,54	z	0,000488	secreted esterase (S)	downregulated					
+SCO6228	3,79	z	5,07	hypothetical protein (HP)	downregulated					
+SCO6265	4,27	z	8,31	butyrolacton ScbR (RP)	downregulated					
+SCO6266	33,90	z	3,17	butyrolacton Scb1 (SM)	downregulated					
+SCO6267	5,59	z	1,05	hypothetical protein (HP)	downregulated					
+SCO6268	13,00	z	0,00233	two-­?component system sensor kinase HK (RP)	downregulated					
+SCO6272	67,20	z	0,00163	putative secreted FAD binding (S)	downregulated					
+SCO6273	112,00	z	0,000777	hexaketid cpk cluster (SM)	downregulated					
+SCO6274	83,10	z	0,000495	hexaketid cpk cluster (SM)	downregulated					
+SCO6275	106,00	z	0,00037	hexaketid cpk cluster (SM)	downregulated					
+SCO6276	449,00	z	0,000541	hexaketid cpk cluster (SM)	downregulated					
+SCO6277	231,00	z	0,00044	hexaketid cpk cluster (SM)	downregulated					
+SCO6278	242,00	z	0,000636	hexaketid cpk cluster (SM)	downregulated					
+SCO6279	277,00	z	0,000855	hexaketid cpk cluster (SM)	downregulated					
+SCO6280	35,90	z	0,000000287	hexaketid cpk cluster (SM). CpkO (RP)	downregulated					
+SCO6281	38,20	z	0,000215	hexaketid cpk cluster (SM)	downregulated					
+SCO6282	603,00	z	0,000506	hexaketid cpk cluster (SM)	downregulated					
+SCO6283	40,40	z	0,00197	hexaketid cpk cluster (SM)	downregulated					
+SCO6284	16,50	z	0,00475	hexaketid cpk cluster (SM)	downregulated					
+SCO6285	45,50	z	0,000503	hexaketid cpk cluster (SM). Regulator (RP)	downregulated					
+SCO6286	23,50	z	0,0018	hexaketid cpk cluster (SM)	downregulated					
+SCO6287	26,90	z	0,00149	hexaketid cpk cluster (SM)	downregulated					
+SCO6288	21,30	z	0,0017	hexaketid cpk cluster (SM). Regulator (RP)	downregulated					
+SCO6289	4,20	z	0,005	putative secreted oxidoreductase (S)	downregulated					
+SCO6291	3,25	z	0,00122	putative secreted oxidase (S)	downregulated					
+SCO6328	3,26	z	0,0000825	putative membrane protein (MB)	downregulated					
+SCO6346	3,13	z	0,000408	hypothetical protein (HP)	downregulated					
+SCO6421	4,36	z	2,2	two-­?component system sensor kinase HK (RP)	downregulated					
+SCO6422	3,78	z	2,27	response regulator. NarL family (RP)	downregulated					
+SCO6544	5,80	z	4,92	putative membrane protein (MB)	downregulated					
+SCO6574	3,39	z	0,000166	putative membrane protein (MB)	downregulated					
+SCO6576	3,15	z	0,0000104	conserved hypothetical protein (HP)	downregulated					
+SCO6647	4,28	z	3,05	putative integral membrane protein (MB)	downregulated					
+SCO6650	3,28	z	7,13	6-­?pyruvoyl tetrahydropterin synthase (O)	downregulated					
+SCO6651	5,86	z	9,07	putative glycosyl transferase (O)	downregulated					
+SCO6652	4,60	z	3,15	hypothetical protein (HP)	downregulated					
+SCO6653	4,71	z	1,93	hypothetical protein (HP)	downregulated					
+SCO6749	3,26	z	0,00000055	hypothetical protein (HP)	downregulated					
+SCO6773	3,13	z	6,24E-09	putative secreted peptidase (S)	downregulated					
+SCO6821	3,07	z	1,87	putative transferase (O)	downregulated					
+SCO6850	3,70	z	0,0000123	conserved hypothetical protein (HP)	downregulated					
+SCO6852	3,52	z	0,0000145	conserved hypothetical protein (HP)	downregulated					
+SCO6858	3,11	z	0,00000264	hypothetical protein (HP)	downregulated					
+SCO6872	3,12	z	0,0000077	conserved hypothetical protein (HP)	downregulated					
+SCO6880	3,19	z	0,0000002	putative lipoprotein (O)	downregulated					
+SCO6882	3,92	z	0,000185	hypothetical protein (HP)	downregulated					
+SCO6900	3,79	z	0,00000246	hypothetical protein (HP)	downregulated					
+SCO6905	3,13	z	0,0000129	hypothetical protein (HP)	downregulated					
+SCO6921	3,03	z	6,44	putative membrane protein (MB)	downregulated					
+SCO6924	3,11	z	0,00000324	putative DNA-­?binding protein (RP)	downregulated					
+SCO6957	3,02	z	0,000122	putative integral membrane protein (CPA3 family)(MB)	downregulated					
+SCO6974	3,25	z	2,95E-09	tetR-­?family transcriptional regulator	downregulated					
+SCO6977	3,19	z	4,19E-08	hypothetical protein (HP)	downregulated					
+SCO7008	3,12	z	0,0000178	putative ABC-­?transport protein MDR (MB)	downregulated					
+SCO7034	3,11	z	0,000000629	putative aminotransferase (fragment) (O)	downregulated					
+SCO7066	7,30	z	0,005	2.4 dienoil-­?CoA reductase (NADPH) (O)	downregulated					
+SCO7082	3,08	z	0,0000906	hypothetical protein (HP)	downregulated					
+SCO7098	3,05	z	0,0000085	conserved hypothetical protein (HP)	downregulated					
+SCO7106	3,30	z	0,0000066	conserved hypothetical protein (HP)	downregulated					
+SCO7113	3,71	z	0,00000444	putative integral membrane protein (MB)	downregulated					
+SCO7114	3,02	z	0,0000132	conserved hypothetical protein (HP)	downregulated					
+SCO7122	3,39	z	0,000012	putative acetyltransferase (O)	downregulated					
+SCO7125	3,01	z	0,0000218	conserved hypothetical protein (HP)	downregulated					
+SCO7152	4,21	z	2,62E-08	hypothetical protein (HP)	downregulated					
+SCO7160	3,03	z	0,0000126	conserved hypothetical protein (HP)	downregulated					
+SCO7165	3,24	z	0,0000205	sugar-­?binding integral membrane transport protein ABC (MB)	downregulated					
+SCO7192	4,30	z	0,00404	put sigma (RP)	downregulated					
+SCO7225	3,98	z	6,57E-09	secreted chitinase (S)	downregulated					
+SCO7273	3,21	z	0,000146	hypothetical protein (HP)	downregulated					
+SCO7345	3,19	z	0,000000379	probable ATP-­?dependent DNA ligase (O)	downregulated					
+SCO7450	3,82	z	0,0000497	putative secreted protein (S)	downregulated					
+SCO7488	3,62	z	0,0000139	putative integral membrane ABC binding protein	downregulated					
+SCO7489	3,12	z	2,18E-09	putative binding protein dependent transport lipoprotein (MB)	downregulated					
+SCO7513	3,28	z	0,000148	putative secreted hydrolase (S)	downregulated					
+SCO7536	13,80	z	1,39	putative integral membrane protein (RND) (MB)	downregulated					
+SCO7577	3,67	z	0,00000013	putative secreted hydrolase (S)	downregulated					
+SCO7638	5,83	z	1,22	enolase (O)	downregulated					
+SCO7669	3,08	z	0,000135	aromatic polyketide (SM)	downregulated					
+SCO7671	3,14	z	0,0074	aromatic polyketide (SM)	downregulated					
+SCO7717	5,95	z	1,07E-08	putative secreted protein (S)	downregulated					
+SCO7759	3,44	z	0,00000333	putative DNA-­?binding protein (RP)	downregulated					
+SCO7761	3,88	z	0,0000497	hypothetical protein (HP)	downregulated					
+SCO7762	4,46	z	0,0000232	hypothetical protein (HP)	downregulated					

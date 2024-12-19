@@ -27,3 +27,15 @@ data_szafran2019_load <- function(){
   data_szafran2019 <- read.csv("datasets/final_data/data_szafran2019.csv")
   return(data_szafran2019)
 }
+
+abrc3_load <- function(){
+  abrc3 <- read.csv("datasets/final_data/abrc3.csv")
+  abrc3$data_name <- "abrc3"
+  return(abrc3)
+}
+
+aor1_rna_load <- function(){
+  aor1_rna <- read.csv("datasets/final_data/aor1_rna.csv")
+  aor1_rna$data_name <- "aor1_rna" 
+  return(aor1_rna)
+}

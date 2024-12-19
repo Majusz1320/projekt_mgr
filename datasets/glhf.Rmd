@@ -10,7 +10,7 @@ data_genome <- read.csv("genes_scoelicolor.txt", sep = '')
 merged_data <- file_of_interest %>%
   left_join(data_genome, by = "gene")
   
- write.csv(merged_data, "final_data/data_hupAS_RNAseq.csv", row.names = FALSE)
+ write.csv(merged_data, "final_data/aor1_rna.csv", row.names = FALSE)
 
 ```
 
@@ -335,5 +335,43 @@ getwd()
     }
   })
   
+```
+
+```{r}
+
+abrc3 <- read.csv("new_data/abrc3.txt", sep = "\t")
+abrc3$logFC <- gsub("", "-", abrc3$logFC)
+abrc3$logFC <- as.numeric(abrc3$logFC)
+abrc3$add_variable <- abrc3$X 
+
+abrc3 <- abrc3 %>% select(gene, FDR, logFC, add_variable)
+
+merged_data <- abrc3 %>%
+  left_join(data_genome, by = "gene")
+
+```
+
+```{r}
+
+aor1_rna <- read.csv("new_data/aor1_rna.txt", sep = "\t")
+aor1_rna$FC <- gsub(",", ".", aor1_rna$FC)
+aor1_rna$FDR <- gsub(",", ".", aor1_rna$FDR)
+aor1_rna$FC <- as.numeric(aor1_rna$FC)
+aor1_rna$FDR <- as.numeric(aor1_rna$FDR)
+aor1_rna$logFC <- log2(aor1_rna$FC)
+
+aor1_rna <- aor1_rna %>% select(gene, FDR, logFC, add_variable)
+
+df <- separate(aor1_rna, gene, into = c("gene", "number"), sep = "*", fill = "right")
+
+
+
+merged_data <- aor1_rna %>%
+  left_join(data_genome, by = "gene")
+
+library(tidyr)
+
+
+
 ```
 
