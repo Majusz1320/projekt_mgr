@@ -39,3 +39,66 @@ aor1_rna_load <- function(){
   aor1_rna$data_name <- "aor1_rna" 
   return(aor1_rna)
 }
+
+
+argR_2018_load <- function(){
+  argR_2018 <- read.csv("datasets/final_data/argR_2018.csv")
+  argR_2018$data_name <- "argR_2018"
+  return(argR_2018)
+}
+
+bldD_scoe_load <- function(){
+  bldD_scoe <- read.csv("datasets/final_data/bldD_scoe.csv")
+  bldD_scoe$data_name <- "bldD_scoe"
+  return(bldD_scoe)
+}
+data_bldC_sven_load <- function(){
+  data_bldC_sven <- read.csv("datasets/final_data/data_bldC_sven.csv")
+  data_bldC_sven$data_name <- "data_bldC_sven"
+  return(data_bldC_sven)
+}
+draRK_scoe_load <- function(){
+  draRK_scoe <- read.csv("datasets/final_data/draRK_scoe.csv")
+  draRK_scoe$data_name <- "draRK_scoe"
+  return(draRK_scoe)
+}
+ECF42s_sven_load <- function(){
+  ECF42s_sven <- read.csv("datasets/final_data/ECF42s_sven.csv")
+  ECF42s_sven$data_name <- "ECF42s_sven"
+  return(ECF42s_sven)
+}
+glnr_sven_load <- function(){
+  glnr_sven <- read.csv("datasets/final_data/glnr_sven.csv")
+  glnr_sven$data_name <- "glnr_sven"
+  return(glnr_sven)
+}
+hups_rnaseq_Strzalka_sven_load <- function(){
+  hups_rnaseq_Strzalka_sven <- read.csv("datasets/final_data/hups_rnaseq_Strzalka_sven.csv")
+  hups_rnaseq_Strzalka_sven$data_name <- "hups_rnaseq_Strzalka_sven"
+  return(hups_rnaseq_Strzalka_sven)
+}
+ohkA_scoe_load <- function(){
+  ohkA_scoe <- read.csv("datasets/final_data/ohkA_scoe.csv")
+  ohkA_scoe$data_name <- "ohkA_scoe"
+  return(ohkA_scoe)
+}
+osdR_2016_load <- function(){
+  osdR_2016 <- read.csv("datasets/final_data/osdR_2016.csv")
+  osdR_2016$data_name <- "osdR_2016"
+  return(osdR_2016)
+}
+sigR_load <- function(){
+  sigR <- read.csv("datasets/final_data/sigR.csv")
+  sigR$data_name <- "sigR"
+  return(sigR)
+}
+soxr_genes_load <- function(){
+  soxr_genes <- read.csv("datasets/final_data/soxr_genes.csv")
+  soxr_genes$data_name <- "soxr_genes"
+  return(soxr_genes)
+}
+whiAH_scoe_load <- function(){
+  whiAH_scoe <- read.csv("datasets/final_data/whiAH_scoe.csv")
+  whiAH_scoe$data_name <- "whiAH_scoe"
+  return(whiAH_scoe)
+}

@@ -28,6 +28,8 @@ ui <- fluidPage(
                         sidebarPanel(
                           tabsetPanel(type = "pills",
                                       tabPanel("Selection",
+                                               input_switch("switch_species", "Choose species"),
+                                               verbatimTextOutput("switch_value"),
                                                fileInput("uploaded_file", "Choose a File"),
                                                conditionalPanel(
                                                  # JavaScript condition to check if file input has data

@@ -7,10 +7,24 @@
 options(shiny.maxRequestSize=30*1024^2) 
 server <- function(input, output, session) {
   
+  switch_status <- reactive({
+    switch_status <- input$switch_species
+    return(switch_status)
+  })
+  output$switch_value <- reactive({
+    if (switch_status() == FALSE)
+    {switch_text <- "SCOE"}
+    else
+    {switch_text <- "SVEN"}
+    return(switch_text)
+  })
+  
   #### server-side select choice of genes ####
   # In the server function, add this at the beginning:
   observeEvent(session$clientData$url_protocol, {  # This ensures it runs when the app starts
     # Load the gene list
+    if(switch_status() == FALSE)
+    {
     genelist <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
     gene_list_database <- c("all", genelist$gene)
     # Update the selectize input with all choices
@@ -18,11 +32,23 @@ server <- function(input, output, session) {
                          inputId = "select_gene", 
                          choices = gene_list_database,
                          selected = "all",
-                         server = TRUE)
+                         server = TRUE) }
+    else
+    {
+      genelist <- read.csv("datasets/sven_genes_vnz.txt", sep = '')
+      gene_list_database <- c("all", genelist$gene)
+      updateSelectizeInput(session, 
+                           inputId = "select_gene", 
+                           choices = gene_list_database,
+                           selected = "all",
+                           server = TRUE) 
+    }
   }, once = TRUE)  # once=TRUE means it only runs once when the app starts
   
   observeEvent(session$clientData$url_protocol, {  # This ensures it runs when the app starts
     # Load the gene list
+    if(switch_status() == FALSE)
+    {
     genelist <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
     gene_list_database <- c("all", genelist$gene)
     # Update the selectize input with all choices
@@ -30,7 +56,18 @@ server <- function(input, output, session) {
                          inputId = "select_gene_venn", 
                          choices = gene_list_database,
                          selected = "all",
-                         server = TRUE)
+                         server = TRUE)}
+    else
+    {
+      genelist <- read.csv("datasets/sven_genes_vnz.txt", sep = '')
+      gene_list_database <- c("all", genelist$gene)
+      # Update the selectize input with all choices
+      updateSelectizeInput(session, 
+                           inputId = "select_gene_venn", 
+                           choices = gene_list_database,
+                           selected = "all",
+                           server = TRUE)
+    }
   }, once = TRUE)  # once=TRUE means it only runs once when the app starts
   
   
@@ -136,13 +173,26 @@ server <- function(input, output, session) {
     
     req(changes_applied())
     
+    if(switch_status() == FALSE)
+    {
     if(input$select_gene == "all") {
       plot_data <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
     } else {
       input$select_gene -> selected_gene
       plot_data <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
       plot_data <- plot_data %>% filter(gene == selected_gene)
+    }}
+    else{
+      if(input$select_gene == "all") {
+        plot_data <- read.csv("datasets/sven_genes_vnz.txt", sep = '')
+      } else {
+        input$select_gene -> selected_gene
+        plot_data <- read.csv("datasets/sven_genes_vnz.txt", sep = '')
+        plot_data <- plot_data %>% filter(gene == selected_gene)
+      }
+      
     }
+    
     return(plot_data)
   })
   
@@ -171,28 +221,30 @@ server <- function(input, output, session) {
   #### MERGING USER DATA ####
   
   merged_user <- reactive({
-    
     req(changes_applied())
     
     user_data <- user_data_upload()
-    print(class(user_data))
-    data_genome <- plotgenomeInput()
-    print(class(data_genome))
     
     if (is.null(user_data)) {
       return(NULL)
-    } else {
-      user_data <- user_data_upload()
-      data_genome <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
-      merged_data <- user_data %>%
-        left_join(data_genome, by = "gene")
-  
-      merged_data <- na.omit(merged_data)
-      
-      #print(merged_data)
-      return(merged_data)
     }
+    
+    # Determine which genome data to use based on switch status
+    if (switch_status() == FALSE) {
+      data_genome <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
+    } else {
+      data_genome <- read.csv("datasets/sven_genes_vnz.txt", sep = '')
+    }
+    
+    # Merge the data and remove NA values
+    merged_data <- user_data %>%
+      left_join(data_genome, by = "gene") %>%
+      na.omit()
+    
+    return(merged_data)
   })
+  
+  
   
   output$fileUploaded <- reactive({
   !is.null(input$uploaded_file)
@@ -205,9 +257,9 @@ outputOptions(output, "fileUploaded", suspendWhenHidden = FALSE)
   
 data_loaded_rna <- reactive({
   if (!is.null(input$file_name)) {
-    c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna", input$file_name)
+    c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna","argR_2018", "bldD_scoe", "data_bldC_sven", "draRK_scoe", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe", input$file_name)
   } else {
-    c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna")
+    c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna", "argR_2018", "bldD_scoe", "data_bldC_sven", "draRK_scoe", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe")
   }
 })
 
@@ -235,6 +287,18 @@ dataselection_rnaseq_before_LHfilter <- reactive({
   data_hupAS_RNAseq <- data_hupAS_RNAseq_load()
   abrc3 <- abrc3_load() 
   aor1_rna <- aor1_rna_load()
+  argR_2018 <- argR_2018_load()
+  bldD_scoe <- bldD_scoe_load()
+  data_bldC_sven <- data_bldC_sven_load()
+  draRK_scoe <- draRK_scoe_load()
+  ECF42s_sven <- ECF42s_sven_load()
+  glnr_sven <- glnr_sven_load()
+  hups_rnaseq_Strzalka_sven <- hups_rnaseq_Strzalka_sven_load()
+  ohkA_scoe <- ohkA_scoe_load()
+  osdR_2016 <- osdR_2016_load()
+  sigR <- sigR_load()
+  soxr_genes <- soxr_genes_load()
+  whiAH_scoe <- whiAH_scoe_load()
   
   # Create a list of data frames, handling the user data separately
   data_list <- list(
@@ -243,7 +307,19 @@ dataselection_rnaseq_before_LHfilter <- reactive({
     RNAseq_Martyna = RNAseq_Martyna,
     szafran2019 = szafran2019,
     abrc3 = abrc3,
-    aor1_rna = aor1_rna
+    aor1_rna = aor1_rna,
+    argR_2018 = argR_2018,
+    bldD_scoe = bldD_scoe,
+    data_bldC_sven = data_bldC_sven,
+    draRK_scoe = draRK_scoe,
+    ECF42s_sven = ECF42s_sven,
+    glnr_sven = glnr_sven,
+    hups_rnaseq_Strzalka_sven = hups_rnaseq_Strzalka_sven,
+    ohkA_scoe = ohkA_scoe,
+    osdR_2016 = osdR_2016,
+    sigR = sigR,
+    soxr_genes = soxr_genes,
+    whiAH_scoe = whiAH_scoe
   )
   
   # Add user data to the list if it exists
@@ -399,7 +475,14 @@ dataselection_rnaseq_before_LHfilter <- reactive({
     lower <- changes_applied_lower()
     higher <- changes_applied_higher()
     
+    if(switch_status() == FALSE)
+    {
     plot_data_genome <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
+    }
+    else{
+      plot_data_genome <- read.csv("datasets/sven_genes_vnz.txt", sep = '')
+    }
+    
     plot_data_genome_filter <- plot_data_genome %>% filter(start >= lower, end <= higher)
     
     return(plot_data_genome_filter)
@@ -863,6 +946,18 @@ dataselection_rnaseq_before_LHfilter <- reactive({
     data_hupAS_RNAseq <- data_hupAS_RNAseq_load()
     abrc3 <- abrc3_load() 
     aor1_rna <- aor1_rna_load()
+    argR_2018 <- argR_2018_load()
+    bldD_scoe <- bldD_scoe_load()
+    data_bldC_sven <- data_bldC_sven_load()
+    draRK_scoe <- draRK_scoe_load()
+    ECF42s_sven <- ECF42s_sven_load()
+    glnr_sven <- glnr_sven_load()
+    hups_rnaseq_Strzalka_sven <- hups_rnaseq_Strzalka_sven_load()
+    ohkA_scoe <- ohkA_scoe_load()
+    osdR_2016 <- osdR_2016_load()
+    sigR <- sigR_load()
+    soxr_genes <- soxr_genes_load()
+    whiAH_scoe <- whiAH_scoe_load()
     
     # Create a list of data frames, handling the user data separately
     data_list <- list(
@@ -871,7 +966,19 @@ dataselection_rnaseq_before_LHfilter <- reactive({
       RNAseq_Martyna = RNAseq_Martyna,
       szafran2019 = szafran2019,
       abrc3 = abrc3,
-      aor1_rna = aor1_rna
+      aor1_rna = aor1_rna,
+      argR_2018 = argR_2018,
+      bldD_scoe = bldD_scoe,
+      data_bldC_sven = data_bldC_sven,
+      draRK_scoe = draRK_scoe,
+      ECF42s_sven = ECF42s_sven,
+      glnr_sven = glnr_sven,
+      hups_rnaseq_Strzalka_sven = hups_rnaseq_Strzalka_sven,
+      ohkA_scoe = ohkA_scoe,
+      osdR_2016 = osdR_2016,
+      sigR = sigR,
+      soxr_genes = soxr_genes,
+      whiAH_scoe = whiAH_scoe
     )
     
     # Add user data to the list if it exists
