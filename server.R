@@ -1007,9 +1007,7 @@ dataselection_rnaseq_before_LHfilter <- reactive({
     return(data_rna)
   })
   
-  switch_state_venn <- reactive({
-    input$my_switch_venn
-  })
+
   
   filter_data_for_venn <- reactive({
     higher_logFC <- input$higher_logFC_venn
@@ -1018,14 +1016,12 @@ dataselection_rnaseq_before_LHfilter <- reactive({
     data_rna1 <- data_rna %>% filter(logFC >= higher_logFC, add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2))
     data_rna2 <- data_rna %>% filter(logFC <= lower_logFC)
     data_rna_filtered <- rbind(data_rna1, data_rna2)
-    print(data_rna_filtered)
-    if(switch_state_venn()) {
       data_rna_filtered <- data_rna_filtered %>% filter(FDR <= 0.05)
       return(data_rna_filtered)
-    } else {
-      return(data_rna_filtered)
-    }
+    
   })
+  
+  
   
   prep_data_venn <- reactive({
     data_set_venn <- filter_data_for_venn()
@@ -1043,7 +1039,40 @@ dataselection_rnaseq_before_LHfilter <- reactive({
       set_name_size = 4
     )
   })
+  
+  
+  data_venn_table <- reactive({
+  list_venn <- prep_data_venn()
+  df_venn <- filter_data_for_venn()
+  
+  list1 <- list_venn[[1]]
+  list2 <- list_venn[[2]]
+  
+  venn_table_same_genes <- intersect(list1, list2)
+  
+  filtered_genes_venn <- df_venn %>% filter(gene == venn_table_same_genes)
+  print(filtered_genes_venn)
+  })
+  
+  
+  
  
+  tableInput_venn <- reactive({
+    
+    req(changes_applied())
+    
+    table_data1 <- data_venn_table()
+    return(table_data1)
+  })
+  output$venn_table <- renderDataTable({
+    
+    req(changes_applied())
+    
+    table_data1 <- tableInput_venn()
+    return(table_data1)
+  })
+  
+  
   
   #### HEATMAP ####
   

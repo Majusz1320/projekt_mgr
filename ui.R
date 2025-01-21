@@ -75,7 +75,7 @@ ui <- fluidPage(
                                                  col_widths = c(10, 10),
                                                  fill = FALSE,
                                                  fillable = FALSE,
-                                                 gap = 100,
+                                                 gap = "100px",
                                                  actionButton("btn_left", "Left", class = "w-100"),
                                                  actionButton("btn_right", "Right", class = "w-100")
                                                ),
@@ -86,7 +86,7 @@ ui <- fluidPage(
                                                  col_widths = c(3, 3),
                                                  fill = FALSE,
                                                  fillable = FALSE,
-                                                 gap = 100,
+                                                 gap = "100px",
                                                  actionButton("btn_in", "Zoom in", class = "w-100"),
                                                  actionButton("btn_out", "Zoom out", class = "w-100")
                                                )),
@@ -165,15 +165,19 @@ ui <- fluidPage(
                                       ),
                                       tabPanel("Plot Options",
                                                numericInput("higher_logFC_venn", label = ("higher logFC"), value = 0, step = 0.5),
-                                               numericInput("lower_logFC_venn", label = ("lower logFC"), value = 0, step = 0.5),
-                                               input_switch("my_switch_venn", "Leave only significant genes (FDR <= 0.05)", value = FALSE)),
+                                               numericInput("lower_logFC_venn", label = ("lower logFC"), value = 0, step = 0.5)),
                                       tabPanel("Plot Download")
                           )
                         ),
                         mainPanel(
                           tabsetPanel(
                             type='pills', 
-                            tabPanel("Venn", plotOutput("venn_plot")), tabPanel("Heatmap", plotOutput("heatmap_plot"))                         )
+                            tabPanel("Venn", plotOutput("venn_plot", height = '800px' )),
+                            tabPanel("Heatmap", plotOutput("heatmap_plot", height = '800px' ))),
+                          tabsetPanel(
+                            type='pills', 
+                            tabPanel("Venn", dataTableOutput("venn_table")))
+                          
                         )
                       )
              ),

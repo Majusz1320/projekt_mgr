@@ -833,3 +833,41 @@ glnr_sven <- glnr_sven %>% select(gene, logFC, add_variable, FDR, start, end, st
 
 ```
 
+```{r}
+
+abrB1.2_table4 <- read.csv("final_data/abrB1.2_table4.csv")
+  abrB1.2_table4$add_variable <- "abrB1.2_table4"
+  abrB1.2_table5 <- read.csv("final_data/abrB1.2_table5.csv")
+  abrB1.2_table5$add_variable <- "abrB1.2_table5"
+  
+
+ abrB1.2_table <- rbind(abrB1.2_table4, abrB1.2_table5)
+  abrB1.2_table$data_name <- "abrB1.2_table"
+
+
+  abrc3 <- read.csv("final_data/abrc3.csv")
+  abrc3$data_name <- "abrc3"
+
+
+getwd()
+
+data_meme <- rbind(abrc3, abrB1.2_table)
+
+      data_meme1 <- data_meme %>% filter(FDR <= 0.05)
+
+data_meme2 <- split(data_meme1$gene, data_meme1$data_name)
+
+list1 <- data_meme2[[1]]
+list2 <- data_meme2[[2]]
+
+data_meme3 <- intersect(list1, list2)
+
+filter(data_meme$gene, .by = data_meme3)
+
+filtered <- data_meme[data_meme$gene == data_meme3 ]
+
+
+filtered_df <- data_meme %>% filter(gene == data_meme3)
+
+```
+
