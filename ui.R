@@ -10,6 +10,7 @@ library(BiocManager)
 library(plotly)
 library(bslib)
 library(ggvenn)
+library(ggupset)
 source("loading_data.R")
 
 #### UI ####
@@ -164,8 +165,8 @@ ui <- fluidPage(
                                                               options = list(maxOptions = 10000))
                                       ),
                                       tabPanel("Plot Options",
-                                               numericInput("higher_logFC_venn", label = ("higher logFC"), value = 0, step = 0.5),
-                                               numericInput("lower_logFC_venn", label = ("lower logFC"), value = 0, step = 0.5)),
+                                               numericInput("higher_logFC_venn", label = ("higher logFC"), value = 1.5, step = 0.1),
+                                               numericInput("lower_logFC_venn", label = ("lower logFC"), value = -1.5, step = 0.1)),
                                       tabPanel("Plot Download")
                           )
                         ),
