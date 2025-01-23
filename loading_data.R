@@ -102,3 +102,13 @@ whiAH_scoe_load <- function(){
   whiAH_scoe$data_name <- "whiAH_scoe"
   return(whiAH_scoe)
 }
+yague_2013_scoe_diff_load <- function(){
+  yague_2013_scoe_diff <- read.csv("datasets/final_data/yague_2013_scoe_diff.csv")
+  yague_2013_scoe_diff$data_name <- "yague_2013_scoe_diff"
+  return(yague_2013_scoe_diff)
+}
+yeong_2016_load <- function(){
+  yeong_2016 <- read.csv("datasets/final_data/yeong_2016.csv")
+  yeong_2016$data_name <- "yeong_2016"
+  return(yeong_2016)
+}

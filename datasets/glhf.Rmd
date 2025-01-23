@@ -870,4 +870,85 @@ filtered <- data_meme[data_meme$gene == data_meme3 ]
 filtered_df <- data_meme %>% filter(gene == data_meme3)
 
 ```
+```{r}
+
+yeong <- read.csv("new_data/yague_2013_scoe_diff.txt", sep = "\t")
+yague <- read.csv("new_data/yeong_2016.txt",  sep = "\t")
+
+colnames(yeong)
+colnames(yague)
+
+
+yeong$Average.log2.MII24h.MI12h  <- gsub(",", ".", yeong$Average.log2.MII24h.MI12h)
+yeong$Average.log2.MII48h.MI12h  <- gsub(",", ".", yeong$Average.log2.MII48h.MI12h)
+yeong$Average.log2.MII72h.MI12h  <- gsub(",", ".", yeong$Average.log2.MII72h.MI12h)
+yeong$Average.log2.MII24h.MI12h <- as.numeric(yeong$Average.log2.MII24h.MI12h)
+yeong$Average.log2.MII48h.MI12h <- as.numeric(yeong$Average.log2.MII48h.MI12h)
+yeong$Average.log2.MII72h.MI12h <- as.numeric(yeong$Average.log2.MII72h.MI12h)
+
+yeong$MII24hvsMI12h <- yeong$Average.log2.MII24h.MI12h
+yeong$MII48hvsMI12h <- yeong$Average.log2.MII48h.MI12h
+yeong$MII72hvsMI12h <- yeong$Average.log2.MII72h.MI12h
+yeong$gene <- yeong$Gene
+
+yeong <- yeong %>% select(gene, MII24hvsMI12h, MII48hvsMI12h, MII72hvsMI12h)
+
+yeong <- yeong %>% 
+  pivot_longer(
+    cols = !gene, 
+    names_to = "add_variable", 
+    values_to = "logFC"
+  )
+
+
+yeong$FDR <- 0
+
+
+yeong <- yeong %>%
+  left_join(data_genome, by = "gene")
+  
+ write.csv(yeong, "final_data/yague_2013_scoe_diff.csv", row.names = FALSE)
+
+
+getwd()
+
+yague$MvsTFC  <- gsub(",", ".", yague$MvsTFC)
+yague$MvsLFC  <- gsub(",", ".", yague$MvsLFC)
+yague$MvsSFC  <- gsub(",", ".", yague$MvsSFC)
+yague$TvsLFC  <- gsub(",", ".", yague$TvsLFC)
+yague$TvsSFC  <- gsub(",", ".", yague$TvsSFC)
+yague$LvsSFC  <- gsub(",", ".", yague$LvsSFC)
+yague$MvsTFC <- as.numeric(yague$MvsTFC)
+yague$MvsLFC <- as.numeric(yague$MvsLFC)
+yague$MvsSFC <- as.numeric(yague$MvsSFC)
+yague$TvsLFC <- as.numeric(yague$TvsLFC)
+yague$TvsSFC <- as.numeric(yague$TvsSFC)
+yague$LvsSFC <- as.numeric(yague$LvsSFC)
+
+yague$MvsT <- yague$MvsTFC
+yague$MvsL <- yague$MvsLFC
+yague$MvsS <- yague$MvsSFC
+yague$TvsL <- yague$TvsLFC
+yague$TvsS <- yague$TvsSFC
+yague$LvsS <- yague$LvsSFC
+
+yague <- yague %>% select(gene, MvsT, MvsL, MvsS, TvsL, TvsS, LvsS)
+
+
+yague <- yague %>% 
+  pivot_longer(
+    cols = !gene, 
+    names_to = "add_variable", 
+    values_to = "logFC"
+  )
+
+yague$logFC <- log2(yague$logFC)
+yague$FDR <- 0
+
+yague <- yague %>%
+  left_join(data_genome, by = "gene")
+  
+ write.csv(yague, "final_data/yague_2016.csv", row.names = FALSE)
+
+```
 

@@ -3,6 +3,7 @@ library(shinythemes)
 library(ggplot2)
 library(gggenes)
 library(dplyr)
+library(tidyr)
 library(pheatmap)
 library(patchwork)
 library(tidyHeatmap)
@@ -17,7 +18,7 @@ source("loading_data.R")
 
 
 
-options_app <- c("genome", "RNAplot", "CHIPplot", "logFCplot", "pvalueVulcano")
+options_app <- c("genome", "RNAplot", "CHIPplot")
 chip_choice <- c('data_hupA_chipseq_edgeR', 'data_hupA_chipseq_macs')
 
 
@@ -29,7 +30,7 @@ ui <- fluidPage(
                         sidebarPanel(
                           tabsetPanel(type = "pills",
                                       tabPanel("Selection",
-                                               input_switch("switch_species", "Choose species"),
+                                               bslib::input_switch("switch_species", "Choose species"),
                                                verbatimTextOutput("switch_value"),
                                                fileInput("uploaded_file", "Choose a File"),
                                                conditionalPanel(
@@ -108,8 +109,8 @@ ui <- fluidPage(
                                       ),
                                       tabPanel("Plot Download",
                                                downloadButton('download_plot', 'Download png plot'),
-                                               numericInput('width_hist', 'Plot width [cm]', 20, min = 5, max = 25),
-                                               numericInput('height_hist', 'Plot height [cm]', 14, min = 5, max = 25),
+                                               numericInput('width_hist', 'Plot width [cm]', 20, min = 5, max = 1000),
+                                               numericInput('height_hist', 'Plot height [cm]', 14, min = 5, max = 1000),
                                                numericInput('res_hist', 'Resolution', 200, min = 100, max = 500)
                                       )
                           ), width = 2, open = FALSE
@@ -117,7 +118,7 @@ ui <- fluidPage(
                         mainPanel(
                           
                           tabsetPanel(type = "pills",
-                                      tabPanel("Maing plots",
+                                      tabPanel("Main plots",
                                                plotOutput("all_plots", height = '800px')
                                       )),
                           tabsetPanel(type = 'pills',
@@ -126,9 +127,7 @@ ui <- fluidPage(
                                       ),
                                       tabPanel("CHIPseq in table",
                                                dataTableOutput("chip_table")
-                                      ),
-                                      tabPanel("gene related stuff",
-                                               textOutput("gene_protein_data"))),
+                                      )),
                           width = 10
                         )
                       )
@@ -167,7 +166,18 @@ ui <- fluidPage(
                                       tabPanel("Plot Options",
                                                numericInput("higher_logFC_venn", label = ("higher logFC"), value = 1.5, step = 0.1),
                                                numericInput("lower_logFC_venn", label = ("lower logFC"), value = -1.5, step = 0.1)),
-                                      tabPanel("Plot Download")
+                                      tabPanel("Plot Download Venn",
+                                               downloadButton('download_plot_venn', 'Download png plot'),
+                                               numericInput('width_hist', 'Plot width [cm]', 20, min = 5, max = 1000),
+                                               numericInput('height_hist', 'Plot height [cm]', 14, min = 5, max = 1000),
+                                               numericInput('res_hist', 'Resolution', 200, min = 100, max = 500)
+                                      ),
+                                      tabPanel("Plot Download Heat",
+                                               downloadButton('download_plot_heat', 'Download png plot'),
+                                               numericInput('width_hist', 'Plot width [cm]', 20, min = 5, max = 1000),
+                                               numericInput('height_hist', 'Plot height [cm]', 14, min = 5, max = 1000),
+                                               numericInput('res_hist', 'Resolution', 200, min = 100, max = 500)
+                                      )
                           )
                         ),
                         mainPanel(

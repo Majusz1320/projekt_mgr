@@ -257,9 +257,9 @@ server <- function(input, output, session) {
   
   data_loaded_rna <- reactive({
     if (!is.null(input$file_name)) {
-      c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna","argR_2018", "bldD_scoe", "data_bldC_sven", "draRK_scoe", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe", input$file_name)
+      c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna","argR_2018", "bldD_scoe", "data_bldC_sven", "draRK_scoe", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe", "yague_2013_scoe_diff", "yeong_2016", input$file_name)
     } else {
-      c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna", "argR_2018", "bldD_scoe", "data_bldC_sven", "draRK_scoe", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe")
+      c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna", "argR_2018", "bldD_scoe", "data_bldC_sven", "draRK_scoe", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe", "yague_2013_scoe_diff", "yeong_2016")
     }
   })
   
@@ -299,6 +299,8 @@ server <- function(input, output, session) {
     sigR <- sigR_load()
     soxr_genes <- soxr_genes_load()
     whiAH_scoe <- whiAH_scoe_load()
+    yague_2013_scoe_diff <- yague_2013_scoe_diff_load()
+    yeong_2016 <- yeong_2016_load()
     
     # Create a list of data frames, handling the user data separately
     data_list <- list(
@@ -319,7 +321,9 @@ server <- function(input, output, session) {
       osdR_2016 = osdR_2016,
       sigR = sigR,
       soxr_genes = soxr_genes,
-      whiAH_scoe = whiAH_scoe
+      whiAH_scoe = whiAH_scoe,
+      yague_2013_scoe_diff = yague_2013_scoe_diff,
+      yeong_2016 = yeong_2016
     )
     
     # Add user data to the list if it exists
@@ -703,62 +707,6 @@ server <- function(input, output, session) {
   
   
   
-  #### 'RPKM' PLOT, VOLCANO PLOT ####
-  
-  RPKMplot <- reactive({
-    
-    req(changes_applied())
-    
-    lower <- changes_applied_lower()
-    higher <- changes_applied_higher()
-    lowlogFC <- lower_logFC()
-    highlogFC <- higher_logFC()
-    plot_data_rna <- dataselection_rnaseq()
-    plot_data_rna_highlog <- plot_data_rna %>% filter(logFC >= highlogFC)
-    plot_data_rna_lowlog <- plot_data_rna %>% filter(logFC <= lowlogFC)
-    plot_data_rna_logFC_filtered <- rbind(plot_data_rna_lowlog, plot_data_rna_highlog)
-    rpkm_rna_plot <- ggplot(plot_data_rna_logFC_filtered, aes(x = (start+end)/2, y = logFC, xmax = (start+end)/2, ymin = 0, ymax = logFC, xmin = (start+end)/2, color = contrast, fill = contrast)) +
-      theme_bw() +
-      geom_point(position = position_dodge(width = 350)) +
-      geom_linerange(position = position_dodge(width = 350)) +
-      xlab('Genome position [bp]') +
-      ylab('logFC')+
-      coord_cartesian(xlim = c(lower, higher))
-    
-    return(rpkm_rna_plot)
-  })
-  
-  
-  Vulcanoplot <- reactive({
-    
-    req(changes_applied())
-    
-    lower <- changes_applied_lower()
-    higher <- changes_applied_higher()
-    lowlogFC <- lower_logFC()
-    highlogFC <- higher_logFC()
-    plot_data_rna <- dataselection_rnaseq()
-    p_value_data <- plot_data_rna %>% mutate(logFC = ifelse(is.na(logFC), 0, logFC))
-    p_value_above_logFC <- p_value_data %>% filter(logFC >= highlogFC)
-    p_value_below_logFC <- p_value_data %>% filter(logFC <= lowlogFC)
-    p_value_data_logFC_filtered <- rbind(p_value_below_logFC, p_value_above_logFC)
-    plot_data_rna_pvalue_filtered <- p_value_data_logFC_filtered %>% mutate(pvalue_filtered = ifelse(FDR >= 0.05, 1, 2))
-    vulcano_plot <- plot_data_rna_pvalue_filtered %>% ggplot(aes(x=logFC, y=-log10(PValue), group=contrast))+
-      geom_point(aes(col=plot_data_rna_pvalue_filtered$pvalue_filtered, shape=contrast), size=3)
-    return(vulcano_plot)
-    
-  })
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   #### TABLES INPUT ####
   
   tableInput_rna <- reactive({
@@ -799,47 +747,6 @@ server <- function(input, output, session) {
   
   
   
-  
-  
-  
-  #### SELECTED GENE DESCRIPTION ####
-  
-  textInput_dataofgene <- reactive({
-    
-    req(changes_applied())
-    
-    if(input$select_gene == "all") {
-      data_for_gene_info_end <- ("Sorry, no specific gene selected :/")
-    }
-    else{
-      input$select_gene -> selected_gene
-      dane1 <- read.csv("datasets/data_hupAS_RNAseq.txt", sep = '')
-      dane2 <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
-      dane1 <- rename(dane1, gene = genes)
-      zmergowane <- merge(dane1, dane2, by = "gene")
-      data_for_gene_info <- zmergowane %>% filter(gene == selected_gene)
-      gene_id <- data_for_gene_info %>% distinct(gene)
-      gene_name <- data_for_gene_info %>% distinct(name)
-      protein_name <- data_for_gene_info %>% distinct(protein_name)
-      protein_product <- data_for_gene_info %>% distinct(product)
-      data_for_gene_info_end <- c("gene id:", as.character(gene_id), "\n",
-                                  "gene name:", as.character(gene_name), "\n",
-                                  "protein name:", as.character(protein_name), "\n",
-                                  "protein product:", as.character(protein_product))
-    }
-    return(data_for_gene_info_end)
-  })
-  
-  output$gene_protein_data <- renderText({
-    
-    req(changes_applied())
-    
-    data_of_gene <- textInput_dataofgene()
-    return(paste(data_of_gene, collapse = "\n"))
-  })
-  
-  
-  
   #### PATCHWORK PLOTING MAIN PLOTS ####
   
   plot_all_patchwork <- reactive({
@@ -853,16 +760,13 @@ server <- function(input, output, session) {
     p_genome <- genomeplot()
     p_rnaplot <- RNAplot()
     p_chipplot <- draw_chip_plot()
-    p_rpkmplot <- RPKMplot()
-    p_vulcano_pvalue <- Vulcanoplot()
+  
     
     plot_list <- list(`genome`= p_genome,
                       `RNAplot` = p_rnaplot,
-                      `CHIPplot` = p_chipplot,
-                      `logFCplot` = p_rpkmplot,
-                      `pvalueVulcano` = p_vulcano_pvalue)
+                      `CHIPplot` = p_chipplot)
     
-    heights <- c(1, 8, 2, 5)
+    heights <- c(1, 8, 2)
     
     p_all <- patchwork::wrap_plots(plot_list[selected_number], ncol = 1, heights = heights[selected_number])
     
@@ -872,6 +776,33 @@ server <- function(input, output, session) {
   output$all_plots <- renderPlot({ plot_all_patchwork() })
   
   
+  
+  #### PLOT DOWNLOAD ####
+  
+  output$download_plot <- downloadHandler(
+    filename = function() {
+      paste0("combined_plots_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".png")
+    },
+    content = function(file) {
+      # Explicitly create the plot at the time of download
+      plot <- plot_all_patchwork()
+      
+      # Calculate height based on selected plots
+      selected_number <- which(c('genome', 'RNAplot', 'CHIPplot') %in% input$options)
+      total_height <- sum(c(1, 8, 2)[selected_number])
+      
+      # Save the plot with ggsave
+      ggsave(
+        filename = file,
+        plot = plot,
+        device = "png",
+        width = 10,
+        height = total_height,
+        units = "in",
+        dpi = 300
+      )
+    }
+  )
   
   
   
@@ -958,6 +889,8 @@ server <- function(input, output, session) {
     sigR <- sigR_load()
     soxr_genes <- soxr_genes_load()
     whiAH_scoe <- whiAH_scoe_load()
+    yague_2013_scoe_diff <- yague_2013_scoe_diff_load()
+    yeong_2016 <- yeong_2016_load()
     
     # Create a list of data frames, handling the user data separately
     data_list <- list(
@@ -978,7 +911,9 @@ server <- function(input, output, session) {
       osdR_2016 = osdR_2016,
       sigR = sigR,
       soxr_genes = soxr_genes,
-      whiAH_scoe = whiAH_scoe
+      whiAH_scoe = whiAH_scoe,
+      yague_2013_scoe_diff = yague_2013_scoe_diff,
+      yeong_2016 = yeong_2016
     )
     
     # Add user data to the list if it exists
@@ -1110,6 +1045,64 @@ server <- function(input, output, session) {
     print(p_heat)
   })
   
+  
+  
+  output$download_plot_venn <- downloadHandler(
+    filename = function() {
+      paste("venn_plot_", Sys.Date(), ".png", sep = "")
+    },
+    content = function(file) {
+      ggsave(file, plot = {
+        gene_lists <- prep_data_venn()
+        if(length(gene_lists) <= 1){
+          return(NULL)
+        } else if(length(gene_lists) <= 4){
+          ggvenn(
+            gene_lists,
+            fill_color = c("#0073C2FF", "#EFC000FF", 'red3', 'green3'),
+            stroke_size = 0.5,
+            set_name_size = 4
+          )
+        } else{
+          data_set_venn <- filter_data_for_venn()
+          
+          data_set_venn %>%
+            group_by(gene) %>%
+            summarize(add_variable = list(add_variable)) %>%
+            ggplot(aes(x=add_variable)) +
+            geom_bar() +
+            scale_x_upset(n_intersections = 20)
+        }
+      }, width = 10, height = 8)
+    }
+  )
+  
+  output$download_plot_heat <- downloadHandler(
+    filename = function() {
+      paste("heatmap_", Sys.Date(), ".png", sep = "")
+    },
+    content = function(file) {
+      # For ComplexHeatmap objects, we need to use png() directly
+      png(file, width = 1000, height = 800)
+      
+      lowlogFC <- input$lower_logFC_venn
+      highlogFC <- input$higher_logFC_venn
+      heat_data <- filter_data_for_heatmap()
+      heat_data <- heat_data %>% mutate(logFC = ifelse(is.na(logFC), 0, logFC))
+      heat_above_logFC <- heat_data %>% filter(logFC >= highlogFC)
+      heat_below_logFC <- heat_data %>% filter(logFC <= lowlogFC)
+      heat_data_logFC_filtered <- rbind(heat_below_logFC, heat_above_logFC)
+      p_heat <- tidyHeatmap::heatmap(.data = dplyr::tibble(heat_data_logFC_filtered),
+                                     .row = gene,
+                                     .column = add_variable,
+                                     .value = logFC,
+                                     palette_value = circlize::colorRamp2(
+                                       seq(-5, 5, length.out = 11),
+                                       RColorBrewer::brewer.pal(11, "RdBu")))
+      print(p_heat)
+      dev.off()
+    }
+  )
   
   
 }
