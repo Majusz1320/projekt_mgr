@@ -184,7 +184,8 @@ ui <- fluidPage(
                           tabsetPanel(
                             type='pills', 
                             tabPanel("Venn", plotOutput("venn_plot", height = '800px' )),
-                            tabPanel("Heatmap", plotOutput("heatmap_plot", height = '800px' ))),
+                            tabPanel("Heatmap", plotOutput("heatmap_plot", height = '800px' )),
+                            tabPanel("In time comparison", plotOutput("intime_plot", height = '800px' ))),
                           tabsetPanel(
                             type='pills', 
                             tabPanel("Venn", dataTableOutput("venn_table")))

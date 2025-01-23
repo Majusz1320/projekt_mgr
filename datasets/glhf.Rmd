@@ -951,4 +951,45 @@ yague <- yague %>%
  write.csv(yague, "final_data/yague_2016.csv", row.names = FALSE)
 
 ```
+```{r}
+
+
+  yague_2013_scoe_diff <- read.csv("final_data/yague_2013_scoe_diff.csv")
+  yague_2013_scoe_diff$data_name <- "yague_2013_scoe_diff"
+  whiAH_scoe <- read.csv("final_data/whiAH_scoe.csv")
+  whiAH_scoe$data_name <- "whiAH_scoe"
+  df <- data.frame(A1 = 1:3, B2 = 4:6, C3D = 7:9)
+  
+  
+  combined_df <- rbind(whiAH_scoe, yague_2013_scoe_diff)
+  
+  yague_2013_scoe_diff$add_variable1 <- gsub("[^0-9]", "", yague_2013_scoe_diff$add_variable)
+ 
+  yague_2013_scoe_diff <- yague_2013_scoe_diff[order(yague_2013_scoe_diff$add_variable1), ]
+  
+  filterowane <- yague_2013_scoe_diff %>% filter(gene %in% c("SCO0591", "SCO3311", "SCO2531"))
+  filterowane1 <- whiAH_scoe %>% filter(gene %in% c("SCO0591", "SCO3311", "SCO2531"))
+  
+  
+  filterowane2 <- rbind(filterowane, filterowane1)
+  
+  intersect(whiAH_scoe$gene, yague_2013_scoe_diff$gene)
+  
+
+   
+   ggplot(filterowane2, aes(x = add_variable, y = logFC, 
+                        color = gene, shape = data_name, group = interaction(gene, data_name))) +
+  geom_point(size = 3) +  # Points for each condition
+  geom_line() +           # Connecting lines
+  geom_text(aes(label = gene), 
+            data = filterowane2 %>% group_by(gene) %>% filter(logFC == max(logFC)), 
+            hjust = -0.2, vjust = -0.5, size = 4) +  # Labeling at max logFC
+  theme_minimal() +
+  labs(title = "Gene Expression Changes from Two Datasets",
+       x = "Condition",
+       y = "Log Fold Change (logFC)",
+       color = "Gene",
+       shape = "Dataset") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
 

@@ -937,11 +937,22 @@ server <- function(input, output, session) {
   #### FILTERING DATA FOR VENN AND HEAT #####
   
   filter_data_for_heatmap <- reactive({
+    req(input$select_gene_venn)
+    req(input$contrast_venn_1)
+    req(input$contrast_venn_2)
+    
     data_rna <- dataselection_venn()
-    data_rna <- data_rna %>% filter(gene %in% c(input$select_gene_venn), add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2))
-    return(data_rna)
-  })
-  
+    
+    filtered_data <- data_rna %>% 
+      filter(
+        gene %in% input$select_gene_venn,
+        add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2)
+      ) %>%
+      # Remove any rows where all values are NA
+      filter(!if_all(everything(), is.na))
+    
+    return(filtered_data)
+})
   
   
   filter_data_for_venn <- reactive({
@@ -1046,6 +1057,54 @@ server <- function(input, output, session) {
   })
   
   
+  #### IN TIME PLOT ####
+  
+  output$intime_plot <- renderPlot({
+    req(changes_applied())
+    
+    raw_data <- filter_data_for_heatmap()
+    
+    # Check if there's data to plot
+    if(nrow(raw_data) == 0) {
+      return(NULL)
+    }
+    
+    # Handle NA values
+    raw_data <- raw_data %>%
+      mutate(logFC = ifelse(is.na(logFC), 0, logFC))
+    
+    # Create plot
+    intime_plot <- ggplot(raw_data, 
+                          aes(x = add_variable, 
+                              y = logFC, 
+                              color = gene, 
+                              shape = data_name, 
+                              group = interaction(gene, data_name))) +
+      geom_point(size = 3) +
+      geom_line() +
+      geom_text(
+        aes(label = gene),
+        data = raw_data %>% 
+          group_by(gene) %>% 
+          filter(logFC == max(logFC, na.rm = TRUE)),
+        hjust = -0.2, 
+        vjust = -0.5, 
+        size = 4
+      ) +
+      theme_minimal() +
+      labs(
+        title = "Gene Expression Changes from Two Datasets",
+        x = "Condition",
+        y = "Log Fold Change (logFC)",
+        color = "Gene",
+        shape = "Dataset"
+      ) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    
+    return(intime_plot)
+  })
+  
+  
   
   output$download_plot_venn <- downloadHandler(
     filename = function() {
@@ -1103,6 +1162,9 @@ server <- function(input, output, session) {
       dev.off()
     }
   )
+  
+  
+  
   
   
 }
