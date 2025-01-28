@@ -939,17 +939,22 @@ server <- function(input, output, session) {
   filter_data_for_heatmap <- reactive({
     req(input$select_gene_venn)
     req(input$contrast_venn_1)
-    req(input$contrast_venn_2)
-    
+
     data_rna <- dataselection_venn()
     
     filtered_data <- data_rna %>% 
       filter(
         gene %in% input$select_gene_venn,
-        add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2)
+        add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2),
+        !is.infinite(abs(logFC))
       ) %>%
       # Remove any rows where all values are NA
-      filter(!if_all(everything(), is.na))
+      filter(!if_all(everything(), is.na)) %>%
+      select(gene, logFC, add_variable) %>%
+      pivot_wider(id_cols = gene, names_from = add_variable, values_from = logFC) -> filtered_data
+    
+    filtered_data %>% filter(!if_all(2:ncol(filtered_data), is.na)) %>%
+      pivot_longer(cols = 2:ncol(filtered_data), names_to = 'add_variable', values_to = 'logFC') -> filtered_data
     
     return(filtered_data)
 })
@@ -1054,14 +1059,14 @@ server <- function(input, output, session) {
     
     req(changes_applied())
     
-    lowlogFC <- input$lower_logFC_venn
-    highlogFC <- input$higher_logFC_venn
+    #lowlogFC <- input$lower_logFC_venn
+    #highlogFC <- input$higher_logFC_venn
     heat_data <- filter_data_for_heatmap()
-    heat_data <- heat_data %>% mutate(logFC = ifelse(is.na(logFC), 0, logFC))
-    heat_above_logFC <- heat_data %>% filter(logFC >= highlogFC)
-    heat_below_logFC <- heat_data %>% filter(logFC <= lowlogFC)
-    heat_data_logFC_filtered <- rbind(heat_below_logFC, heat_above_logFC)
-    tidyHeatmap::heatmap(.data = dplyr::tibble(heat_data_logFC_filtered),
+    #heat_data <- heat_data %>% mutate(logFC = ifelse(is.na(logFC), 0, logFC))
+    #heat_above_logFC <- heat_data %>% filter(logFC >= highlogFC)
+    #heat_below_logFC <- heat_data %>% filter(logFC <= lowlogFC)
+    #heat_data_logFC_filtered <- rbind(heat_below_logFC, heat_above_logFC)
+    tidyHeatmap::heatmap(.data = dplyr::tibble(heat_data),
                          .row = gene,
                          .column = add_variable,
                          .value = logFC,
@@ -1071,6 +1076,7 @@ server <- function(input, output, session) {
     print(p_heat)
   })
   
+  output$heatmap_table <- renderDataTable({filter_data_for_heatmap()})
   
   #### IN TIME PLOT ####
   
