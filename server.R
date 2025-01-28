@@ -1000,6 +1000,18 @@ server <- function(input, output, session) {
   })
   
   
+  data_venn_table_common <- reactive({
+    
+    gene_lists <- prep_data_venn()
+    
+    if(length(gene_lists) < 2){return(NULL)}
+    
+    result <- find_common_elements(gene_lists)
+    
+    return(result)
+    
+  })
+  
   data_venn_table <- reactive({
     list_venn <- prep_data_venn()
     df_venn <- filter_data_for_venn()
@@ -1014,6 +1026,8 @@ server <- function(input, output, session) {
   })
   
   
+  output$venn_table_common <- renderDataTable({data_venn_table_common()})
+  
   
   
   tableInput_venn <- reactive({
@@ -1023,6 +1037,7 @@ server <- function(input, output, session) {
     table_data1 <- data_venn_table()
     return(table_data1)
   })
+  
   output$venn_table <- renderDataTable({
     
     req(changes_applied())

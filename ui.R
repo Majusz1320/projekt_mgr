@@ -13,6 +13,7 @@ library(bslib)
 library(ggvenn)
 library(ggupset)
 source("loading_data.R")
+source('functions.R')
 
 #### UI ####
 
@@ -183,7 +184,9 @@ ui <- fluidPage(
                         mainPanel(
                           tabsetPanel(
                             type='pills', 
-                            tabPanel("Venn", plotOutput("venn_plot", height = '800px' )),
+                            tabPanel("Venn", 
+                                     plotOutput("venn_plot", height = '800px' ),
+                                     dataTableOutput('venn_table_common')),
                             tabPanel("Heatmap", plotOutput("heatmap_plot", height = '800px' )),
                             tabPanel("In time comparison", plotOutput("intime_plot", height = '800px' ))),
                           tabsetPanel(
