@@ -115,6 +115,11 @@ yeong_2016_load <- function(){
   return(yeong_2016)
 }
 
+NRRL_metab_RNAseq_sven_load <- function(){
+  NRRL_metab_RNAseq_sven <- read.csv("datasets/final_data/NRRL_metab_RNAseq_sven.csv")
+  NRRL_metab_RNAseq_sven$data_name <- "NRRL_metab_RNAseq_sven"
+  return(NRRL_metab_RNAseq_sven)
+}
 
 #### LOADING DATA INTIME ####
 
@@ -156,4 +161,9 @@ glnr_sven_intime_load <- function(){
 yague_2013_scoe_diff_intime_load <- function(){
   yague_2013_scoe_diff <- read.csv("datasets/final_data/data_intime/yague_2013_scoe_diff_intime.csv")
   return(yague_2013_scoe_diff)
+}
+
+NRRL_metab_RNAseq_sven_intime_load <- function(){
+  NRRL_metab_RNAseq_sven <- read.csv("datasets/final_data/data_intime/NRRL_metab_RNAseq_sven_intime.csv")
+  return(NRRL_metab_RNAseq_sven)
 }

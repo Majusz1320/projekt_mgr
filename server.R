@@ -236,9 +236,9 @@ server <- function(input, output, session) {
   
   data_loaded_rna <- reactive({
     if (!is.null(input$file_name)) {
-      c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna","argR_2018", "bldD_scoe", "data_bldC_sven", "draRK_scoe", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe", "yague_2013_scoe_diff", "yeong_2016", input$file_name)
+      c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna", "argR_2018", "bldD_scoe", "draRK_scoe", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe", "yague_2013_scoe_diff", "yeong_2016", "data_bldC_sven", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "NRRL_metab_RNAseq_sven", input$file_name)
     } else {
-      c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna", "argR_2018", "bldD_scoe", "data_bldC_sven", "draRK_scoe", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe", "yague_2013_scoe_diff", "yeong_2016")
+      c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna", "argR_2018", "bldD_scoe", "draRK_scoe", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe", "yague_2013_scoe_diff", "yeong_2016", "data_bldC_sven", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "NRRL_metab_RNAseq_sven")
     }
   })
   
@@ -258,7 +258,7 @@ server <- function(input, output, session) {
     
     req(changes_applied())
     
-    ###tutaj dopisujesz następne jak będą
+    # Load the datasets based on their specific load functions
     RNAseq_Martyna <- RNAseq_Martyna_load()
     user_data <- merged_user()
     szafran2019 <- data_szafran2019_load()
@@ -280,8 +280,9 @@ server <- function(input, output, session) {
     whiAH_scoe <- whiAH_scoe_load()
     yague_2013_scoe_diff <- yague_2013_scoe_diff_load()
     yeong_2016 <- yeong_2016_load()
+    NRRL_metab_RNAseq_sven <- NRRL_metab_RNAseq_sven_load()
     
-    # Create a list of data frames, handling the user data separately
+    # Create a list of data frames
     data_list <- list(
       abrB1.2_table = abrB1.2_table,
       data_hupAS_RNAseq = data_hupAS_RNAseq,
@@ -302,7 +303,8 @@ server <- function(input, output, session) {
       soxr_genes = soxr_genes,
       whiAH_scoe = whiAH_scoe,
       yague_2013_scoe_diff = yague_2013_scoe_diff,
-      yeong_2016 = yeong_2016
+      yeong_2016 = yeong_2016,
+      NRRL_metab_RNAseq_sven = NRRL_metab_RNAseq_sven
     )
     
     # Add user data to the list if it exists
@@ -310,16 +312,23 @@ server <- function(input, output, session) {
       data_list[[input$file_name]] <- user_data
     }
     
-    # Get selected datasets
+    # Get the selected datasets from the select inputs, while ensuring to maintain order
     selected_datasets <- c(input$rna_select_1, input$rna_select_2, input$rna_select_3)
+    
+    # Remove "no data selected" values from the selection
     selected_datasets <- selected_datasets[selected_datasets != "no data selected"]
     
-    # Filter and combine the selected datasets
+    # Reorder selected datasets based on the order of data_loaded_rna()
+    data_order <- data_loaded_rna()
+    selected_datasets <- selected_datasets[selected_datasets %in% data_order]
+    
+    # Filter and combine the selected datasets in the correct order
     selected_data <- data_list[selected_datasets]
     data_rna_final <- do.call(rbind, selected_data)
     
     return(data_rna_final)
   })
+  
   
   
   
@@ -870,6 +879,7 @@ server <- function(input, output, session) {
     whiAH_scoe <- whiAH_scoe_load()
     yague_2013_scoe_diff <- yague_2013_scoe_diff_load()
     yeong_2016 <- yeong_2016_load()
+    NRRL_metab_RNAseq_sven <- NRRL_metab_RNAseq_sven_load()
     
     # Create a list of data frames, handling the user data separately
     data_list <- list(
@@ -892,7 +902,8 @@ server <- function(input, output, session) {
       soxr_genes = soxr_genes,
       whiAH_scoe = whiAH_scoe,
       yague_2013_scoe_diff = yague_2013_scoe_diff,
-      yeong_2016 = yeong_2016
+      yeong_2016 = yeong_2016,
+      NRRL_metab_RNAseq_sven = NRRL_metab_RNAseq_sven
     )
     
     # Add user data to the list if it exists
@@ -1089,9 +1100,9 @@ server <- function(input, output, session) {
   
   data_loaded_intime <- reactive({
     if (!is.null(input$file_name)) {
-      c("abrc3","argR_2018", "draRK_scoe", "glnr_sven", "ohkA_scoe", "osdR_2016", "whiAH_scoe", "yague_2013_scoe_diff", input$file_intime_name)
+      c("abrc3","argR_2018", "draRK_scoe", "glnr_sven", "ohkA_scoe", "osdR_2016", "whiAH_scoe", "yague_2013_scoe_diff", "NRRL_metab_RNAseq_sven", input$file_intime_name)
     } else {
-      c("abrc3","argR_2018", "draRK_scoe", "glnr_sven", "ohkA_scoe", "osdR_2016", "whiAH_scoe", "yague_2013_scoe_diff")
+      c("abrc3","argR_2018", "draRK_scoe", "glnr_sven", "ohkA_scoe", "osdR_2016", "whiAH_scoe", "yague_2013_scoe_diff", "NRRL_metab_RNAseq_sven")
     }
   })
   
@@ -1152,6 +1163,7 @@ server <- function(input, output, session) {
     osdR_2016 <- osdR_2016_intime_load()
     whiAH_scoe <- whiAH_scoe_intime_load()
     yague_2013_scoe_diff <- yague_2013_scoe_diff_intime_load()
+    NRRL_metab_RNAseq_sven <- NRRL_metab_RNAseq_sven_intime_load()
 
     # Create a list of data frames, handling the user data separately
     data_list <- list(
@@ -1162,7 +1174,8 @@ server <- function(input, output, session) {
       ohkA_scoe = ohkA_scoe,
       osdR_2016 = osdR_2016,
       whiAH_scoe = whiAH_scoe,
-      yague_2013_scoe_diff = yague_2013_scoe_diff
+      yague_2013_scoe_diff = yague_2013_scoe_diff,
+      NRRL_metab_RNAseq_sven = NRRL_metab_RNAseq_sven
     )
     
     # Add user data to the list if it exists

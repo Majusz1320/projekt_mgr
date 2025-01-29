@@ -1148,5 +1148,80 @@ filter_gene_vector <- zbindowane %>% filter(gene_vector)
 filter_gene_vector <- zbindowane %>%
   filter(gene %in% gene_vector)
 
+
+```
+
+```{r}
+
+jajko <- c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna","argR_2018", "bldD_scoe", "data_bldC_sven", "draRK_scoe", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe", "yague_2013_scoe_diff", "yeong_2016")
+sorted_list <- sort(jajko)
+
+print(jajko)
+
+#"abrB1.2_table"             "data_hupAS_RNAseq"         "RNAseq_Martyna"            "szafran2019"               "abrc3"                     "aor1_rna" "argR_2018"                 "bldD_scoe"                 "data_bldC_sven"            "draRK_scoe"                "ECF42s_sven"               "glnr_sven"                
+#"hups_rnaseq_Strzalka_sven" "ohkA_scoe"                 "osdR_2016"                 "sigR"                      "soxr_genes"                "whiAH_scoe"               
+#"yague_2013_scoe_diff"      "yeong_2016"     
+
+#"abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna", "argR_2018", "bldD_scoe", "draRK_scoe", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe", "yague_2013_scoe_diff"      "yeong_2016", "data_bldC_sven", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven"
+
+ 
+
+```
+```{r}
+
+sven_NRRL_metab_RNAseq <- read.csv("new_data/sven_NRRL_metab_RNAseq.txt",  sep = "\t")
+
+sven_NRRL_metab_RNAseq <- sven_NRRL_metab_RNAseq %>% select(ID, log2_fc_18h, log2_fc_24h, log2_fc_48h)
+
+sven_convert <- read.csv('sven_genes_vnz_locus.txt', sep = ' ')
+
+sven_NRRL_metab_RNAseq$id <- sven_NRRL_metab_RNAseq$ID
+
+merged_data <- sven_NRRL_metab_RNAseq %>%
+  left_join(sven_convert, by = "id")
+
+merged_data <- merged_data %>% select(locus_vnz, log2_fc_18h, log2_fc_24h, log2_fc_48h)
+
+merged_data <- na.omit(merged_data)
+
+merged_data$gene <- merged_data$locus_vnz
+
+merged_data <- merged_data %>% select(gene, log2_fc_18h, log2_fc_24h, log2_fc_48h)
+
+merged_data <- merged_data %>% 
+  pivot_longer(
+    cols = !gene, 
+    names_to = "add_variable", 
+    values_to = "logFC"
+  )
+
+merged_data$logFC <- gsub(",", ".", merged_data$logFC)
+merged_data$logFC <- as.numeric(merged_data$logFC)
+
+merged_data <- merged_data %>%
+  separate(add_variable, into = c("time", "add_variable"), sep = "2_fc_")
+
+merged_data$FDR <- 0
+merged_data <- merged_data %>% select(gene, logFC, FDR, add_variable)
+
+
+
+merged_data <- merged_data %>%
+  left_join(genelist_sven, by = "gene")
+
+merged_data <- merged_data %>% select(gene, logFC, FDR, add_variable, start, end, strand)
+ write.csv(merged_data, "final_data/NRRL_metab_RNAseq_sven.csv", row.names = FALSE)
+
+merged_data <- merged_data %>% select(gene, logFC, FDR, add_variable)
+merged_data$data_name <- "NRRL_metab_RNAseq_sven"
+
+merged_data <- merged_data %>%
+  separate(add_variable, into = c("time", "add_variable"), sep = "h")
+
+merged_data$time <- as.numeric(merged_data$time)
+
+merged_data$add_variable <- "one condition"
+ write.csv(merged_data, "final_data/data_intime/NRRL_metab_RNAseq_sven_intime.csv", row.names = FALSE)
+
 ```
 
