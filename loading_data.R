@@ -1,3 +1,5 @@
+#### LOADING DATA RNA ####
+
 abrB1.2_table_load <- function(){
   abrB1.2_table4 <- read.csv("datasets/final_data/abrB1.2_table4.csv")
   abrB1.2_table4$add_variable <- "abrB1.2_table4"
@@ -111,4 +113,47 @@ yeong_2016_load <- function(){
   yeong_2016 <- read.csv("datasets/final_data/yeong_2016.csv")
   yeong_2016$data_name <- "yeong_2016"
   return(yeong_2016)
+}
+
+
+#### LOADING DATA INTIME ####
+
+abrc3_intime_load <- function(){
+  abrc3 <- read.csv("datasets/final_data/data_intime/abrc3_intime.csv")
+  return(abrc3)
+}
+
+argR_2018_intime_load <- function(){
+  argR_2018 <- read.csv("datasets/final_data/data_intime/argR_2018_intime.csv")
+  return(argR_2018)
+}
+
+draRK_scoe_intime_load <- function(){
+  draRK_scoe <- read.csv("datasets/final_data/data_intime/draRK_scoe_intime.csv")
+  return(draRK_scoe)
+}
+
+ohkA_scoe_intime_load <- function(){
+  ohkA_scoe <- read.csv("datasets/final_data/data_intime/ohkA_scoe_intime.csv")
+  return(ohkA_scoe)
+}
+
+osdR_2016_intime_load <- function(){
+  osdR_2016 <- read.csv("datasets/final_data/data_intime/osdR_2016_intime.csv")
+  return(osdR_2016)
+}
+
+whiAH_scoe_intime_load <- function(){
+  whiAH_scoe <- read.csv("datasets/final_data/data_intime/whiAH_scoe_intime.csv")
+  return(whiAH_scoe)
+}
+
+glnr_sven_intime_load <- function(){
+  glnr_sven <- read.csv("datasets/final_data/data_intime/glnr_sven_intime.csv")
+  return(glnr_sven)
+}
+
+yague_2013_scoe_diff_intime_load <- function(){
+  yague_2013_scoe_diff <- read.csv("datasets/final_data/data_intime/yague_2013_scoe_diff_intime.csv")
+  return(yague_2013_scoe_diff)
 }

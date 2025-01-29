@@ -20,57 +20,36 @@ server <- function(input, output, session) {
   })
   
   #### server-side select choice of genes ####
-  # In the server function, add this at the beginning:
-  observeEvent(session$clientData$url_protocol, {  # This ensures it runs when the app starts
-    # Load the gene list
-    if(switch_status() == FALSE)
-    {
+  # Create a single observer that responds to species switch changes
+  observe({
+    # Load the appropriate gene list based on switch status
+    if(switch_status() == FALSE) {
       genelist <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
-      gene_list_database <- c("all", genelist$gene)
-      # Update the selectize input with all choices
-      updateSelectizeInput(session, 
-                           inputId = "select_gene", 
-                           choices = gene_list_database,
-                           selected = "all",
-                           server = TRUE) }
-    else
-    {
+    } else {
       genelist <- read.csv("datasets/sven_genes_vnz.txt", sep = '')
-      gene_list_database <- c("all", genelist$gene)
-      updateSelectizeInput(session, 
-                           inputId = "select_gene", 
-                           choices = gene_list_database,
-                           selected = "all",
-                           server = TRUE) 
     }
-  }, once = TRUE)  # once=TRUE means it only runs once when the app starts
-  
-  observeEvent(session$clientData$url_protocol, {  # This ensures it runs when the app starts
-    # Load the gene list
-    if(switch_status() == FALSE)
-    {
-      genelist <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
-      gene_list_database <- c("all", genelist$gene)
-      # Update the selectize input with all choices
-      updateSelectizeInput(session, 
-                           inputId = "select_gene_venn", 
-                           choices = gene_list_database,
-                           selected = "all",
-                           server = TRUE)}
-    else
-    {
-      genelist <- read.csv("datasets/sven_genes_vnz.txt", sep = '')
-      gene_list_database <- c("all", genelist$gene)
-      # Update the selectize input with all choices
-      updateSelectizeInput(session, 
-                           inputId = "select_gene_venn", 
-                           choices = gene_list_database,
-                           selected = "all",
-                           server = TRUE)
-    }
-  }, once = TRUE)  # once=TRUE means it only runs once when the app starts
-  
-  
+    
+    gene_list_database <- c("all", genelist$gene)
+    
+    # Update all three selectize inputs
+    updateSelectizeInput(session, 
+                         inputId = "select_gene", 
+                         choices = gene_list_database,
+                         selected = "all",
+                         server = TRUE)
+    
+    updateSelectizeInput(session, 
+                         inputId = "select_gene_venn", 
+                         choices = gene_list_database,
+                         selected = "all",
+                         server = TRUE)
+    
+    updateSelectizeInput(session, 
+                         inputId = "select_gene_intime", 
+                         choices = gene_list_database,
+                         selected = "all",
+                         server = TRUE)
+  })
   
   # Create a reactive value to store the trigger state
   changes_applied <- reactiveVal(FALSE)  # This will store whether the button has been pressed
@@ -937,14 +916,16 @@ server <- function(input, output, session) {
   #### FILTERING DATA FOR VENN AND HEAT #####
   
   filter_data_for_heatmap <- reactive({
-    req(input$select_gene_venn)
     req(input$contrast_venn_1)
+    req(input$gene_list)
 
     data_rna <- dataselection_venn()
+    gene_string <- input$gene_list
+    gene_vector <- unlist(strsplit(gene_string, ", "))
     
     filtered_data <- data_rna %>% 
       filter(
-        gene %in% input$select_gene_venn,
+        gene %in% gene_vector,
         add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2),
         !is.infinite(abs(logFC))
       ) %>%
@@ -955,7 +936,7 @@ server <- function(input, output, session) {
     
     filtered_data %>% filter(!if_all(2:ncol(filtered_data), is.na)) %>%
       pivot_longer(cols = 2:ncol(filtered_data), names_to = 'add_variable', values_to = 'logFC') -> filtered_data
-    
+    print(filtered_data)
     return(filtered_data)
 })
   
@@ -1070,6 +1051,7 @@ server <- function(input, output, session) {
                          .row = gene,
                          .column = add_variable,
                          .value = logFC,
+                         .scale = "row",
                          palette_value = circlize::colorRamp2(
                            seq(-5, 5, length.out = 11),
                            RColorBrewer::brewer.pal(11, "RdBu"))) -> p_heat
@@ -1078,12 +1060,148 @@ server <- function(input, output, session) {
   
   output$heatmap_table <- renderDataTable({filter_data_for_heatmap()})
   
+  
+  #### INT TIME UI OPTIONS ####
+  
+  user_data_intime_upload <- reactive({
+    req(changes_applied())
+    
+    user_file <- input$uploaded_intime_file$datapath
+    if(is.null(user_file)){
+      return(NULL)
+    } else {
+      user_file <- read.csv(user_file, sep = "\t")
+      # Use input$file_name directly here
+      user_file$data_name <- input$file_intime_name
+      return(user_file)
+    }
+  })
+ 
+  
+  
+  
+  output$fileintimeUploaded <- reactive({
+    !is.null(input$uploaded_intime_file)
+  })
+  outputOptions(output, "fileintimeUploaded", suspendWhenHidden = FALSE)
+  
+  
+  
+  data_loaded_intime <- reactive({
+    if (!is.null(input$file_name)) {
+      c("abrc3","argR_2018", "draRK_scoe", "glnr_sven", "ohkA_scoe", "osdR_2016", "whiAH_scoe", "yague_2013_scoe_diff", input$file_intime_name)
+    } else {
+      c("abrc3","argR_2018", "draRK_scoe", "glnr_sven", "ohkA_scoe", "osdR_2016", "whiAH_scoe", "yague_2013_scoe_diff")
+    }
+  })
+  
+  
+  output$contrast_intime_1 <- renderUI({
+    if (input$venn_select_1 == 'no data selected'){
+      return(NULL)
+    }
+    
+    data_rna <- dataselection_intime()
+    
+    grupy <- data_rna %>% filter(data_name == input$intime_select_1) %>% pull(add_variable) %>% unique()
+    
+    selectInput("contrast_intime_1", "Choose contrasts for analysis",
+                choices = grupy, selected = grupy[1], multiple = TRUE)
+    
+  })
+  
+  output$contrast_intime_2 <- renderUI({
+    if (input$intime_select_2 == 'no data selected'){
+      return(NULL)
+    }
+    
+    data_rna <- dataselection_intime()
+    
+    grupy <- data_rna %>% filter(data_name == input$intime_select_2) %>% pull(add_variable) %>% unique()
+    
+    selectInput("contrast_intime_2", "Choose contrasts for analysis",
+                choices = grupy, selected = grupy[1], multiple = TRUE)
+    
+  })
+  
+  
+  
+  
+  observe({
+    # Get the current data options
+    choices <- c("no data selected", data_loaded_intime())
+    
+    # Update all three select inputs
+    updateSelectInput(session, "intime_select_1", choices = choices)
+    updateSelectInput(session, "intime_select_2", choices = choices)
+  })
+  
+  
+  
+  dataselection_intime <- reactive({
+    
+    
+    
+    ###tutaj dopisujesz następne jak będą
+    user_data <- user_data_intime_upload()
+    abrc3 <- abrc3_intime_load() 
+    argR_2018 <- argR_2018_intime_load()
+    draRK_scoe <- draRK_scoe_intime_load()
+    glnr_sven <- glnr_sven_intime_load()
+    ohkA_scoe <- ohkA_scoe_intime_load()
+    osdR_2016 <- osdR_2016_intime_load()
+    whiAH_scoe <- whiAH_scoe_intime_load()
+    yague_2013_scoe_diff <- yague_2013_scoe_diff_intime_load()
+
+    # Create a list of data frames, handling the user data separately
+    data_list <- list(
+      abrc3 = abrc3,
+      argR_2018 = argR_2018,
+      draRK_scoe = draRK_scoe,
+      glnr_sven = glnr_sven,
+      ohkA_scoe = ohkA_scoe,
+      osdR_2016 = osdR_2016,
+      whiAH_scoe = whiAH_scoe,
+      yague_2013_scoe_diff = yague_2013_scoe_diff
+    )
+    
+    # Add user data to the list if it exists
+    if (!is.null(user_data)) {
+      data_list[[input$file_intime_name]] <- user_data
+    }
+    
+    # Get selected datasets
+    selected_datasets <- c(input$intime_select_1, input$intime_select_2)
+    selected_datasets <- selected_datasets[selected_datasets != "no data selected"]
+    
+    # Filter and combine the selected datasets
+    selected_data <- data_list[selected_datasets]
+    data_rna_final <- do.call(rbind, selected_data)
+    
+    return(data_rna_final)
+  })
+  
+  
+  
+  
   #### IN TIME PLOT ####
   
   output$intime_plot <- renderPlot({
     req(changes_applied())
     
-    raw_data <- filter_data_for_heatmap()
+    
+    
+    raw_data <- dataselection_intime()
+    raw_data <- raw_data %>% filter(add_variable %in% c(input$contrast_intime_1, input$contrast_intime_2))
+    
+    if(input$select_gene_intime != "all"){
+      
+      raw_data <- raw_data %>%
+        filter(gene %in% input$select_gene_intime) 
+    }
+    else{raw_data <- NULL
+      return(raw_data)}
+    
     
     # Check if there's data to plot
     if(nrow(raw_data) == 0) {
@@ -1093,35 +1211,22 @@ server <- function(input, output, session) {
     # Handle NA values
     raw_data <- raw_data %>%
       mutate(logFC = ifelse(is.na(logFC), 0, logFC))
-    
+    print(raw_data)
     # Create plot
-    intime_plot <- ggplot(raw_data, 
-                          aes(x = add_variable, 
-                              y = logFC, 
-                              color = gene, 
-                              shape = data_name, 
-                              group = interaction(gene, data_name))) +
-      geom_point(size = 3) +
-      geom_line() +
-      geom_text(
-        aes(label = gene),
-        data = raw_data %>% 
-          group_by(gene) %>% 
-          filter(logFC == max(logFC, na.rm = TRUE)),
-        hjust = -0.2, 
-        vjust = -0.5, 
-        size = 4
-      ) +
+    intime_plot <- ggplot(raw_data, aes(x = time, y = logFC, 
+                                             color = gene, shape = data_name, group = interaction(gene, data_name))) +
+      geom_point(size = 3) +  # Points for each condition
+      geom_line() +           # Connecting lines
+      geom_text(aes(label = gene), 
+                data = raw_data %>% group_by(gene) %>% filter(logFC == max(logFC)), 
+                hjust = -0.2, vjust = -0.5, size = 4) +  # Labeling at max logFC
       theme_minimal() +
-      labs(
-        title = "Gene Expression Changes from Two Datasets",
-        x = "Condition",
-        y = "Log Fold Change (logFC)",
-        color = "Gene",
-        shape = "Dataset"
-      ) +
+      labs(title = "Gene Expression Changes from Two Datasets",
+           x = "Condition",
+           y = "Log Fold Change (logFC)",
+           color = "Gene",
+           shape = "Dataset") +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
-    
     return(intime_plot)
   })
   

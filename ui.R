@@ -157,16 +157,44 @@ ui <- fluidPage(
                                                  condition = 'input.venn_select_2 != "no data selected"',
                                                  uiOutput('contrast_venn_2')
                                                ),
-                                               selectizeInput("select_gene_venn", 
+                                               textAreaInput("gene_list", "Input gene names")
+                                      ),
+                                      tabPanel("Venn/Heat Options",
+                                               numericInput("higher_logFC_venn", label = ("higher logFC"), value = 1.5, step = 0.1),
+                                               numericInput("lower_logFC_venn", label = ("lower logFC"), value = -1.5, step = 0.1)),
+                                      tabPanel("Intime Options",
+                                               fileInput("uploaded_intime_file", "Choose a File"),
+                                               conditionalPanel(
+                                                 # JavaScript condition to check if file input has data
+                                                 condition = "output.fileintimeUploaded",
+                                                 textAreaInput("file_intime_name", "Add name for your file")
+                                               ),
+                                               selectizeInput("select_gene_intime", 
                                                               label = "Choose gene from list", 
                                                               choices = "all",
                                                               selected = "all",
                                                               multiple = TRUE,
-                                                              options = list(maxOptions = 10000))
+                                                              options = list(maxOptions = 10000)),
+                                               selectInput('intime_select_1', 
+                                                           label = h3('Choose data'), 
+                                                           selected = "no data selected",
+                                                           choices = c("no data selected"), # The server will update these choices
+                                                           selectize = TRUE),
+                                               conditionalPanel(
+                                                 condition = 'input.intime_select_1 != "no data selected"',
+                                                 uiOutput('contrast_intime_1')
+                                               ),
+                                               selectInput('intime_select_2', 
+                                                           label = ' ',  
+                                                           selected = "no data selected",
+                                                           choices = c("no data selected"), # The server will update these choices
+                                                           selectize = TRUE),
+                                               conditionalPanel(
+                                                 condition = 'input.intime_select_2 != "no data selected"',
+                                                 uiOutput('contrast_intime_2')
+                                               ),
+                                               
                                       ),
-                                      tabPanel("Plot Options",
-                                               numericInput("higher_logFC_venn", label = ("higher logFC"), value = 1.5, step = 0.1),
-                                               numericInput("lower_logFC_venn", label = ("lower logFC"), value = -1.5, step = 0.1)),
                                       tabPanel("Plot Download Venn",
                                                downloadButton('download_plot_venn', 'Download png plot'),
                                                numericInput('width_hist', 'Plot width [cm]', 20, min = 5, max = 1000),

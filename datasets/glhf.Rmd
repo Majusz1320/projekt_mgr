@@ -992,4 +992,161 @@ yague <- yague %>%
        shape = "Dataset") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+```{r}
+abrc3 <- read.csv("final_data/abrc3.csv")
+argR_2018 <- read.csv("final_data/argR_2018.csv")
+draRK_scoe <- read.csv("final_data/draRK_scoe.csv")
+ohkA_scoe <- read.csv("final_data/ohkA_scoe.csv")
+osdr_2016 <- read.csv("final_data/osdr_2016.csv")
+whiAH_scoe <- read.csv("final_data/whiAH_scoe.csv")
+glnr_sven <- read.csv("final_data/glnr_sven.csv")
+yague_2013_scoe_diff <- read.csv("final_data/yague_2013_scoe_diff.csv")
+
+
+
+
+
+select_columns <- function(df, columns) {
+  df_name <- deparse(substitute(df))
+  selected_df <- df[, columns, drop = FALSE] 
+  new_name <- paste0(df_name, "_selected") 
+  assign(new_name, selected_df, envir = .GlobalEnv) 
+  return(invisible(selected_df)) 
+}
+
+
+select_columns(yague_2013_scoe_diff, c("gene", "logFC", "FDR", "add_variable"))
+
+
+add_data_name_column <- function(data_frames) {
+  for (df_name in data_frames) {
+    df <- get(df_name)  # Pobierz ramkę danych na podstawie nazwy
+    
+    # Usuń "_selected" z nazwy ramki
+    original_name <- gsub("_selected$", "", df_name)
+    
+    # Dodaj kolumnę "data_name"
+    df$data_name <- original_name
+    
+    # Nadpisz ramkę danych w globalnym środowisku
+    assign(df_name, df, envir = .GlobalEnv)
+  }
+}
+
+
+add_data_name_column(list("abrc3_selected", "argR_2018_selected", "draRK_scoe_selected", "glnr_sven_selected", "ohkA_scoe_selected", "osdr_2016_selected", "whiAH_scoe_selected", "yague_2013_scoe_diff_selected"))
+
+
+#"","", ""
+
+
+
+abrc3_selected$time <- gsub("[^0-9]", "", abrc3_selected$add_variable)
+abrc3_selected$add_variable <- "one_condition"
+abrc3_selected$data_name <- "abrc3"
+abrc3_selected$time <- as.numeric(abrc3_selected$time)
+write.csv(abrc3_selected, "final_data/data_intime/abrc3_intime.csv", row.names = FALSE)
+
+
+
+argR_2018_selected <- argR_2018_selected %>%
+  separate(add_variable, into = c("time", "add_variable"), sep = "h.")
+argR_2018_selected$time <- as.numeric(argR_2018_selected$time)
+
+write.csv(argR_2018_selected, "final_data/data_intime/argR_2018_intime.csv", row.names = FALSE)
+
+draRK_scoe_selected <- draRK_scoe_selected %>%
+  separate(add_variable, into = c("add_variable", "time"), sep = "_")
+draRK_scoe_selected$time <- gsub("[^0-9]", "", draRK_scoe_selected$time)
+draRK_scoe_selected$time <- as.numeric(draRK_scoe_selected$time)
+write.csv(draRK_scoe_selected, "final_data/data_intime/draRK_scoe_intime.csv", row.names = FALSE)
+
+
+ohkA_scoe_selected <- ohkA_scoe_selected %>%
+  separate(add_variable, into = c("add_variable", "time"), sep = "_")
+ohkA_scoe_selected$time <- gsub("[^0-9]", "", ohkA_scoe_selected$time)
+ohkA_scoe_selected$time <- as.numeric(ohkA_scoe_selected$time)
+write.csv(ohkA_scoe_selected, "final_data/data_intime/ohkA_scoe_intime.csv", row.names = FALSE)
+
+osdr_2016_selected <- osdr_2016_selected %>%
+  separate(add_variable, into = c("add_variable", "time"), sep = "_")
+osdr_2016_selected$time <- gsub("[^0-9]", "", osdr_2016_selected$time)
+osdr_2016_selected$time <- as.numeric(osdr_2016_selected$time)
+write.csv(osdr_2016_selected, "final_data/data_intime/osdr_2016_intime.csv", row.names = FALSE)
+
+whiAH_scoe_selected <- whiAH_scoe_selected %>%
+  separate(add_variable, into = c("add_variable", "time"), sep = "_")
+whiAH_scoe_selected$time <- gsub("[^0-9]", "", whiAH_scoe_selected$time)
+whiAH_scoe_selected$time <- as.numeric(whiAH_scoe_selected$time)
+write.csv(whiAH_scoe_selected, "final_data/data_intime/whiAH_scoe_intime.csv", row.names = FALSE)
+
+table(yague_2013_scoe_diff_selected$add_variable)
+
+
+
+yague_2013_scoe_diff_selected <- yague_2013_scoe_diff_selected %>%
+  mutate(
+    time = str_extract(add_variable, "\\d+"),  # Extract numbers (24, 48, 72)
+    add_variable = str_replace(add_variable, "\\d+h", "inT")  # Replace number+h with "inT"
+  )
+yague_2013_scoe_diff_selected$time <- as.numeric(yague_2013_scoe_diff_selected$time)
+
+write.csv(yague_2013_scoe_diff_selected, "final_data/data_intime/yague_2013_scoe_diff_intime.csv", row.names = FALSE)
+
+
+glnr_sven_selected <- glnr_sven_selected %>%
+  separate(add_variable, into = c("add_variable", "time"), sep = "_")
+glnr_sven_selected$time <- gsub("[^0-9]", "", glnr_sven_selected$time)
+glnr_sven_selected$time <- as.numeric(glnr_sven_selected$time)
+write.csv(whiAH_scoe_selected, "final_data/data_intime/glnr_sven_intime.csv", row.names = FALSE)
+
+
+
+filterowane <- yague_2013_scoe_diff_selected %>% filter(gene %in% c("SCO0591", "SCO3311", "SCO2531"))
+  filterowane1 <- whiAH_scoe_selected %>% filter(gene %in% c("SCO0591", "SCO3311", "SCO2531"))
+  
+  
+  filterowane2 <- rbind(filterowane, filterowane1)
+  
+  
+   ggplot(filterowane2, aes(x = time, y = logFC, 
+                        color = gene, shape = data_name, group = interaction(gene, data_name))) +
+  geom_point(size = 3) +  # Points for each condition
+  geom_line() +           # Connecting lines
+  geom_text(aes(label = gene), 
+            data = filterowane2 %>% group_by(gene) %>% filter(logFC == max(logFC)), 
+            hjust = -0.2, vjust = -0.5, size = 4) +  # Labeling at max logFC
+  theme_minimal() +
+  labs(title = "Gene Expression Changes from Two Datasets",
+       x = "Condition",
+       y = "Log Fold Change (logFC)",
+       color = "Gene",
+       shape = "Dataset") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+```{r}
+
+
+#"SCO7412, SCO6205, SCO7237, SCO6516, SCO0666, SCO6706, SCO0897, SCO7290, SCO0722, SCO2633, SCO6744, SCO6408, SCO3281, SCO0896, SCO3073, SCO1868, SCO4803, SCO6513, SCO0201, SCO0213, SCO2353, SCO0834, SCO0219, SCO0200, SCO0180, SCO0217, SCO0208, SCO0210, SCO1294, SCO0919, SCO0199, SCO4982, SCO0212, SCO0216, SCO0204, SCO0218, SCO0215, SCO0173, SCO0198, SCO3467, SCO0220, SCO0247, SCO4684, SCO5921"
+
+
+  data_hupAS_RNAseq <- read.csv("final_data/data_hupAS_RNAseq.csv")
+  data_hupAS_RNAseq$data_name <- "data_hupAS_RNAseq"
+  data_szafran2019 <- read.csv("final_data/data_szafran2019.csv")
+
+  
+  gene_string <- "SCO7412, SCO6205, SCO7237, SCO6516, SCO0666, SCO6706, SCO0897, SCO7290, SCO0722, SCO2633, SCO6744, SCO6408, SCO3281, SCO0896, SCO3073, SCO1868, SCO4803, SCO6513, SCO0201, SCO0213, SCO2353, SCO0834, SCO0219, SCO0200, SCO0180, SCO0217, SCO0208, SCO0210, SCO1294, SCO0919, SCO0199, SCO4982, SCO0212, SCO0216, SCO0204, SCO0218, SCO0215, SCO0173, SCO0198, SCO3467, SCO0220, SCO0247, SCO4684, SCO5921"
+
+
+gene_vector <- unlist(strsplit(gene_string, ", "))
+
+zbindowane <- rbind(data_hupAS_RNAseq, data_szafran2019)
+
+filter_gene_vector <- zbindowane %>% filter(gene_vector)
+
+filter_gene_vector <- zbindowane %>%
+  filter(gene %in% gene_vector)
+
+```
 
