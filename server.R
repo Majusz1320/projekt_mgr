@@ -557,7 +557,8 @@ server <- function(input, output, session) {
     
     rna_plot <- plot_data_rna %>% ggplot(aes(xmin = start, xmax = end, y = add_variable, label = gene, fill = logFC, forward = strand_plot)) +
       geom_gene_arrow(arrowhead_height = grid::unit(10, "mm"), arrow_body_height = grid::unit(8, "mm")) +
-      facet_wrap(~data_name, scales = 'free', ncol = 1, strip.position = "right") +
+      #facet_wrap(~data_name, scales = 'free', ncol = 1, strip.position = "right") +
+      facet_grid(data_name~., scales = 'free', space = 'free_y')+
       geom_gene_label(grow = TRUE, height = grid::unit(5, "mm")) +
       #scale_fill_gradient(low = "red", high = "blue")+
       scale_fill_distiller(palette = 'RdBu', direction = 1, limits = c(-2, 2), oob = scales::squish)+
@@ -574,7 +575,8 @@ server <- function(input, output, session) {
         axis.title = element_text(size = 16),        # Axis titles
         axis.text = element_text(size = 14),         # Axis text labels
         plot.title = element_text(size = 18, face = "bold"),  # Plot title
-        strip.text = element_text(size = 14)
+        strip.text = element_text(size = 14)#,
+        #panel.background = element_rect(color = 'grey80')
       )
     return(rna_plot)
   })
@@ -784,10 +786,10 @@ server <- function(input, output, session) {
         filename = file,
         plot = plot,
         device = "png",
-        width = 10,
-        height = total_height,
-        units = "in",
-        dpi = 300
+        width = input$width_plot,
+        height = input$height_plot,
+        units = "cm",
+        dpi = input$res_plot
       )
     }
   )
@@ -1062,7 +1064,7 @@ server <- function(input, output, session) {
                          .row = gene,
                          .column = add_variable,
                          .value = logFC,
-                         .scale = "row",
+                         #.scale = "row", # AS wyłączam skalowanie w rzędach - używamy logFC który jest już wystarczająco znormalizowany, skalowanie miałoby sens w przypadku uzywania CPM
                          palette_value = circlize::colorRamp2(
                            seq(-5, 5, length.out = 11),
                            RColorBrewer::brewer.pal(11, "RdBu"))) -> p_heat

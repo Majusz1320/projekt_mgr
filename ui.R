@@ -110,9 +110,9 @@ ui <- fluidPage(
                                       ),
                                       tabPanel("Plot Download",
                                                downloadButton('download_plot', 'Download png plot'),
-                                               numericInput('width_hist', 'Plot width [cm]', 20, min = 5, max = 1000),
-                                               numericInput('height_hist', 'Plot height [cm]', 14, min = 5, max = 1000),
-                                               numericInput('res_hist', 'Resolution', 200, min = 100, max = 500)
+                                               numericInput('width_plot', 'Plot width [cm]', 45, min = 5, max = 1000),
+                                               numericInput('height_plot', 'Plot height [cm]', 22, min = 5, max = 1000),
+                                               numericInput('res_plot', 'Resolution', 300, min = 100, max = 500)
                                       )
                           ), width = 2, open = FALSE
                         ),
@@ -197,15 +197,15 @@ ui <- fluidPage(
                                       ),
                                       tabPanel("Plot Download Venn",
                                                downloadButton('download_plot_venn', 'Download png plot'),
-                                               numericInput('width_hist', 'Plot width [cm]', 20, min = 5, max = 1000),
-                                               numericInput('height_hist', 'Plot height [cm]', 14, min = 5, max = 1000),
-                                               numericInput('res_hist', 'Resolution', 200, min = 100, max = 500)
+                                               numericInput('width_venn', 'Plot width [cm]', 20, min = 5, max = 1000),
+                                               numericInput('height_venn', 'Plot height [cm]', 14, min = 5, max = 1000),
+                                               numericInput('res_venn', 'Resolution', 200, min = 100, max = 500)
                                       ),
                                       tabPanel("Plot Download Heat",
                                                downloadButton('download_plot_heat', 'Download png plot'),
-                                               numericInput('width_hist', 'Plot width [cm]', 20, min = 5, max = 1000),
-                                               numericInput('height_hist', 'Plot height [cm]', 14, min = 5, max = 1000),
-                                               numericInput('res_hist', 'Resolution', 200, min = 100, max = 500)
+                                               numericInput('width_heat', 'Plot width [cm]', 20, min = 5, max = 1000),
+                                               numericInput('height_heat', 'Plot height [cm]', 14, min = 5, max = 1000),
+                                               numericInput('res_heat', 'Resolution', 200, min = 100, max = 500)
                                       )
                           )
                         ),
