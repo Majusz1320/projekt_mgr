@@ -1204,8 +1204,6 @@ server <- function(input, output, session) {
   output$intime_plot <- renderPlot({
     req(changes_applied())
     
-    
-    
     raw_data <- dataselection_intime()
     raw_data <- raw_data %>% filter(add_variable %in% c(input$contrast_intime_1, input$contrast_intime_2))
     
