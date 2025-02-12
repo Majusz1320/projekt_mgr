@@ -810,7 +810,7 @@ server <- function(input, output, session) {
     # AS wszystkie unikalne kontrasty w danych 
     grupy <- data_rna %>% filter(data_name == input$venn_select_1) %>% pull(add_variable) %>% unique()
     
-    selectInput("contrast_venn_1", "Choose contrasts for analysis",
+    selectInput("contrast_venn_1", "Choose contrasts for venn",
                 choices = grupy, selected = grupy[1], multiple = TRUE)
     
   })
@@ -826,7 +826,7 @@ server <- function(input, output, session) {
     # AS wszystkie unikalne kontrasty w danych 
     grupy <- data_rna %>% filter(data_name == input$venn_select_2) %>% pull(add_variable) %>% unique()
     
-    selectInput("contrast_venn_2", "Choose contrasts for analysis",
+    selectInput("contrast_venn_2", "Choose contrasts for venn",
                 choices = grupy, selected = grupy[1], multiple = TRUE)
     
   })
@@ -974,7 +974,8 @@ server <- function(input, output, session) {
     return(gene_lists)
   })
   
-  output$venn_plot <- renderPlot({
+  
+  venn_plot_create <- reactive({
     
     gene_lists <- prep_data_venn()
     if(length(gene_lists) <= 1){
@@ -997,6 +998,9 @@ server <- function(input, output, session) {
         scale_x_upset(n_intersections = 20)
     }
   })
+  
+  
+  output$venn_plot <- renderPlot({ venn_plot_create() })
   
   
   data_venn_table_common <- reactive({
@@ -1029,47 +1033,26 @@ server <- function(input, output, session) {
   
   
   
-  tableInput_venn <- reactive({
-    
-    req(changes_applied())
-    
-    table_data1 <- data_venn_table()
-    return(table_data1)
-  })
-  
-  output$venn_table <- renderDataTable({
-    
-    req(changes_applied())
-    
-    table_data1 <- tableInput_venn()
-    return(table_data1)
-  })
-  
+
   
   
   #### HEATMAP ####
   
-  output$heatmap_plot <- renderPlot({
-    
+  heat_plot_create <- reactive({
     req(changes_applied())
     
-    #lowlogFC <- input$lower_logFC_venn
-    #highlogFC <- input$higher_logFC_venn
     heat_data <- filter_data_for_heatmap()
-    #heat_data <- heat_data %>% mutate(logFC = ifelse(is.na(logFC), 0, logFC))
-    #heat_above_logFC <- heat_data %>% filter(logFC >= highlogFC)
-    #heat_below_logFC <- heat_data %>% filter(logFC <= lowlogFC)
-    #heat_data_logFC_filtered <- rbind(heat_below_logFC, heat_above_logFC)
     tidyHeatmap::heatmap(.data = dplyr::tibble(heat_data),
                          .row = gene,
                          .column = add_variable,
                          .value = logFC,
-                         #.scale = "row", # AS wyłączam skalowanie w rzędach - używamy logFC który jest już wystarczająco znormalizowany, skalowanie miałoby sens w przypadku uzywania CPM
                          palette_value = circlize::colorRamp2(
                            seq(-5, 5, length.out = 11),
                            RColorBrewer::brewer.pal(11, "RdBu"))) -> p_heat
     print(p_heat)
   })
+  
+  output$heatmap_plot <- renderPlot({ heat_plot_create() })
   
   output$heatmap_table <- renderDataTable({filter_data_for_heatmap()})
   
@@ -1249,59 +1232,57 @@ server <- function(input, output, session) {
   
   output$download_plot_venn <- downloadHandler(
     filename = function() {
-      paste("venn_plot_", Sys.Date(), ".png", sep = "")
+      paste0("venn_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".png")
     },
     content = function(file) {
-      ggsave(file, plot = {
-        gene_lists <- prep_data_venn()
-        if(length(gene_lists) <= 1){
-          return(NULL)
-        } else if(length(gene_lists) <= 4){
-          ggvenn(
-            gene_lists,
-            fill_color = c("#0073C2FF", "#EFC000FF", 'red3', 'green3'),
-            stroke_size = 0.5,
-            set_name_size = 4
-          )
-        } else{
-          data_set_venn <- filter_data_for_venn()
-          
-          data_set_venn %>%
-            group_by(gene) %>%
-            summarize(add_variable = list(add_variable)) %>%
-            ggplot(aes(x=add_variable)) +
-            geom_bar() +
-            scale_x_upset(n_intersections = 20)
-        }
-      }, width = 10, height = 8)
+      # Explicitly create the plot at the time of download
+      plot <- venn_plot_create()
+      
+      # Save the plot with ggsave
+      ggsave(
+        filename = file,
+        plot = plot,
+        device = "png",
+        width = input$width_venn,
+        height = input$height_venn,
+        units = "cm",
+        dpi = input$res_venn
+      )
     }
   )
   
   output$download_plot_heat <- downloadHandler(
     filename = function() {
-      paste("heatmap_", Sys.Date(), ".png", sep = "")
+      paste0("heatmap_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".png")
     },
     content = function(file) {
-      # For ComplexHeatmap objects, we need to use png() directly
-      png(file, width = 1000, height = 800)
+      # Get the plot
+      p <- heat_plot_create()  # Your function that creates the tidyheatmap
       
-      lowlogFC <- input$lower_logFC_venn
-      highlogFC <- input$higher_logFC_venn
-      heat_data <- filter_data_for_heatmap()
-      heat_data <- heat_data %>% mutate(logFC = ifelse(is.na(logFC), 0, logFC))
-      heat_above_logFC <- heat_data %>% filter(logFC >= highlogFC)
-      heat_below_logFC <- heat_data %>% filter(logFC <= lowlogFC)
-      heat_data_logFC_filtered <- rbind(heat_below_logFC, heat_above_logFC)
-      p_heat <- tidyHeatmap::heatmap(.data = dplyr::tibble(heat_data_logFC_filtered),
-                                     .row = gene,
-                                     .column = add_variable,
-                                     .value = logFC,
-                                     palette_value = circlize::colorRamp2(
-                                       seq(-5, 5, length.out = 11),
-                                       RColorBrewer::brewer.pal(11, "RdBu")))
-      print(p_heat)
+      # For tidyheatmap, we need to use pdf first then convert to png
+      # because tidyheatmap is based on ComplexHeatmap
+      tmp_pdf <- tempfile(fileext = ".pdf")
+      
+      # Save as PDF first
+      pdf(tmp_pdf, 
+          width = input$width_heat/2.54,    # Convert cm to inches
+          height = input$height_heat/2.54)   # Convert cm to inches
+      print(p)
       dev.off()
-    }
+      
+      # Convert PDF to PNG using pdftools
+      png::writePNG(
+        pdftools::pdf_render_page(
+          tmp_pdf, 
+          dpi = input$res_heat
+        ),
+        target = file
+      )
+      
+      # Clean up temporary file
+      unlink(tmp_pdf)
+    },
+    contentType = "image/png"
   )
   
   

@@ -12,6 +12,8 @@ library(plotly)
 library(bslib)
 library(ggvenn)
 library(ggupset)
+library(pdftools)
+library(png)
 source("loading_data.R")
 source('functions.R')
 
@@ -25,13 +27,13 @@ chip_choice <- c('data_hupA_chipseq_edgeR', 'data_hupA_chipseq_macs')
 
 ui <- fluidPage(
   theme = shinytheme("yeti"),
-  navbarPage("Strepto NGS analysis",
+  navbarPage("Strep.A.N",
              tabPanel("RNA-seq & ChIP-seq visualization",
                       sidebarLayout(
                         sidebarPanel(
                           tabsetPanel(type = "pills",
                                       tabPanel("Selection",
-                                               bslib::input_switch("switch_species", "Choose species"),
+                                               bslib::input_switch("switch_species", "Select streptomyces species"),
                                                verbatimTextOutput("switch_value"),
                                                fileInput("uploaded_file", "Choose a File"),
                                                conditionalPanel(
@@ -78,7 +80,7 @@ ui <- fluidPage(
                                                  col_widths = c(10, 10),
                                                  fill = FALSE,
                                                  fillable = FALSE,
-                                                 gap = "100px",
+                                                 gap = "1px",
                                                  actionButton("btn_left", "Left", class = "w-100"),
                                                  actionButton("btn_right", "Right", class = "w-100")
                                                ),
@@ -89,21 +91,22 @@ ui <- fluidPage(
                                                  col_widths = c(3, 3),
                                                  fill = FALSE,
                                                  fillable = FALSE,
-                                                 gap = "100px",
+                                                 gap = "10px",
                                                  actionButton("btn_in", "Zoom in", class = "w-100"),
                                                  actionButton("btn_out", "Zoom out", class = "w-100")
                                                )),
+                                               
+                                               numericInput("lower_value", label = ("Minimal value of plot"), value = 4260000, step = 10000),
+                                               numericInput("higher_value", label = ("Maximum value of plot"), value = 4280000, step = 10000),
                                                div(
                                                  style = "margin-top: 20px",
                                                     actionButton("apply_changes", "Apply Changes")
                                                )
                                       ),
                                       tabPanel("Plot settings",
-                                               numericInput("lower_value", label = ("Minimal value of plot"), value = 4260000, step = 10000),
-                                               numericInput("higher_value", label = ("Maximum value of plot"), value = 4280000, step = 10000),
                                                h4("Filter logFC"),
-                                               numericInput("higher_logFC", label = ("-higher value"), value = 0, step = 0.5),
-                                               numericInput("lower_logFC", label = ("-lower value"), value = 0, step = 0.5),
+                                               numericInput("higher_logFC", label = ("-higher value"), value = 0, step = 0.5, min = 0),
+                                               numericInput("lower_logFC", label = ("-lower value"), value = 0, step = 0.5, max = 0),
                                                input_switch("my_switch", "Leave only significant genes (FDR <= 0.05)", value = FALSE),
                                                textOutput("switch_status")
                                                
@@ -157,11 +160,11 @@ ui <- fluidPage(
                                                  condition = 'input.venn_select_2 != "no data selected"',
                                                  uiOutput('contrast_venn_2')
                                                ),
-                                               textAreaInput("gene_list", "Input gene names")
+                                               textAreaInput("gene_list", "Input gene names for heatmap")
                                       ),
                                       tabPanel("Venn/Heat Options",
-                                               numericInput("higher_logFC_venn", label = ("higher logFC"), value = 1.5, step = 0.1),
-                                               numericInput("lower_logFC_venn", label = ("lower logFC"), value = -1.5, step = 0.1)),
+                                               numericInput("higher_logFC_venn", label = ("higher logFC"), value = 1.5, step = 0.1, min = 0),
+                                               numericInput("lower_logFC_venn", label = ("lower logFC"), value = -1.5, step = 0.1, max = 0)),
                                       tabPanel("Intime Options",
                                                fileInput("uploaded_intime_file", "Choose a File"),
                                                conditionalPanel(
@@ -217,10 +220,8 @@ ui <- fluidPage(
                                      dataTableOutput('venn_table_common')),
                             tabPanel("Heatmap", plotOutput("heatmap_plot", height = '800px' ),
                                      dataTableOutput('heatmap_table')),
-                            tabPanel("In time comparison", plotOutput("intime_plot", height = '800px' ))),
-                          tabsetPanel(
-                            type='pills', 
-                            tabPanel("Venn", dataTableOutput("venn_table")))
+                            tabPanel("In time comparison", plotOutput("intime_plot", height = '800px' )))
+                        
                           
                         )
                       )
