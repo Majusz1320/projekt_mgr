@@ -1224,4 +1224,33 @@ merged_data$add_variable <- "one condition"
  write.csv(merged_data, "final_data/data_intime/NRRL_metab_RNAseq_sven_intime.csv", row.names = FALSE)
 
 ```
+```{r}
+getwd()
+
+
+  abrB1.2_table4 <- read.csv("final_data/abrB1.2_table4.csv")
+  abrB1.2_table4$add_variable <- "DabrBvsWT24h"
+  
+  abrB1.2_table4$data_name <- "abrB1.2_table4"
+  abrB1.2_table5 <- read.csv("final_data/abrB1.2_table5.csv")
+  abrB1.2_table5$add_variable <- "DabrBvsWT36h"
+  abrB1.2_table5$data_name <- "abrB1.2_table5"
+  
+  abr <- rbind(abrB1.2_table4, abrB1.2_table5)
+
+  abr$data_name <- "AbrC3_rico_2014"
+   write.csv(abr, "final_data/abrB1.2_table.csv", row.names = FALSE)
+  abrB1.2_table <- read.csv("final_data/abrB1.2_table.csv")
+
+ 
+```
+
+```{r}
+aor <- read.csv("final_data/aor1_rna.csv")
+aor$add_variable <- "Daor1vsWT"
+
+   write.csv(aor, "final_data/aor1_rna.csv", row.names = FALSE)
+
+
+```
 

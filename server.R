@@ -235,10 +235,19 @@ server <- function(input, output, session) {
   #### LOADING RNA-SEQ DATA ####
   
   data_loaded_rna <- reactive({
+    if (switch_status() == FALSE)
+    {
     if (!is.null(input$file_name)) {
-      c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna", "argR_2018", "bldD_scoe", "draRK_scoe", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe", "yague_2013_scoe_diff", "yeong_2016", "data_bldC_sven", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "NRRL_metab_RNAseq_sven", input$file_name)
+      c("AbrB1_Nieta_2020", "hupAS_Strzalka_2024", "SatKR_Gongerowska_2021", "TopA_Szafran_2019", "AbrC3_rico_2014", "aor1_rna", "argR_2018", "bldD_scoe", "draRK_scoe", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe", "yague_2013_scoe_diff", "yeong_2016", input$file_name)
     } else {
-      c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", "abrc3", "aor1_rna", "argR_2018", "bldD_scoe", "draRK_scoe", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe", "yague_2013_scoe_diff", "yeong_2016", "data_bldC_sven", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "NRRL_metab_RNAseq_sven")
+      c("AbrB1_Nieta_2020", "hupAS_Strzalka_2024", "SatKR_Gongerowska_2021", "TopA_Szafran_2019", "AbrC3_rico_2014", "aor1_rna", "argR_2018", "bldD_scoe", "draRK_scoe", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe", "yague_2013_scoe_diff", "yeong_2016")
+    }}
+    else {
+      if (!is.null(input$file_name)) {
+        c("data_bldC_sven", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "NRRL_metab_RNAseq_sven", input$file_name)
+      } else {
+        c("data_bldC_sven", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "NRRL_metab_RNAseq_sven")
+      }
     }
   })
   
@@ -259,12 +268,12 @@ server <- function(input, output, session) {
     req(changes_applied())
     
     # Load the datasets based on their specific load functions
-    RNAseq_Martyna <- RNAseq_Martyna_load()
+    SatKR_Gongerowska_2021 <- RNAseq_Martyna_load()
     user_data <- merged_user()
-    szafran2019 <- data_szafran2019_load()
-    abrB1.2_table <- abrB1.2_table_load()
-    data_hupAS_RNAseq <- data_hupAS_RNAseq_load()
-    abrc3 <- abrc3_load() 
+    TopA_Szafran_2019 <- data_szafran2019_load()
+    AbrB1_Nieta_2020 <- abrB1.2_table_load()
+    hupAS_Strzalka_2024 <- data_hupAS_RNAseq_load()
+    AbrC3_rico_2014 <- abrc3_load() 
     aor1_rna <- aor1_rna_load()
     argR_2018 <- argR_2018_load()
     bldD_scoe <- bldD_scoe_load()
@@ -284,11 +293,11 @@ server <- function(input, output, session) {
     
     # Create a list of data frames
     data_list <- list(
-      abrB1.2_table = abrB1.2_table,
-      data_hupAS_RNAseq = data_hupAS_RNAseq,
-      RNAseq_Martyna = RNAseq_Martyna,
-      szafran2019 = szafran2019,
-      abrc3 = abrc3,
+      AbrB1_Nieta_2020 = AbrB1_Nieta_2020,
+      hupAS_Strzalka_2024 = hupAS_Strzalka_2024,
+      SatKR_Gongerowska_2021 = SatKR_Gongerowska_2021,
+      TopA_Szafran_2019 = TopA_Szafran_2019,
+      AbrC3_rico_2014 = AbrC3_rico_2014,
       aor1_rna = aor1_rna,
       argR_2018 = argR_2018,
       bldD_scoe = bldD_scoe,
