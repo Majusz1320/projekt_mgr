@@ -338,7 +338,9 @@ server <- function(input, output, session) {
     return(data_rna_final)
   })
   
+  # test
   
+  output$table_test <- renderDataTable({dataselection_rnaseq_before_LHfilter()})
   
   
   #### LOWER/HIGHERVALUE ####
@@ -869,12 +871,12 @@ server <- function(input, output, session) {
     
     
     ###tutaj dopisujesz następne jak będą
-    RNAseq_Martyna <- RNAseq_Martyna_load()
+    SatKR_Gongerowska_2021 <- RNAseq_Martyna_load()
     user_data <- merged_user()
-    szafran2019 <- data_szafran2019_load()
-    abrB1.2_table <- abrB1.2_table_load()
-    data_hupAS_RNAseq <- data_hupAS_RNAseq_load()
-    abrc3 <- abrc3_load() 
+    TopA_Szafran_2019 <- data_szafran2019_load()
+    AbrB1_Nieta_2020 <- abrB1.2_table_load()
+    hupAS_Strzalka_2024 <- data_hupAS_RNAseq_load()
+    AbrC3_rico_2014 <- abrc3_load() 
     aor1_rna <- aor1_rna_load()
     argR_2018 <- argR_2018_load()
     bldD_scoe <- bldD_scoe_load()
@@ -894,11 +896,11 @@ server <- function(input, output, session) {
     
     # Create a list of data frames, handling the user data separately
     data_list <- list(
-      abrB1.2_table = abrB1.2_table,
-      data_hupAS_RNAseq = data_hupAS_RNAseq,
-      RNAseq_Martyna = RNAseq_Martyna,
-      szafran2019 = szafran2019,
-      abrc3 = abrc3,
+      AbrB1_Nieta_2020 = AbrB1_Nieta_2020,
+      hupAS_Strzalka_2024 = hupAS_Strzalka_2024,
+      SatKR_Gongerowska_2021 = SatKR_Gongerowska_2021,
+      TopA_Szafran_2019 = TopA_Szafran_2019,
+      AbrC3_rico_2014 = AbrC3_rico_2014,
       aor1_rna = aor1_rna,
       argR_2018 = argR_2018,
       bldD_scoe = bldD_scoe,

@@ -2,30 +2,33 @@
 
 abrB1.2_table_load <- function(){
   abrB1.2_table <- read.csv("datasets/final_data/abrB1.2_table.csv")
+  abrB1.2_table$data_name <- 'AbrB1_Nieta_2020'
   return(abrB1.2_table)
 }
 
 
 data_hupAS_RNAseq_load <- function(){
   data_hupAS_RNAseq <- read.csv("datasets/final_data/data_hupAS_RNAseq.csv")
-  data_hupAS_RNAseq$data_name <- "data_hupAS_RNAseq"
+  data_hupAS_RNAseq$data_name <- "hupAS_Strzalka_2024"
   return(data_hupAS_RNAseq)
 }
 
 
 RNAseq_Martyna_load <- function(){
   RNAseq_Martyna <- read.csv("datasets/final_data/RNAseq_Martyna.csv")
+  RNAseq_Martyna$data_name <- 'SatKR_Gongerowska_2021'
   return(RNAseq_Martyna)
 }
 
 data_szafran2019_load <- function(){
   data_szafran2019 <- read.csv("datasets/final_data/data_szafran2019.csv")
+  data_szafran2019$data_name <- 'TopA_Szafran_2019'
   return(data_szafran2019)
 }
 
 abrc3_load <- function(){
   abrc3 <- read.csv("datasets/final_data/abrc3.csv")
-  abrc3$data_name <- "abrc3"
+  abrc3$data_name <- "AbrC3_rico_2014"
   return(abrc3)
 }
 
