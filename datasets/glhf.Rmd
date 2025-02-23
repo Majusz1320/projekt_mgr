@@ -490,7 +490,6 @@ merged_data$add_variable <- "no_info"
 
  write.csv(merged_data, "final_data/ECF42s_sven.csv", row.names = FALSE)
 
-
 ```
 
 ```{r}
@@ -1254,3 +1253,287 @@ aor$add_variable <- "Daor1vsWT"
 
 ```
 
+```{r}
+
+agR <- read.csv("new_data/argR_2018.txt", sep = "\t")
+
+agrR_logFC <- agR[, 1:6]
+agrR_FDR <- agR[, c(1, 7:11)]
+nazwy_kolumn <- c("gene", "DargRvsWT32h", "DargRvsWT42h", "DargRvsWT49h", "DargRvsWT56h", "DargRvsWT66h")
+
+colnames(agrR_FDR) <- nazwy_kolumn
+colnames(agrR_logFC) <- nazwy_kolumn
+
+
+agrR_FDR <- agrR_FDR %>% 
+  pivot_longer(
+    cols = !gene, 
+    names_to = "add_variable", 
+    values_to = "FDR"
+  )
+
+agrR_logFC <- agrR_logFC %>% 
+  pivot_longer(
+    cols = !gene, 
+    names_to = "add_variable", 
+    values_to = "logFC"
+  )
+
+
+agrR_FDR$FDR <- gsub(",", ".", agrR_FDR$FDR)
+agrR_logFC$logFC <- gsub(",", ".", agrR_logFC$logFC)
+agrR_FDR$FDR <- as.numeric(agrR_FDR$FDR)
+agrR_logFC$logFC <- as.numeric(agrR_logFC$logFC)
+
+merged_data <- agrR_logFC %>%
+  left_join(agrR_FDR, by = c("gene", "add_variable"))
+
+
+merged_data <- merged_data %>%
+  left_join(data_genome, by = "gene")
+  
+ write.csv(merged_data, "final_data/argR_2018.csv", row.names = FALSE)
+
+```
+
+```{r}
+bldd <- read.csv("final_data/bldD_scoe.csv")
+
+bldd$add_variable <- "DbldDvsWT"
+bldd$logFC <- log2(bldd$logFC)
+
+table(bldd$logFC)
+
+bldd1 <- na.omit(bldd)
+ write.csv(bldd1, "final_data/bldD_scoe.csv", row.names = FALSE)
+
+
+```
+```{r}
+bldc <- read.csv("new_data/data_bldC.txt", sep = " ")
+
+bldc <- bldc[, c(1, 4:7)]
+
+bldc_logFC <- bldc[, c(1, 2, 4)] 
+bldc_FDR <- bldc[, c(1, 3, 5)]
+
+bldc_nazwy <- c("gene", "DbldCvsWT10h", "DbldCcsWT14h")
+
+colnames(bldc_logFC) <- bldc_nazwy
+colnames(bldc_FDR) <- bldc_nazwy
+
+
+bldc_FDR <- bldc_FDR %>% 
+  pivot_longer(
+    cols = !gene, 
+    names_to = "add_variable", 
+    values_to = "FDR"
+  )
+
+bldc_logFC <- bldc_logFC %>% 
+  pivot_longer(
+    cols = !gene, 
+    names_to = "add_variable", 
+    values_to = "logFC"
+  )
+
+
+merged_data <- bldc_logFC %>%
+  left_join(bldc_FDR, by = c("gene", "add_variable"))
+
+sven_genom <- read.csv("sven_genes_vnz.txt", sep = " ")
+
+merged_data <- merged_data %>%
+  left_join(sven_genom, by = "gene")
+
+merged_data <- na.omit(merged_data)
+
+merged_data <- merged_data %>% select(-product)
+
+ write.csv(merged_data, "final_data/data_bldC_sven.csv", row.names = FALSE)
+
+
+```
+
+```{r}
+ecf <- read.csv("new_data/ECF42s_sven.txt", sep = "\t")
+ecf$add_variable <- "ECF42 sigma factor"
+ecf <- ecf %>% rename(locus_sven = gene)
+
+
+ecf <- ecf %>%
+  left_join(sven_convert, by = "locus_sven")
+
+ecf <- ecf %>% rename(gene = locus_vnz)
+ecf <- ecf %>%
+  left_join(genelist_sven, by = "gene")
+
+ecf <- ecf %>% select("gene", "logFC", "FDR", "add_variable", "start", "end", "strand")
+ecf <- na.omit(ecf)
+
+ecf$logFC <- gsub(",", ".", ecf$logFC)
+ecf$FDR <- gsub(",", ".", ecf$FDR)
+ecf$logFC <- as.numeric(ecf$logFC)
+ecf$FDR <- as.numeric(ecf$FDR)
+
+
+ write.csv(ecf, "final_data/ECF42s_sven.csv", row.names = FALSE)
+
+```
+
+```{r}
+glnr <- read.csv("final_data/glnr_sven.csv")
+
+glnr$add_variable <- gsub("h", "min", glnr$add_variable)
+glnr$add_variable <- gsub("M1246", "WT", glnr$add_variable)
+
+ write.csv(glnr, "final_data/glnr_sven.csv", row.names = FALSE)
+
+```
+
+```{r}
+ohka <- read.csv("final_data/ohkA_scoe.csv")
+
+
+ohka$logFC <- log2(ohka$logFC)
+
+ohka <- head(ohka, -3)
+
+ write.csv(ohka, "final_data/ohkA_scoe.csv", row.names = FALSE)
+
+
+```
+
+```{r}
+osdr <- read.csv("final_data/osdR_2016.csv")
+
+
+osdr$logFC <- log2(osdr$logFC)
+
+ohka <- head(ohka, -3)
+
+ write.csv(osdr, "final_data/osdR_2016.csv", row.names = FALSE)
+
+
+```
+
+```{r}
+yague <- read.csv("new_data/yague_2013_scoe_diff.txt", sep = "\t")
+
+yague$logFC <- gsub(",", ".", yague$logFC)
+yague$FDR <- gsub(",", ".", yague$FDR)
+yague$logFC <- as.numeric(yague$logFC)
+yague$FDR <- as.numeric(yague$FDR)
+
+yague <- yague %>%
+  left_join(data_genome, by = "gene")
+
+write.csv(yague, "final_data/yague_2013_scoe_diff.csv", row.names = FALSE)
+
+```
+
+```{r}
+yong <- read.csv("new_data/yeong_2016.txt", sep = "\t")
+yong_logFC <- yong[, c(1, 2, 4, 6, 8, 10, 12)]
+yong_FDR <- yong[, c(1, 3, 5, 7, 9, 11, 13)]
+
+yong_nazwy <- c("gene", "MvsT", "MvsL", "MvsS", "TvsL", "TvsS", "LvsS")
+
+colnames(yong_logFC) <- yong_nazwy
+colnames(yong_FDR) <- yong_nazwy
+
+yong_FDR <- yong_FDR %>% 
+  pivot_longer(
+    cols = !gene, 
+    names_to = "add_variable", 
+    values_to = "FDR"
+  )
+
+yong_logFC <- yong_logFC %>% 
+  pivot_longer(
+    cols = !gene, 
+    names_to = "add_variable", 
+    values_to = "logFC"
+  )
+
+yong <- yong_logFC %>%
+  left_join(yong_FDR, by = c("gene", "add_variable"))
+
+yong$logFC <- gsub(",", ".", yong$logFC)
+yong$FDR <- gsub(",", ".", yong$FDR)
+yong$logFC <- as.numeric(yong$logFC)
+yong$FDR <- as.numeric(yong$FDR)
+
+yong$logFC <- log2(yong$logFC)
+
+
+yong <- yong %>%
+  left_join(data_genome, by = "gene")
+
+yong <- na.omit(yong)
+
+
+write.csv(yong, "final_data/yeong_2016.csv", row.names = FALSE)
+
+
+```
+
+```{r}
+edger <- read.csv("final_data/data_chip_seq/hupAS_strzalka/data_hupA_chipseq_edgeR.txt", sep = " ")
+macs <- read.csv("final_data/data_chip_seq/hupAS_strzalka/data_hupA_chipseq_macs.txt", sep = " ")
+
+edger <- edger %>% select(start, end, rodzaj)
+macs <-  macs %>% select(start, end, rodzaj)
+
+hupa <- rbind(edger, macs)
+
+hupa$chrom <- "Chromosome"
+
+hupa <- hupa[, c(4, 1, 2, 3)]
+
+colnames(hupa) <- c("chrom", "chromStart", "chromEnd", "name")
+
+write.csv(hupa, "final_data/data_chip_seq/hupAS_strzalka_chipseq.csv", row.names = FALSE)
+
+```
+
+```{r}
+smirdova <- read.csv("final_data/data_chip_seq/chipseq_smirdova.txt", sep = "\t")
+write.csv(smirdova, "final_data/data_chip_seq/chipseq_smirdova.csv", row.names = FALSE)
+
+```
+
+```{r}
+
+SMC_14$name <- "SMC_14"
+hupS_14$name <- "hupS_14"
+dSMChupS_14$name <- "dSMChupS_14"
+dparBSMC_14$name <- "dparBSMC_14"
+
+hupS_chipseq_szafran <- rbind(SMC_14, hupS_14, dSMChupS_14, dparBSMC_14)
+
+hupS_chipseq_szafran <- hupS_chipseq_szafran %>% select(chrom, chromStart, chromEnd, name) 
+
+write.csv(hupS_chipseq_szafran, "final_data/data_chip_seq/hupS_chipseq_szafran.csv", row.names = FALSE)
+
+
+```
+
+€
+```{r}
+
+
+ggplot(hupS_chipseq_szafran, aes(y = name, x = start)) +
+      geom_segment(aes(xend = end, yend = name, color = name),
+                   size = 8, alpha = 0.6) +
+      scale_color_brewer(palette = "Set2") +
+      theme_minimal() +
+      theme(
+        legend.position = "none",
+        panel.grid.minor = element_blank(),
+        axis.title.y = element_blank(),
+        plot.margin = margin(r = 100, l = 20, b = 20, t = 20)
+      )
+
+
+```

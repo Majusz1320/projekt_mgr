@@ -5,7 +5,12 @@
 
 # AS added to allow shiny to load files bigger than default 5 Mb
 options(shiny.maxRequestSize=30*1024^2) 
+
+
 server <- function(input, output, session) {
+  
+  
+#### SWITCH FOR SPECIES ####  
   
   switch_status <- reactive({
     switch_status <- input$switch_species
@@ -19,10 +24,14 @@ server <- function(input, output, session) {
     return(switch_text)
   })
   
+  
+  
+  
   #### server-side select choice of genes ####
-  # Create a single observer that responds to species switch changes
+  
+  
+  
   observe({
-    # Load the appropriate gene list based on switch status
     if(switch_status() == FALSE) {
       genelist <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
     } else {
@@ -31,7 +40,6 @@ server <- function(input, output, session) {
     
     gene_list_database <- c("all", genelist$gene)
     
-    # Update all three selectize inputs
     updateSelectizeInput(session, 
                          inputId = "select_gene", 
                          choices = gene_list_database,
@@ -51,10 +59,8 @@ server <- function(input, output, session) {
                          server = TRUE)
   })
   
-  # Create a reactive value to store the trigger state
-  changes_applied <- reactiveVal(FALSE)  # This will store whether the button has been pressed
+  changes_applied <- reactiveVal(FALSE) # This will store whether the button has been pressed
   
-  # Observe the action button press
   observeEvent(input$apply_changes, {
     changes_applied(TRUE)  # Set the value to TRUE when the button is pressed
   })
@@ -149,27 +155,21 @@ server <- function(input, output, session) {
   #### PLOT GENOME INPUT ####
   
   plotgenomeInput <- reactive({
-    
     req(changes_applied())
     
-    if(switch_status() == FALSE)
-    {
-      if(input$select_gene == "all") {
-        plot_data <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
-      } else {
-        input$select_gene -> selected_gene
-        plot_data <- read.csv("datasets/genes_scoelicolor.txt", sep = '')
-        plot_data <- plot_data %>% filter(gene == selected_gene)
-      }}
-    else{
-      if(input$select_gene == "all") {
-        plot_data <- read.csv("datasets/sven_genes_vnz.txt", sep = '')
-      } else {
-        input$select_gene -> selected_gene
-        plot_data <- read.csv("datasets/sven_genes_vnz.txt", sep = '')
-        plot_data <- plot_data %>% filter(gene == selected_gene)
-      }
-      
+    # Determine which dataset to use based on switch status
+    file_path <- if(switch_status()) {
+      "datasets/sven_genes_vnz.txt"
+    } else {
+      "datasets/genes_scoelicolor.txt"
+    }
+    
+    # Read the data once
+    plot_data <- read.csv(file_path, sep = '')
+    
+    # Filter if a specific gene is selected
+    if(input$select_gene != "all") {
+      plot_data <- plot_data %>% filter(gene == input$select_gene)
     }
     
     return(plot_data)
@@ -178,7 +178,7 @@ server <- function(input, output, session) {
   
   
   
-  #### USER DATA UPLOAD ####
+  #### USER DATA UPLOAD RNASEQ ####
   
   user_data_upload <- reactive({
     req(changes_applied())
@@ -194,6 +194,26 @@ server <- function(input, output, session) {
     }
   })
   
+  
+  #### USER DATA UPLOAD CHIPSEQ ####
+  user_data_upload_chip <- reactive({
+    req(changes_applied())
+    
+    user_file <- input$uploaded_file_chip$datapath
+    if(is.null(user_file)){
+      return(NULL)
+    } else {
+      user_file <- read.csv(user_file, sep = "\t")
+      # Use input$file_name directly here
+      user_file$data_name <- input$file_name_chip
+      return(user_file)
+    }
+  })
+  
+  output$fileUploaded_chip <- reactive({
+    !is.null(input$uploaded_file_chip)
+  })
+  outputOptions(output, "fileUploaded_chip", suspendWhenHidden = FALSE)
   
   
   
@@ -234,122 +254,76 @@ server <- function(input, output, session) {
   
   #### LOADING RNA-SEQ DATA ####
   
+  #loading_data::data_in_app
+  dataset_loaders <- data_in_app
+  
+  
+  #loading_data::data_sven/data_scoe
   data_loaded_rna <- reactive({
-    if (switch_status() == FALSE)
-    {
-    if (!is.null(input$file_name)) {
-      c("AbrB1_Nieta_2020", "hupAS_Strzalka_2024", "SatKR_Gongerowska_2021", "TopA_Szafran_2019", "AbrC3_rico_2014", "aor1_rna", "argR_2018", "bldD_scoe", "draRK_scoe", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe", "yague_2013_scoe_diff", "yeong_2016", input$file_name)
-    } else {
-      c("AbrB1_Nieta_2020", "hupAS_Strzalka_2024", "SatKR_Gongerowska_2021", "TopA_Szafran_2019", "AbrC3_rico_2014", "aor1_rna", "argR_2018", "bldD_scoe", "draRK_scoe", "ohkA_scoe", "osdR_2016", "sigR", "soxr_genes", "whiAH_scoe", "yague_2013_scoe_diff", "yeong_2016")
-    }}
-    else {
-      if (!is.null(input$file_name)) {
-        c("data_bldC_sven", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "NRRL_metab_RNAseq_sven", input$file_name)
+    base_datasets <- if (switch_status()) {
+      data_sven
       } else {
-        c("data_bldC_sven", "ECF42s_sven", "glnr_sven", "hups_rnaseq_Strzalka_sven", "NRRL_metab_RNAseq_sven")
-      }
+      data_scoe
     }
+    
+    if (!is.null(input$file_name)) base_datasets <- c(base_datasets, input$file_name)
+    base_datasets
   })
   
   observe({
-    # Get the current data options
     choices <- c("no data selected", data_loaded_rna())
-    
-    # Update all three select inputs
-    updateSelectInput(session, "rna_select_1", choices = choices)
-    updateSelectInput(session, "rna_select_2", choices = choices)
-    updateSelectInput(session, "rna_select_3", choices = choices)
+    sapply(paste0("rna_select_", 1:3), function(id) {
+      updateSelectInput(session, id, choices = choices)
+    })
   })
   
-  
+  # Cache loaded datasets
+  loaded_datasets <- reactiveVal(list())
   
   dataselection_rnaseq_before_LHfilter <- reactive({
-    
     req(changes_applied())
     
-    # Load the datasets based on their specific load functions
-    SatKR_Gongerowska_2021 <- RNAseq_Martyna_load()
-    user_data <- merged_user()
-    TopA_Szafran_2019 <- data_szafran2019_load()
-    AbrB1_Nieta_2020 <- abrB1.2_table_load()
-    hupAS_Strzalka_2024 <- data_hupAS_RNAseq_load()
-    AbrC3_rico_2014 <- abrc3_load() 
-    aor1_rna <- aor1_rna_load()
-    argR_2018 <- argR_2018_load()
-    bldD_scoe <- bldD_scoe_load()
-    data_bldC_sven <- data_bldC_sven_load()
-    draRK_scoe <- draRK_scoe_load()
-    ECF42s_sven <- ECF42s_sven_load()
-    glnr_sven <- glnr_sven_load()
-    hups_rnaseq_Strzalka_sven <- hups_rnaseq_Strzalka_sven_load()
-    ohkA_scoe <- ohkA_scoe_load()
-    osdR_2016 <- osdR_2016_load()
-    sigR <- sigR_load()
-    soxr_genes <- soxr_genes_load()
-    whiAH_scoe <- whiAH_scoe_load()
-    yague_2013_scoe_diff <- yague_2013_scoe_diff_load()
-    yeong_2016 <- yeong_2016_load()
-    NRRL_metab_RNAseq_sven <- NRRL_metab_RNAseq_sven_load()
-    
-    # Create a list of data frames
-    data_list <- list(
-      AbrB1_Nieta_2020 = AbrB1_Nieta_2020,
-      hupAS_Strzalka_2024 = hupAS_Strzalka_2024,
-      SatKR_Gongerowska_2021 = SatKR_Gongerowska_2021,
-      TopA_Szafran_2019 = TopA_Szafran_2019,
-      AbrC3_rico_2014 = AbrC3_rico_2014,
-      aor1_rna = aor1_rna,
-      argR_2018 = argR_2018,
-      bldD_scoe = bldD_scoe,
-      data_bldC_sven = data_bldC_sven,
-      draRK_scoe = draRK_scoe,
-      ECF42s_sven = ECF42s_sven,
-      glnr_sven = glnr_sven,
-      hups_rnaseq_Strzalka_sven = hups_rnaseq_Strzalka_sven,
-      ohkA_scoe = ohkA_scoe,
-      osdR_2016 = osdR_2016,
-      sigR = sigR,
-      soxr_genes = soxr_genes,
-      whiAH_scoe = whiAH_scoe,
-      yague_2013_scoe_diff = yague_2013_scoe_diff,
-      yeong_2016 = yeong_2016,
-      NRRL_metab_RNAseq_sven = NRRL_metab_RNAseq_sven
+    # Get selected datasets (excluding "no data selected")
+    selected_datasets <- setdiff(
+      c(input$rna_select_1, input$rna_select_2, input$rna_select_3),
+      "no data selected"
     )
     
-    # Add user data to the list if it exists
-    if (!is.null(user_data)) {
-      data_list[[input$file_name]] <- user_data
+    # Filter selected datasets based on data order
+    data_order <- data_loaded_rna()
+    selected_datasets <- intersect(selected_datasets, data_order)
+    
+    if (length(selected_datasets) == 0) return(NULL)
+    
+    # Get current cache
+    current_cache <- loaded_datasets()
+    
+    # Load only uncached datasets
+    for (dataset_name in selected_datasets) {
+      if (is.null(current_cache[[dataset_name]])) {
+        if (dataset_name == input$file_name) {
+          current_cache[[dataset_name]] <- merged_user()
+        } else if (dataset_name %in% names(dataset_loaders)) {
+          current_cache[[dataset_name]] <- dataset_loaders[[dataset_name]]()
+        }
+      }
     }
     
-    # Get the selected datasets from the select inputs, while ensuring to maintain order
-    selected_datasets <- c(input$rna_select_1, input$rna_select_2, input$rna_select_3)
+    # Update cache
+    loaded_datasets(current_cache)
     
-    # Remove "no data selected" values from the selection
-    selected_datasets <- selected_datasets[selected_datasets != "no data selected"]
-    
-    # Reorder selected datasets based on the order of data_loaded_rna()
-    data_order <- data_loaded_rna()
-    selected_datasets <- selected_datasets[selected_datasets %in% data_order]
-    
-    # Filter and combine the selected datasets in the correct order
-    selected_data <- data_list[selected_datasets]
-    data_rna_final <- do.call(rbind, selected_data)
-    
-    return(data_rna_final)
+    # Combine selected datasets
+    do.call(rbind, current_cache[selected_datasets])
   })
   
-  # test
-  
+
   output$table_test <- renderDataTable({dataselection_rnaseq_before_LHfilter()})
   
   
   #### LOWER/HIGHERVALUE ####
   
   
-  # lower_value <- reactive({
-  #   input$lower_value
-  #   
-  # })
+  
   
   
   observeEvent(input$select_gene,{
@@ -359,14 +333,6 @@ server <- function(input, output, session) {
       )
     }
   })
-  
-  
-  #  higher_value <- reactive({
-  # input$higher_value
-  
-  #  })
-  
-  
   
   observeEvent(input$select_gene,{
     if(input$select_gene != 'all'){
@@ -399,11 +365,10 @@ server <- function(input, output, session) {
     
     data_rna <- dataselection_rnaseq_FDR_filter()
     
-    lower <- changes_applied_lower()
-    higher <- changes_applied_higher()
-    
-    data_rna <- data_rna %>% filter(start >= lower, end <= higher, add_variable %in% c(input$contrast_1, input$contrast_2, input$contrast_3))
-    #print(data_rna)
+    data_rna <- data_rna %>% filter(
+      start >= changes_applied_lower(), 
+      end <= changes_applied_higher(), 
+      add_variable %in% c(input$contrast_1, input$contrast_2, input$contrast_3))
     return(data_rna)
   })
   
@@ -475,8 +440,6 @@ server <- function(input, output, session) {
     
     req(changes_applied())
     
-    lower <- changes_applied_lower()
-    higher <- changes_applied_higher()
     
     if(switch_status() == FALSE)
     {
@@ -486,7 +449,7 @@ server <- function(input, output, session) {
       plot_data_genome <- read.csv("datasets/sven_genes_vnz.txt", sep = '')
     }
     
-    plot_data_genome_filter <- plot_data_genome %>% filter(start >= lower, end <= higher)
+    plot_data_genome_filter <- plot_data_genome %>% filter(start >= changes_applied_lower(), end <= changes_applied_higher())
     
     return(plot_data_genome_filter)
   })
@@ -499,48 +462,18 @@ server <- function(input, output, session) {
   genomeplot <- reactive({
     
     req(changes_applied())
-    
-    lower <- changes_applied_lower()
-    higher <- changes_applied_higher()
+
     plot_data_genome <- filtergenomedata()
     plot_data_genome <- plot_data_genome %>% mutate(strand_plot = ifelse(strand == '+', 1, 0))
     plot_data_genome <- plot_data_genome %>% distinct(gene, .keep_all = TRUE)
     
-    genome_plot <- ggplot(plot_data_genome, aes(
-      xmin = start,
-      xmax = end,
-      y = "genes",
-      label = gene,
-      fill = strand,
-      forward = strand_plot
-    )) +
-      geom_gene_arrow(arrowhead_height = grid::unit(10, "mm"),
-                      arrow_body_height = grid::unit(8, "mm")) +
-      geom_gene_label(grow = TRUE, height = grid::unit(5, "mm")) +
-      scale_fill_brewer(palette = "Set3") +
-      coord_cartesian(xlim = c(lower, higher), expand = FALSE) +  # Prevents ggplot from adding padding
-      scale_x_continuous(expand = c(0, 0)) +  # Removes extra space on x-axis
-      scale_y_discrete(expand = c(0, 0)) +  # Removes extra space on x-axis
-      theme_classic() +
-      theme(
-        axis.title.y = element_blank(),       
-        axis.text.y = element_blank(),        
-        axis.ticks.y = element_blank(),       
-        axis.line.y = element_blank(),
-        axis.line.x = element_blank(),
-        axis.title = element_text(size = 16),        # Axis titles
-        axis.text = element_text(size = 14),
-        legend.position = "none",    # Legend title
-        plot.title = element_text(size = 18, face = "bold"),  # Plot title
-        strip.text = element_text(size = 14)
-      )
-    # theme(
-    #  plot.margin = margin(5, 5, 5, 5),       # Adjust margins (top, right, bottom, left)
-    # axis.title.x = element_blank(),         # Optionally remove axis labels if not necessary
-    #axis.text.x = element_text(size = 10),
-    #legend.position = "bottom",             # Adjust legend position to save space
-    #legend.margin = margin(0, 0, 0, 0)
-    #)
+    #plots_code::genome_plot_create
+    
+    genome_plot <- genome_plot_create(
+      plot_data_genome = plot_data_genome, 
+      lower = changes_applied_lower(), 
+      higher = changes_applied_higher())
+    
     return(genome_plot)
   })
   
@@ -554,41 +487,19 @@ server <- function(input, output, session) {
   RNAplot <- reactive({
     
     req(changes_applied())
-    lowlogFC <- lower_logFC()
-    highlogFC <- higher_logFC()
-    lower <- changes_applied_lower()
-    higher <- changes_applied_higher()
+    
     plot_data_rna <- dataselection_rnaseq()
-    plot_data_rna_highlog <- plot_data_rna %>% filter(logFC >= highlogFC)
-    plot_data_rna_lowlog <- plot_data_rna %>% filter(logFC <= lowlogFC)
+    plot_data_rna_highlog <- plot_data_rna %>% filter(logFC >= higher_logFC())
+    plot_data_rna_lowlog <- plot_data_rna %>% filter(logFC <= lower_logFC())
     plot_data_rna_logFC_filtered <- rbind(plot_data_rna_lowlog, plot_data_rna_highlog)
     plot_data_rna <- plot_data_rna_logFC_filtered %>% mutate(strand_plot = ifelse(strand == '-', 0, 1))
-    #print(tail(plot_data_rna))
     
+    #plots_code::rna_plot_create
     
-    rna_plot <- plot_data_rna %>% ggplot(aes(xmin = start, xmax = end, y = add_variable, label = gene, fill = logFC, forward = strand_plot)) +
-      geom_gene_arrow(arrowhead_height = grid::unit(10, "mm"), arrow_body_height = grid::unit(8, "mm")) +
-      #facet_wrap(~data_name, scales = 'free', ncol = 1, strip.position = "right") +
-      facet_grid(data_name~., scales = 'free', space = 'free_y')+
-      geom_gene_label(grow = TRUE, height = grid::unit(5, "mm")) +
-      #scale_fill_gradient(low = "red", high = "blue")+
-      scale_fill_distiller(palette = 'RdBu', direction = 1, limits = c(-2, 2), oob = scales::squish)+
-      coord_cartesian(xlim = c(lower, higher)) +
-      scale_x_continuous(expand = c(0,0))+
-      #theme_genes()+
-      theme_classic() +
-      theme(
-        axis.title.y = element_blank(),
-        #axis.text.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        axis.line.y = element_blank(),
-        axis.line.x = element_blank(),
-        axis.title = element_text(size = 16),        # Axis titles
-        axis.text = element_text(size = 14),         # Axis text labels
-        plot.title = element_text(size = 18, face = "bold"),  # Plot title
-        strip.text = element_text(size = 14)#,
-        #panel.background = element_rect(color = 'grey80')
-      )
+    rna_plot <- rna_plot_create(
+      plot_data_rna = plot_data_rna,
+      lower = changes_applied_lower(),
+      higher = changes_applied_higher())
     return(rna_plot)
   })
   
@@ -598,108 +509,105 @@ server <- function(input, output, session) {
   
   #### CHIPSEQ SELECTION ####
   
-  plot_chip_edger <- read.csv("datasets/data_hupA_chipseq_edgeR.txt", sep = '')
-  plot_chip_macs <- read.csv("datasets/data_hupA_chipseq_macs.txt", sep=" ") 
+  # Define available ChIP-seq datasets as a constant
+  CHIP_DATASETS <- data_chipseq
   
-  filterCHIPedgerdata <- reactive({
-    
-    req(changes_applied())
-    
-    lower <- changes_applied_lower()
-    higher <- changes_applied_higher()
-    plot_data_chip_edger <- plot_chip_edger
-    plot_data_chip_edger_filter <- plot_data_chip_edger %>% filter(start >= lower, end <= higher)
-    return(plot_data_chip_edger_filter)
+  # Dynamic choices reactive
+  available_datasets <- reactive({
+    if (!is.null(input$file_name_chip)) {
+      return(c("no data selected", CHIP_DATASETS, input$file_name_chip))
+    } else {
+      return(c("no data selected", CHIP_DATASETS))
+    }
   })
   
-  
-  
-  
-  
-  
-  
-  
-  filterCHIPmacsdata <- reactive({
-    
-    req(changes_applied())
-    
-    lower <- changes_applied_lower()
-    higher <- changes_applied_higher()
-    plot_data_chip_macs <- plot_chip_macs
-    plot_data_chip_macs_filter <- plot_data_chip_macs %>% filter(start >= lower, end <= higher)
-    return(plot_data_chip_macs_filter)
+  observe({
+    updateSelectInput(session, "chip_select", 
+                      choices = available_datasets())
   })
   
-  chipedgerselect <- reactive({
-    
+  # Main data loading reactive
+  dataselection_chipseq_before_LHfilter <- reactive({
     req(changes_applied())
     
-    dane <- filterCHIPedgerdata()
-    dane0.1 <- dane %>% select(start, end, best.pos, rodzaj)
-    dane0.1 <- dane0.1 %>% mutate(rep = "edgeR")
-    return(dane0.1)
+    # Create a named list of data loading functions
+    data_loaders <- data_load_chipseq
+    
+    # Get selected datasets (excluding "no data selected")
+    selected_datasets <- input$chip_select[input$chip_select != "no data selected"]
+    
+    # Handle both preset and uploaded data
+    all_data <- list()
+    
+    # Load preset datasets
+    preset_datasets <- intersect(CHIP_DATASETS, selected_datasets)
+    if (length(preset_datasets) > 0) {
+      preset_data <- lapply(preset_datasets, function(dataset) {
+        data_loaders[[dataset]]()
+      })
+      all_data <- c(all_data, preset_data)
+    }
+    
+    # Add uploaded data if selected
+    if (!is.null(input$file_name_chip) && input$file_name_chip %in% selected_datasets) {
+      uploaded_data <- user_data_upload_chip()
+      if (!is.null(uploaded_data)) {
+        all_data <- c(all_data, list(uploaded_data))
+      }
+    }
+    
+    # Combine all data
+    do.call(rbind, all_data)
   })
   
-  chipmacsselect <- reactive({
-    
+  # Filtered data reactive
+  dataselection_chipseq <- reactive({
     req(changes_applied())
     
-    dane <- filterCHIPmacsdata()
-    dane0.2 <- dane %>% select(start, end, best.pos, rodzaj)
-    dane0.2 <- dane0.2 %>% mutate(rep = "macs")
-    return(dane0.2)
+    dataselection_chipseq_before_LHfilter() %>%
+      filter(
+        chromStart >= changes_applied_lower(),
+        chromEnd <= changes_applied_higher(),
+        name %in% input$contrast_chip
+      )
   })
   
-  
-  options_chip <- c('data_hupA_chipseq_macs', 'data_hupA_chipseq_edgeR')
-  
-  dataselectionchipseq <- reactive({
+  # Dynamic UI for contrast selection
+  output$contrast_chip <- renderUI({
+    req(input$chip_select != 'no data selected')
     
-    req(changes_applied())
+    grupy <- dataselection_chipseq_before_LHfilter() %>%
+      filter(data_name == input$chip_select) %>%
+      pull(name) %>%
+      unique()
     
-    data_hupA_chipseq_macs <- chipmacsselect()
-    data_hupA_chipseq_edgeR <- chipedgerselect()
-    data_list <- list(data_hupA_chipseq_macs, data_hupA_chipseq_edgeR)
-    choosen_data <- which(options_chip %in% input$wybor)
-    choosen_data_list <- data_list[choosen_data]
-    data_chip_final <- do.call(rbind, choosen_data_list)
-    return(data_chip_final)
+    selectInput("contrast_chip", 
+                "Choose contrasts for analysis",
+                choices = grupy, 
+                selected = grupy[1], 
+                multiple = TRUE)
   })
-  
-  
-  
-  
   
   #### CHIP SEQ PLOT ####
   
   draw_chip_plot <- reactive({
     
     req(changes_applied())
+    req(input$chip_select != "no data selected")
     
-    lower <- changes_applied_lower()
-    higher <- changes_applied_higher()
-    
-    if(is.null(input$wybor)){
+    if(is.null(input$chip_select)){
       return(NULL)}
     
-    plot_chip_data_final <- dataselectionchipseq()
-    plot_chip_data_final %>% ggplot( aes(x = start, xend = end, y = rep, yend = rep, color = best.pos)) +
-      geom_segment(size = 5) +
-      theme_classic() +
-      scale_color_viridis_c(guide = 'none') +
-      theme_classic()+
-      theme(
-        axis.title.y = element_blank(),       
-        axis.text.y = element_blank(),        
-        axis.ticks.y = element_blank(),       
-        axis.line.y = element_blank(),
-        axis.line.x = element_blank(),
-        axis.title = element_text(size = 16),        # Axis titles
-        axis.text = element_text(size = 14),             # Legend title
-        plot.title = element_text(size = 18, face = "bold"),  # Plot title
-        strip.text = element_text(size = 14)
-      )+
-      coord_cartesian(xlim = c(lower, higher)) -> chip_seq_final_plot
+    data_chip <- dataselection_chipseq()
+    
+    #plots_code::chip_plot_create
+    
+    chip_seq_final_plot <- chip_plot_create(
+      data_chip = data_chip,
+      lower = changes_applied_lower(),
+      higher = changes_applied_higher()
+    )
+    
     return(chip_seq_final_plot)
     
     
@@ -715,10 +623,8 @@ server <- function(input, output, session) {
     req(changes_applied())
     
     table_data <- dataselection_rnaseq()
-    lowlogFC <- lower_logFC()
-    highlogFC <- higher_logFC()
-    table_data_rna_lowlog <- table_data %>% filter(logFC >= highlogFC)
-    table_data_rna_highlog <- table_data %>% filter(logFC <= lowlogFC)
+    table_data_rna_lowlog <- table_data %>% filter(logFC >= higher_logFC())
+    table_data_rna_highlog <- table_data %>% filter(logFC <= lower_logFC())
     table_data_rna_logFC_filtered <- rbind(table_data_rna_highlog, table_data_rna_lowlog)
     return(table_data_rna_logFC_filtered)
   })
@@ -734,7 +640,7 @@ server <- function(input, output, session) {
     
     req(changes_applied())
     
-    table_data1 <- dataselectionchipseq()
+    table_data1 <- dataselection_chipseq()
     return(table_data1)
   })
   output$chip_table <- renderDataTable({
@@ -751,29 +657,46 @@ server <- function(input, output, session) {
   #### PATCHWORK PLOTING MAIN PLOTS ####
   
   plot_all_patchwork <- reactive({
-    
     req(changes_applied())
     
-    all_possible_choices <- c('genome', 'RNAplot', 'CHIPplot', 'logFCplot', 'pvalueVulcano')
+    all_possible_choices <- c('genome', 'RNAplot', 'CHIPplot')
     selected_plots <- input$options
-    selected_number <- which(all_possible_choices %in% selected_plots)
     
-    p_genome <- genomeplot()
-    p_rnaplot <- RNAplot()
-    p_chipplot <- draw_chip_plot()
-  
+    plot_list <- list()
+    heights <- numeric()
     
-    plot_list <- list(`genome`= p_genome,
-                      `RNAplot` = p_rnaplot,
-                      `CHIPplot` = p_chipplot)
+    if ('genome' %in% selected_plots) {
+      plot_list$genome <- genomeplot()
+      heights <- c(heights, 1)
+    }
     
-    heights <- c(1, 8, 2)
+    if ('RNAplot' %in% selected_plots) {
+      rna_data <- tryCatch({
+        dataselection_rnaseq()
+      }, error = function(e) NULL)
+      
+      if (!is.null(rna_data) && nrow(rna_data) > 0) {
+        plot_list$RNAplot <- RNAplot()
+        heights <- c(heights, 8)
+      }
+    }
     
-    p_all <- patchwork::wrap_plots(plot_list[selected_number], ncol = 1, heights = heights[selected_number])
+    if ('CHIPplot' %in% selected_plots && input$chip_select != "no data selected") {
+      chip_data <- tryCatch({
+        dataselection_chipseq()
+      }, error = function(e) NULL)
+      
+      if (!is.null(chip_data) && nrow(chip_data) > 0) {
+        plot_list$CHIPplot <- draw_chip_plot()
+        heights <- c(heights, 2)
+      }
+    }
     
+    if (length(plot_list) == 0) return(NULL)
+    
+    p_all <- patchwork::wrap_plots(plot_list, ncol = 1, heights = heights)
     return(p_all)
   })
-  
   output$all_plots <- renderPlot({ plot_all_patchwork() })
   
   
@@ -785,14 +708,11 @@ server <- function(input, output, session) {
       paste0("combined_plots_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".png")
     },
     content = function(file) {
-      # Explicitly create the plot at the time of download
       plot <- plot_all_patchwork()
       
-      # Calculate height based on selected plots
       selected_number <- which(c('genome', 'RNAplot', 'CHIPplot') %in% input$options)
       total_height <- sum(c(1, 8, 2)[selected_number])
       
-      # Save the plot with ggsave
       ggsave(
         filename = file,
         plot = plot,
@@ -810,7 +730,6 @@ server <- function(input, output, session) {
   #### CONDITIONAL FOR CONTRASTS COMPARSION ####
   
   
-  # AS tworzy selectInput do wyboru kontrastów na podstawie danych wybranych w rna_select_1
   output$contrast_venn_1 <- renderUI({
     if (input$venn_select_1 == 'no data selected'){
       return(NULL)
@@ -818,7 +737,6 @@ server <- function(input, output, session) {
     
     data_rna <- dataselection_venn()
     
-    # AS wszystkie unikalne kontrasty w danych 
     grupy <- data_rna %>% filter(data_name == input$venn_select_1) %>% pull(add_variable) %>% unique()
     
     selectInput("contrast_venn_1", "Choose contrasts for venn",
@@ -826,7 +744,6 @@ server <- function(input, output, session) {
     
   })
   
-  # AS tworzy selectInput do wyboru kontrastów na podstawie danych wybranych w rna_select_1
   output$contrast_venn_2 <- renderUI({
     if (input$venn_select_2 == 'no data selected'){
       return(NULL)
@@ -834,7 +751,6 @@ server <- function(input, output, session) {
     
     data_rna <- dataselection_venn()
     
-    # AS wszystkie unikalne kontrasty w danych 
     grupy <- data_rna %>% filter(data_name == input$venn_select_2) %>% pull(add_variable) %>% unique()
     
     selectInput("contrast_venn_2", "Choose contrasts for venn",
@@ -846,93 +762,60 @@ server <- function(input, output, session) {
   #### COMPARSION DATA LOAD ####
   
   
-  ## takie już jest, nie trzeba drugi raz
-  #  data_loaded_rna <- reactive({
-  #   if (!is.null(input$file_name)) {
-  #    c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019", input$file_name)
-  # } else {
-  #  c("abrB1.2_table", "data_hupAS_RNAseq", "RNAseq_Martyna", "szafran2019")
-  #  }
-  #})
+  #loading_data::data_in_app
+  dataset_loaders_venn <- data_in_app
   
-  observe({
-    # Get the current data options
-    choices <- c("no data selected", data_loaded_rna())
-    
-    # Update all three select inputs
-    updateSelectInput(session, "venn_select_1", choices = choices)
-    updateSelectInput(session, "venn_select_2", choices = choices)
+  
+  #loading_data::data_sven/data_scoe
+  data_loaded_venn <- reactive({
+    base_datasets <- c(data_sven, data_scoe)
+    if (!is.null(input$file_name)) base_datasets <- c(base_datasets, input$file_name)
+    base_datasets
   })
   
+  observe({
+    choices <- c("no data selected", data_loaded_venn())
+    sapply(paste0("venn_select_", 1:2), function(id) {
+      updateSelectInput(session, id, choices = choices)
+    })
+  })
   
+  loaded_datasets_venn <- reactiveVal(list())
   
   dataselection_venn <- reactive({
+    req(changes_applied())
     
-    
-    
-    ###tutaj dopisujesz następne jak będą
-    SatKR_Gongerowska_2021 <- RNAseq_Martyna_load()
-    user_data <- merged_user()
-    TopA_Szafran_2019 <- data_szafran2019_load()
-    AbrB1_Nieta_2020 <- abrB1.2_table_load()
-    hupAS_Strzalka_2024 <- data_hupAS_RNAseq_load()
-    AbrC3_rico_2014 <- abrc3_load() 
-    aor1_rna <- aor1_rna_load()
-    argR_2018 <- argR_2018_load()
-    bldD_scoe <- bldD_scoe_load()
-    data_bldC_sven <- data_bldC_sven_load()
-    draRK_scoe <- draRK_scoe_load()
-    ECF42s_sven <- ECF42s_sven_load()
-    glnr_sven <- glnr_sven_load()
-    hups_rnaseq_Strzalka_sven <- hups_rnaseq_Strzalka_sven_load()
-    ohkA_scoe <- ohkA_scoe_load()
-    osdR_2016 <- osdR_2016_load()
-    sigR <- sigR_load()
-    soxr_genes <- soxr_genes_load()
-    whiAH_scoe <- whiAH_scoe_load()
-    yague_2013_scoe_diff <- yague_2013_scoe_diff_load()
-    yeong_2016 <- yeong_2016_load()
-    NRRL_metab_RNAseq_sven <- NRRL_metab_RNAseq_sven_load()
-    
-    # Create a list of data frames, handling the user data separately
-    data_list <- list(
-      AbrB1_Nieta_2020 = AbrB1_Nieta_2020,
-      hupAS_Strzalka_2024 = hupAS_Strzalka_2024,
-      SatKR_Gongerowska_2021 = SatKR_Gongerowska_2021,
-      TopA_Szafran_2019 = TopA_Szafran_2019,
-      AbrC3_rico_2014 = AbrC3_rico_2014,
-      aor1_rna = aor1_rna,
-      argR_2018 = argR_2018,
-      bldD_scoe = bldD_scoe,
-      data_bldC_sven = data_bldC_sven,
-      draRK_scoe = draRK_scoe,
-      ECF42s_sven = ECF42s_sven,
-      glnr_sven = glnr_sven,
-      hups_rnaseq_Strzalka_sven = hups_rnaseq_Strzalka_sven,
-      ohkA_scoe = ohkA_scoe,
-      osdR_2016 = osdR_2016,
-      sigR = sigR,
-      soxr_genes = soxr_genes,
-      whiAH_scoe = whiAH_scoe,
-      yague_2013_scoe_diff = yague_2013_scoe_diff,
-      yeong_2016 = yeong_2016,
-      NRRL_metab_RNAseq_sven = NRRL_metab_RNAseq_sven
+    # Get selected datasets (excluding "no data selected")
+    selected_datasets <- setdiff(
+      c(input$venn_select_1, input$venn_select_2),
+      "no data selected"
     )
     
-    # Add user data to the list if it exists
-    if (!is.null(user_data)) {
-      data_list[[input$file_name]] <- user_data
+    # Filter selected datasets based on data order
+    data_order <- data_loaded_venn()
+    selected_datasets <- intersect(selected_datasets, data_order)
+    
+    if (length(selected_datasets) == 0) return(NULL)
+    
+    # Get current cache
+    current_cache_venn <- loaded_datasets_venn()
+    
+    # Load only uncached datasets
+    for (dataset_name in selected_datasets) {
+      if (is.null(current_cache_venn[[dataset_name]])) {
+        if (dataset_name == input$file_name) {
+          current_cache_venn[[dataset_name]] <- merged_user()
+        } else if (dataset_name %in% names(dataset_loaders_venn)) {
+          current_cache_venn[[dataset_name]] <- dataset_loaders_venn[[dataset_name]]()
+        }
+      }
     }
     
-    # Get selected datasets
-    selected_datasets <- c(input$venn_select_1, input$venn_select_2)
-    selected_datasets <- selected_datasets[selected_datasets != "no data selected"]
+    # Update cache
+    loaded_datasets_venn(current_cache_venn)
     
-    # Filter and combine the selected datasets
-    selected_data <- data_list[selected_datasets]
-    data_rna_final <- do.call(rbind, selected_data)
-    
-    return(data_rna_final)
+    # Combine selected datasets
+    do.call(rbind, current_cache_venn[selected_datasets])
   })
   
   
@@ -953,7 +836,6 @@ server <- function(input, output, session) {
         add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2),
         !is.infinite(abs(logFC))
       ) %>%
-      # Remove any rows where all values are NA
       filter(!if_all(everything(), is.na)) %>%
       select(gene, logFC, add_variable) %>%
       pivot_wider(id_cols = gene, names_from = add_variable, values_from = logFC) -> filtered_data
@@ -986,33 +868,17 @@ server <- function(input, output, session) {
   })
   
   
-  venn_plot_create <- reactive({
-    
-    gene_lists <- prep_data_venn()
-    if(length(gene_lists) <= 1){
-      return(NULL)
-    } else if(length(gene_lists) <= 4){
-      ggvenn(
-        gene_lists,
-        fill_color = c("#0073C2FF", "#EFC000FF", 'red3', 'green3'),
-        stroke_size = 0.5,
-        set_name_size = 4
-      )
-    } else{
-      data_set_venn <- filter_data_for_venn()
-      
-      data_set_venn %>%
-        group_by(gene) %>%
-        summarize(add_variable = list(add_variable)) %>%
-        ggplot(aes(x=add_variable)) +
-        geom_bar() +
-        scale_x_upset(n_intersections = 20)
-    }
-  })
+  #### VENN PLOT CREATE ####
+  
+  #plots_code::venn_plot_create
+  
+  output$venn_plot <- renderPlot({ 
+    venn_plot_create(
+      gene_lists = prep_data_venn(),
+      data_set_venn = filter_data_for_venn()) })
   
   
-  output$venn_plot <- renderPlot({ venn_plot_create() })
-  
+  #### TABLE UNDER VENN ####
   
   data_venn_table_common <- reactive({
     
@@ -1047,25 +913,17 @@ server <- function(input, output, session) {
 
   
   
-  #### HEATMAP ####
+  #### HEATMAP PLOT####
   
-  heat_plot_create <- reactive({
-    req(changes_applied())
-    
-    heat_data <- filter_data_for_heatmap()
-    tidyHeatmap::heatmap(.data = dplyr::tibble(heat_data),
-                         .row = gene,
-                         .column = add_variable,
-                         .value = logFC,
-                         palette_value = circlize::colorRamp2(
-                           seq(-5, 5, length.out = 11),
-                           RColorBrewer::brewer.pal(11, "RdBu"))) -> p_heat
-    print(p_heat)
-  })
   
-  output$heatmap_plot <- renderPlot({ heat_plot_create() })
+  output$heatmap_plot <- renderPlot({
+    heat_plot_create(
+      heat_data = filter_data_for_heatmap()
+    ) })
   
   output$heatmap_table <- renderDataTable({filter_data_for_heatmap()})
+  
+  
   
   
   #### INT TIME UI OPTIONS ####
@@ -1096,9 +954,9 @@ server <- function(input, output, session) {
   
   data_loaded_intime <- reactive({
     if (!is.null(input$file_name)) {
-      c("abrc3","argR_2018", "draRK_scoe", "glnr_sven", "ohkA_scoe", "osdR_2016", "whiAH_scoe", "yague_2013_scoe_diff", "NRRL_metab_RNAseq_sven", input$file_intime_name)
+      c("abrc3","argR_2018", "draRK_scoe", "glnr_sven", "ohkA_scoe", "osdR_2016", "whiAH_scoe", "yague_2013_scoe_diff", "NRRL_Sekurova_2022_sven", input$file_intime_name)
     } else {
-      c("abrc3","argR_2018", "draRK_scoe", "glnr_sven", "ohkA_scoe", "osdR_2016", "whiAH_scoe", "yague_2013_scoe_diff", "NRRL_metab_RNAseq_sven")
+      c("abrc3","argR_2018", "draRK_scoe", "glnr_sven", "ohkA_scoe", "osdR_2016", "whiAH_scoe", "yague_2013_scoe_diff", "NRRL_Sekurova_2022_sven")
     }
   })
   
@@ -1215,12 +1073,11 @@ server <- function(input, output, session) {
       return(NULL)
     }
     
-    # Handle NA values
     raw_data <- raw_data %>%
       mutate(logFC = ifelse(is.na(logFC), 0, logFC))
     print(raw_data)
-    # Create plot
-    intime_plot <- ggplot(raw_data, aes(x = time, y = logFC, 
+
+      intime_plot <- ggplot(raw_data, aes(x = time, y = logFC, 
                                              color = gene, shape = data_name, group = interaction(gene, data_name))) +
       geom_point(size = 3) +  # Points for each condition
       geom_line() +           # Connecting lines
@@ -1238,6 +1095,7 @@ server <- function(input, output, session) {
   })
   
   
+  #### PLOT DOWNLOAD VENN AND HEAT ####
   
   output$download_plot_venn <- downloadHandler(
     filename = function() {
