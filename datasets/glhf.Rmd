@@ -1537,3 +1537,14 @@ ggplot(hupS_chipseq_szafran, aes(y = name, x = start)) +
 
 
 ```
+
+
+
+```{r}
+baba <- c("coś", "łoś")
+dziad <- c("niema", "jak")
+
+mak <- list(baba, dziad)
+
+mak
+```

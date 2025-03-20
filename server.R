@@ -892,22 +892,21 @@ server <- function(input, output, session) {
     
   })
   
-  data_venn_table <- reactive({
-    list_venn <- prep_data_venn()
-    df_venn <- filter_data_for_venn()
+  data_venn_table_uncommon <- reactive({
+    gene_lists <- prep_data_venn()
     
-    list1 <- list_venn[[1]]
-    list2 <- list_venn[[2]]
+    if(length(gene_lists) < 2){return(NULL)}
     
-    venn_table_same_genes <- intersect(list1, list2)
+    result <- find_uncommon_elements(gene_lists)
     
-    filtered_genes_venn <- df_venn %>% filter(gene == venn_table_same_genes)
-    print(filtered_genes_venn)
+    return(result)
   })
   
   
-  output$venn_table_common <- renderDataTable({data_venn_table_common()})
   
+  
+  output$venn_table_common <- renderDataTable({data_venn_table_common()})
+  output$venn_table_uncommon <- renderDataTable({data_venn_table_uncommon()})
   
   
 
