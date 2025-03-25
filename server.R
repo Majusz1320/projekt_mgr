@@ -235,10 +235,18 @@ server <- function(input, output, session) {
       data_genome <- read.csv("datasets/sven_genes_vnz.txt", sep = '')
     }
     
+    
+    if(switch_status() == TRUE) {
+      
+    }
     # Merge the data and remove NA values
     merged_data <- user_data %>%
       left_join(data_genome, by = "gene") %>%
       na.omit()
+    
+    if(switch_status() == TRUE) {
+      merged_data <- merged_data %>% select("gene","logFC","FDR","add_variable","start","end","strand")
+    }
     
     return(merged_data)
   })
@@ -626,6 +634,7 @@ server <- function(input, output, session) {
     table_data_rna_lowlog <- table_data %>% filter(logFC >= higher_logFC())
     table_data_rna_highlog <- table_data %>% filter(logFC <= lower_logFC())
     table_data_rna_logFC_filtered <- rbind(table_data_rna_highlog, table_data_rna_lowlog)
+    table_data_rna_logFC_filtered$logFC <- round(table_data_rna_logFC_filtered$logFC, 2)
     return(table_data_rna_logFC_filtered)
   })
   output$rna_table <- renderDataTable({
