@@ -1,0 +1,141 @@
+```{r}
+abrB1.2_table4_load <- function(){
+  abrB1.2_table4 <- read.csv("datasets/final_data/abrB1.2_table4.csv")
+  abrB1.2_table4$add_variable <- "abrB1.2_table4"
+  abrB1.2_table4$data_name <- "abrB1.2_table4"
+  
+  return(abrB1.2_table4)
+}
+abrB1.2_table5_load <- function(){
+  abrB1.2_table5 <- read.csv("datasets/final_data/abrB1.2_table5.csv")
+  abrB1.2_table5$add_variable <- "abrB1.2_table5"
+  abrB1.2_table5$data_name <- "abrB1.2_table5"
+  
+  return(abrB1.2_table5)
+}
+data_hupAS_RNAseq_load <- function(){
+  data_hupAS_RNAseq <- read.csv("datasets/final_data/data_hupAS_RNAseq.csv")
+  data_hupAS_RNAseq$data_name <- "data_hupAS_RNAseq"
+  return(data_hupAS_RNAseq)
+}
+
+
+
+  data_loaded_rna <- c("abrB1.2_table4", "abrB1.2_table5", "data_hupAS_RNAseq")
+
+selection <- c("abrB1.2_table4", "data_hupAS_RNAseq")
+
+ abrB1.2_table4 <- abrB1.2_table4_load()
+    abrB1.2_table5 <- abrB1.2_table5_load()
+    data_hupAS_RNAseq <- data_hupAS_RNAseq_load()
+    data_list <- list(abrB1.2_table4, abrB1.2_table5, data_hupAS_RNAseq)
+    choosen_data <- which(data_loaded_rna %in% selection)
+    choosen_data_list <- data_list[choosen_data]
+    data_rna_final <- do.call(rbind, choosen_data_list)
+    plot_data_rna <- data_rna_final %>% mutate(strand_plot = ifelse(strand == '+', 1, 0))
+```
+
+
+```{r}
+data_hupAS_RNAseq <- read.csv("datasets/final_data/data_hupAS_RNAseq.csv")
+  data_hupAS_RNAseq$data_name <- "data_hupAS_RNAseq"
+```
+
+
+```{r}
+user_data_upload <- reactive({
+    user_file <- input$uploaded_file$datapath
+    if(is.null(user_file)){
+      return(NULL)}
+    else
+    {
+      user_file <- read.csv(user_file)
+      return(user_file)
+    }
+  })
+
+user_file <- read.csv("datasets/user")
+```
+
+
+```{r}
+
+library(shiny)
+library(shinythemes)
+library(ggplot2)
+library(gggenes)
+library(dplyr)
+library(tidyr)
+library(pheatmap)
+library(patchwork)
+library(tidyHeatmap)
+library(BiocManager)
+library(plotly)
+library(bslib)
+library(ggvenn)
+library(ggupset)
+library(pdftools)
+library(png)
+source("loading_data.R")
+source('functions.R')
+source('plots_code.R')
+```
+
+```{r}
+abrB1.2_table4 <- read.csv("datasets/final_data/abrB1.2_table4.csv")
+  abrB1.2_table4$add_variable <- "abrB1.2_table4"
+  abrB1.2_table4$data_name <- "abrB1.2_table4"
+  abrB1.2_table5 <- read.csv("datasets/final_data/abrB1.2_table5.csv")
+  abrB1.2_table5$add_variable <- "abrB1.2_table5"
+  abrB1.2_table5$data_name <- "abrB1.2_table5"
+  
+  abrB1.2_table <- rbind(abrB1.2_table4, abrB1.2_table5)
+```
+```{r}
+user_file <- "C:/Users/User/Documents/projekt_mgr/datasets/user_data.txt"
+
+user_file <- read.csv(user_file, sep = "\t")
+      user_file$add_variable <- "user_file"
+      user_file$data_name <- "user_file"
+      return(user_file)
+
+
+
+"32h.DargR.M145", "42h.DargR.M145", '49h.DargR.M145', '56h.DargR.M145', '66h.DargR.M145', '32h.p.BH.DargR.M145', '42h.p.BH.DargR.M145', '49h.p.BH.DargR.M145', '56h.p.BH.DargR.M145', '66h.p.BH.DargR.M145' 
+
+```
+```{r}
+citation("shiny")
+citation('shinythemes')
+citation('ggplot2')
+citation('gggenes')
+citation('dplyr')
+citation('tidyr')
+citation('patchwork')
+citation('tidyHeatmap')
+citation('BiocManager')
+citation('plotly')
+citation('bslib')
+citation('ggvenn')
+citation('ggupset')
+citation('pdftools')
+citation('png')
+
+writeLines(toBibtex(citation("shiny")), "shiny.bib")
+writeLines(toBibtex(citation("shinythemes")), "shinythemes.bib")
+writeLines(toBibtex(citation("ggplot2")), "ggplot2.bib")
+writeLines(toBibtex(citation("gggenes")), "gggenes.bib")
+writeLines(toBibtex(citation("dplyr")), "dplyr.bib")
+writeLines(toBibtex(citation("tidyr")), "tidyr.bib")
+writeLines(toBibtex(citation("patchwork")), "patchwork.bib")
+writeLines(toBibtex(citation("tidyHeatmap")), "tidyHeatmap.bib")
+writeLines(toBibtex(citation("BiocManager")), "BiocManager.bib")
+writeLines(toBibtex(citation("plotly")), "plotly.bib")
+writeLines(toBibtex(citation("bslib")), "bslib.bib")
+writeLines(toBibtex(citation("ggvenn")), "ggvenn.bib")
+writeLines(toBibtex(citation("ggupset")), "ggupset.bib")
+writeLines(toBibtex(citation("pdftools")), "pdftools.bib")
+writeLines(toBibtex(citation("png")), "png.bib")
+
+```
+

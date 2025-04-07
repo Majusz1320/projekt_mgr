@@ -38,7 +38,7 @@ ui <- fluidPage(
     "))
   ),
   theme = bs_theme(version = 5, bootswatch = "yeti"),
-  navbarPage("Strep.A.N",
+  navbarPage("Strep.N.A.",
              tabPanel("RNA-seq & ChIP-seq visualization",
                       layout_sidebar(
                         sidebar = sidebar(
