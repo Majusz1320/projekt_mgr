@@ -637,11 +637,12 @@ server <- function(input, output, session) {
     table_data_rna_logFC_filtered$logFC <- round(table_data_rna_logFC_filtered$logFC, 2)
     return(table_data_rna_logFC_filtered)
   })
-  output$rna_table <- renderDataTable({
+  output$rna_table <- DT::renderDT({
     
     req(changes_applied())
     
     table_data <- tableInput_rna()
+    rownames(table_data) <- NULL
     return(table_data)
   })
   

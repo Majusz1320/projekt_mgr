@@ -145,7 +145,7 @@ ui <- fluidPage(
                                           )),
                               tabsetPanel(type = 'pills',
                                           tabPanel("RNAseq in table",
-                                                   dataTableOutput("rna_table")
+                                                   DT::DTOutput("rna_table")
                                           ),
                                           tabPanel("CHIPseq in table",
                                                    dataTableOutput("chip_table")
