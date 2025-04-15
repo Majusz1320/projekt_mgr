@@ -13,6 +13,7 @@ library(ggvenn)
 library(ggupset)
 library(pdftools)
 library(png)
+library(DT)
 source("loading_data.R")
 source('functions.R')
 source('plots_code.R')
@@ -64,7 +65,7 @@ ui <- fluidPage(
                                 ),
                                 accordion_panel("Selection",
                                                 card(
-                                                bslib::input_switch("switch_species", "Select streptomyces species"),
+                                                bslib::input_switch("switch_species", label = HTML("Select <em>Streptomyces</em> species")),
                                                 verbatimTextOutput("switch_value"),
                                                 selectInput('options', 'Show/hide visualizations', options_app,
                                                             multiple=TRUE, selectize=TRUE,
