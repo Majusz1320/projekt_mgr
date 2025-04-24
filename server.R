@@ -653,7 +653,7 @@ server <- function(input, output, session) {
     table_data1 <- dataselection_chipseq()
     return(table_data1)
   })
-  output$chip_table <- renderDataTable({
+  output$chip_table <- DT::renderDT({
     
     req(changes_applied())
     
@@ -852,8 +852,13 @@ server <- function(input, output, session) {
     
     filtered_data %>% filter(!if_all(2:ncol(filtered_data), is.na)) %>%
       pivot_longer(cols = 2:ncol(filtered_data), names_to = 'add_variable', values_to = 'logFC') -> filtered_data
-    print(filtered_data)
-    return(filtered_data)
+    data_rna1 <- filtered_data %>% filter(add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2),
+                                     logFC >= input$higher_logFC_venn)
+    data_rna2 <- filtered_data %>% filter(add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2),
+                                     logFC <= input$lower_logFC_venn)
+    data_rna_filtered <- rbind(data_rna1, data_rna2)
+    
+    return(data_rna_filtered)
 })
   
   

@@ -149,7 +149,7 @@ ui <- fluidPage(
                                                    DT::DTOutput("rna_table")
                                           ),
                                           tabPanel("CHIPseq in table",
-                                                   dataTableOutput("chip_table")
+                                                   DT::DTOutput("chip_table")
                                           ))), width = 12
                         )
                       )
@@ -237,9 +237,9 @@ ui <- fluidPage(
                                 type='pills', 
                                 tabPanel("Venn", 
                                          plotOutput("venn_plot", height = '800px' ),
-                                         dataTableOutput('venn_table_common'), dataTableOutput('venn_table_uncommon')), 
+                                         DT::DTOutput('venn_table_common'), DT::DTOutput('venn_table_uncommon')), 
                                 tabPanel("Heatmap", plotOutput("heatmap_plot", height = '800px' ),
-                                         dataTableOutput('heatmap_table')),
+                                         DT::DTOutput('heatmap_table')),
                                 tabPanel("In time comparison", plotOutput("intime_plot", height = '800px' )))), width = 12
                         )
                       )
