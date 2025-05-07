@@ -9,7 +9,7 @@ options(shiny.maxRequestSize=30*1024^2)
 
 server <- function(input, output, session) {
   
-  
+  data_template <- read.csv("datasets/templates_for_app.txt", sep='\t')  
 #### SWITCH FOR SPECIES ####  
   
   switch_status <- reactive({
@@ -24,6 +24,19 @@ server <- function(input, output, session) {
     return(switch_text)
   })
   
+#### SWITCH FOR FILE RNA SEQ FORMAT ####
+  
+  switch_status_filetype <- reactive({
+    switch_status <- input$switch_filetype
+    return(switch_status)
+  })
+  output$switch_value_filetype <- reactive({
+    if (switch_status_filetype() == FALSE)
+    {switch_text <- "Yes"}
+    else
+    {switch_text <- "No"}
+    return(switch_text)
+  })
   
   
   
@@ -187,14 +200,22 @@ server <- function(input, output, session) {
     if(is.null(user_file)){
       return(NULL)
     } else {
-      user_file <- read.csv(user_file, sep = "\t")
+      user_file <- read.csv(user_file, sep = "\t")}
+    
+    if(switch_status_filetype() == FALSE){
+      user_file <- user_file
+      } else {
+      user_file <- data_noformat_formating(user_file)}
+    
+   
       # Use input$file_name directly here
       user_file$data_name <- input$file_name
       return(user_file)
-    }
+    
   })
   
   
+
   #### USER DATA UPLOAD CHIPSEQ ####
   user_data_upload_chip <- reactive({
     req(changes_applied())
@@ -236,16 +257,13 @@ server <- function(input, output, session) {
     }
     
     
-    if(switch_status() == TRUE) {
-      
-    }
     # Merge the data and remove NA values
     merged_data <- user_data %>%
       left_join(data_genome, by = "gene") %>%
       na.omit()
     
     if(switch_status() == TRUE) {
-      merged_data <- merged_data %>% select("gene","logFC","FDR","add_variable","start","end","strand")
+      merged_data <- merged_data %>% select("gene","logFC","FDR","add_variable","start","end","strand", 'data_name')
     }
     
     return(merged_data)
@@ -257,6 +275,9 @@ server <- function(input, output, session) {
     !is.null(input$uploaded_file)
   })
   outputOptions(output, "fileUploaded", suspendWhenHidden = FALSE)
+  
+  
+  
   
   
   
@@ -276,8 +297,8 @@ server <- function(input, output, session) {
     
     if (!is.null(input$file_name)) base_datasets <- c(base_datasets, input$file_name)
     base_datasets
-  })
-  
+   
+})
   observe({
     choices <- c("no data selected", data_loaded_rna())
     sapply(paste0("rna_select_", 1:3), function(id) {
@@ -365,7 +386,7 @@ server <- function(input, output, session) {
   })
   
   
-  #### RNA SELECTION LOW/HIGH, contrast FILTER ####
+  #### RNA SELECTION LOW/HIGH, comparison FILTER ####
   
   dataselection_rnaseq <- reactive({
     
@@ -376,18 +397,18 @@ server <- function(input, output, session) {
     data_rna <- data_rna %>% filter(
       start >= changes_applied_lower(), 
       end <= changes_applied_higher(), 
-      add_variable %in% c(input$contrast_1, input$contrast_2, input$contrast_3))
+      add_variable %in% c(input$comparison_1, input$comparison_2, input$comparison_3))
     return(data_rna)
   })
   
   
   
   
-  #### CONDITIONAL FOR CONTRASTS ####
+  #### CONDITIONAL FOR comparisonS ####
   
   
   # AS tworzy selectInput do wyboru kontrastów na podstawie danych wybranych w rna_select_1
-  output$contrast_1 <- renderUI({
+  output$comparison_1 <- renderUI({
     if (input$rna_select_1 == 'no data selected'){
       return(NULL)
     }
@@ -397,13 +418,13 @@ server <- function(input, output, session) {
     # AS wszystkie unikalne kontrasty w danych 
     grupy <- data_rna %>% filter(data_name == input$rna_select_1) %>% pull(add_variable) %>% unique()
     
-    selectInput("contrast_1", "Choose contrasts for analysis",
+    selectInput("comparison_1", "Choose comparisons for analysis",
                 choices = grupy, selected = grupy[1], multiple = TRUE)
     
   })
   
   # AS tworzy selectInput do wyboru kontrastów na podstawie danych wybranych w rna_select_1
-  output$contrast_2 <- renderUI({
+  output$comparison_2 <- renderUI({
     if (input$rna_select_2 == 'no data selected'){
       return(NULL)
     }
@@ -413,14 +434,14 @@ server <- function(input, output, session) {
     # AS wszystkie unikalne kontrasty w danych 
     grupy <- data_rna %>% filter(data_name == input$rna_select_2) %>% pull(add_variable) %>% unique()
     
-    selectInput("contrast_2", "Choose contrasts for analysis",
+    selectInput("comparison_2", "Choose comparisons for analysis",
                 choices = grupy, selected = grupy[1], multiple = TRUE)
     
   })
   
   
   # AS tworzy selectInput do wyboru kontrastów na podstawie danych wybranych w rna_select_1
-  output$contrast_3 <- renderUI({
+  output$comparison_3 <- renderUI({
     if (input$rna_select_3 == 'no data selected'){
       return(NULL)
     }
@@ -430,7 +451,7 @@ server <- function(input, output, session) {
     # AS wszystkie unikalne kontrasty w danych 
     grupy <- data_rna %>% filter(data_name == input$rna_select_3) %>% pull(add_variable) %>% unique()
     
-    selectInput("contrast_3", "Choose contrasts for analysis",
+    selectInput("comparison_3", "Choose comparisons for analysis",
                 choices = grupy, selected = grupy[1], multiple = TRUE)
     
   })
@@ -576,12 +597,12 @@ server <- function(input, output, session) {
       filter(
         chromStart >= changes_applied_lower(),
         chromEnd <= changes_applied_higher(),
-        name %in% input$contrast_chip
+        name %in% input$comparison_chip
       )
   })
   
-  # Dynamic UI for contrast selection
-  output$contrast_chip <- renderUI({
+  # Dynamic UI for comparison selection
+  output$comparison_chip <- renderUI({
     req(input$chip_select != 'no data selected')
     
     grupy <- dataselection_chipseq_before_LHfilter() %>%
@@ -589,8 +610,8 @@ server <- function(input, output, session) {
       pull(name) %>%
       unique()
     
-    selectInput("contrast_chip", 
-                "Choose contrasts for analysis",
+    selectInput("comparison_chip", 
+                "Choose comparisons for analysis",
                 choices = grupy, 
                 selected = grupy[1], 
                 multiple = TRUE)
@@ -626,6 +647,7 @@ server <- function(input, output, session) {
   
   #### TABLES INPUT ####
   
+
   tableInput_rna <- reactive({
     
     req(changes_applied())
@@ -646,6 +668,22 @@ server <- function(input, output, session) {
     return(table_data)
   })
   
+  tableInput_nofilter <- reactive({
+    
+    req(changes_applied())
+    
+    table_data1 <- dataselection_rnaseq_before_LHfilter()
+    return(table_data1)
+  })
+  output$rna_table_nofilter <- DT::renderDT({
+    
+    req(changes_applied())
+    
+    table_data1 <- tableInput_nofilter()
+    rownames(table_data1) <- NULL
+    return(table_data1)
+  })
+  
   tableInput_chip <- reactive({
     
     req(changes_applied())
@@ -661,6 +699,43 @@ server <- function(input, output, session) {
     return(table_data1)
   })
   
+  
+  ##inputpackages
+  tableInput_packages <- reactive({
+    
+   
+    
+    table_data1 <- read.csv("datasets/packages.txt", sep = '\t')
+    return(table_data1)
+  })
+  
+  output$table_packages <- DT::renderDT({
+    
+   
+    
+    table_data <- tableInput_packages()
+    rownames(table_data) <- NULL
+    return(table_data)
+  })
+  
+  
+  ##inputdata
+  tableInput_data <- reactive({
+    
+    
+    
+    table_data1 <- read.csv("datasets/data_table_inapp.txt", sep = '\t')
+    return(table_data1)
+  })
+  
+  output$table_data <- DT::renderDT({
+    
+   
+    
+    table_data <- tableInput_data()
+    rownames(table_data) <- NULL
+    return(table_data)
+  })
   
   
   
@@ -737,10 +812,10 @@ server <- function(input, output, session) {
   
   
   
-  #### CONDITIONAL FOR CONTRASTS COMPARSION ####
+  #### CONDITIONAL FOR comparisonS COMPARSION ####
   
   
-  output$contrast_venn_1 <- renderUI({
+  output$comparison_venn_1 <- renderUI({
     if (input$venn_select_1 == 'no data selected'){
       return(NULL)
     }
@@ -749,12 +824,12 @@ server <- function(input, output, session) {
     
     grupy <- data_rna %>% filter(data_name == input$venn_select_1) %>% pull(add_variable) %>% unique()
     
-    selectInput("contrast_venn_1", "Choose contrasts for venn",
+    selectInput("comparison_venn_1", "Choose comparisons for venn",
                 choices = grupy, selected = grupy[1], multiple = TRUE)
     
   })
   
-  output$contrast_venn_2 <- renderUI({
+  output$comparison_venn_2 <- renderUI({
     if (input$venn_select_2 == 'no data selected'){
       return(NULL)
     }
@@ -763,7 +838,7 @@ server <- function(input, output, session) {
     
     grupy <- data_rna %>% filter(data_name == input$venn_select_2) %>% pull(add_variable) %>% unique()
     
-    selectInput("contrast_venn_2", "Choose contrasts for venn",
+    selectInput("comparison_venn_2", "Choose comparisons for venn",
                 choices = grupy, selected = grupy[1], multiple = TRUE)
     
   })
@@ -833,7 +908,7 @@ server <- function(input, output, session) {
   #### FILTERING DATA FOR VENN AND HEAT #####
   
   filter_data_for_heatmap <- reactive({
-    req(input$contrast_venn_1)
+    req(input$comparison_venn_1)
     req(input$gene_list)
 
     data_rna <- dataselection_venn()
@@ -843,7 +918,7 @@ server <- function(input, output, session) {
     filtered_data <- data_rna %>% 
       filter(
         gene %in% gene_vector,
-        add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2),
+        add_variable %in% c(input$comparison_venn_1, input$comparison_venn_2),
         !is.infinite(abs(logFC))
       ) %>%
       filter(!if_all(everything(), is.na)) %>%
@@ -852,13 +927,8 @@ server <- function(input, output, session) {
     
     filtered_data %>% filter(!if_all(2:ncol(filtered_data), is.na)) %>%
       pivot_longer(cols = 2:ncol(filtered_data), names_to = 'add_variable', values_to = 'logFC') -> filtered_data
-    data_rna1 <- filtered_data %>% filter(add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2),
-                                     logFC >= input$higher_logFC_venn)
-    data_rna2 <- filtered_data %>% filter(add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2),
-                                     logFC <= input$lower_logFC_venn)
-    data_rna_filtered <- rbind(data_rna1, data_rna2)
-    
-    return(data_rna_filtered)
+   
+    return(filtered_data)
 })
   
   
@@ -866,9 +936,9 @@ server <- function(input, output, session) {
     higher_logFC <- input$higher_logFC_venn
     lower_logFC <- input$lower_logFC_venn
     data_rna <- dataselection_venn()
-    data_rna1 <- data_rna %>% filter(add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2),
+    data_rna1 <- data_rna %>% filter(add_variable %in% c(input$comparison_venn_1, input$comparison_venn_2),
                                      logFC >= input$higher_logFC_venn)
-    data_rna2 <- data_rna %>% filter(add_variable %in% c(input$contrast_venn_1, input$contrast_venn_2),
+    data_rna2 <- data_rna %>% filter(add_variable %in% c(input$comparison_venn_1, input$comparison_venn_2),
                                      logFC <= input$lower_logFC_venn)
     data_rna_filtered <- rbind(data_rna1, data_rna2)
     data_rna_filtered <- data_rna_filtered %>% filter(FDR <= 0.05)
@@ -940,175 +1010,7 @@ server <- function(input, output, session) {
   
   
   
-  #### INT TIME UI OPTIONS ####
-  
-  user_data_intime_upload <- reactive({
-    req(changes_applied())
-    
-    user_file <- input$uploaded_intime_file$datapath
-    if(is.null(user_file)){
-      return(NULL)
-    } else {
-      user_file <- read.csv(user_file, sep = "\t")
-      # Use input$file_name directly here
-      user_file$data_name <- input$file_intime_name
-      return(user_file)
-    }
-  })
  
-  
-  
-  
-  output$fileintimeUploaded <- reactive({
-    !is.null(input$uploaded_intime_file)
-  })
-  outputOptions(output, "fileintimeUploaded", suspendWhenHidden = FALSE)
-  
-  
-  
-  data_loaded_intime <- reactive({
-    if (!is.null(input$file_name)) {
-      c("abrc3","argR_2018", "draRK_scoe", "glnr_sven", "ohkA_scoe", "osdR_2016", "whiAH_scoe", "yague_2013_scoe_diff", "NRRL_Sekurova_2022_sven", input$file_intime_name)
-    } else {
-      c("abrc3","argR_2018", "draRK_scoe", "glnr_sven", "ohkA_scoe", "osdR_2016", "whiAH_scoe", "yague_2013_scoe_diff", "NRRL_Sekurova_2022_sven")
-    }
-  })
-  
-  
-  output$contrast_intime_1 <- renderUI({
-    if (input$venn_select_1 == 'no data selected'){
-      return(NULL)
-    }
-    
-    data_rna <- dataselection_intime()
-    
-    grupy <- data_rna %>% filter(data_name == input$intime_select_1) %>% pull(add_variable) %>% unique()
-    
-    selectInput("contrast_intime_1", "Choose contrasts for analysis",
-                choices = grupy, selected = grupy[1], multiple = TRUE)
-    
-  })
-  
-  output$contrast_intime_2 <- renderUI({
-    if (input$intime_select_2 == 'no data selected'){
-      return(NULL)
-    }
-    
-    data_rna <- dataselection_intime()
-    
-    grupy <- data_rna %>% filter(data_name == input$intime_select_2) %>% pull(add_variable) %>% unique()
-    
-    selectInput("contrast_intime_2", "Choose contrasts for analysis",
-                choices = grupy, selected = grupy[1], multiple = TRUE)
-    
-  })
-  
-  
-  
-  
-  observe({
-    # Get the current data options
-    choices <- c("no data selected", data_loaded_intime())
-    
-    # Update all three select inputs
-    updateSelectInput(session, "intime_select_1", choices = choices)
-    updateSelectInput(session, "intime_select_2", choices = choices)
-  })
-  
-  
-  
-  dataselection_intime <- reactive({
-    
-    
-    
-    ###tutaj dopisujesz następne jak będą
-    user_data <- user_data_intime_upload()
-    abrc3 <- abrc3_intime_load() 
-    argR_2018 <- argR_2018_intime_load()
-    draRK_scoe <- draRK_scoe_intime_load()
-    glnr_sven <- glnr_sven_intime_load()
-    ohkA_scoe <- ohkA_scoe_intime_load()
-    osdR_2016 <- osdR_2016_intime_load()
-    whiAH_scoe <- whiAH_scoe_intime_load()
-    yague_2013_scoe_diff <- yague_2013_scoe_diff_intime_load()
-    NRRL_metab_RNAseq_sven <- NRRL_metab_RNAseq_sven_intime_load()
-
-    # Create a list of data frames, handling the user data separately
-    data_list <- list(
-      abrc3 = abrc3,
-      argR_2018 = argR_2018,
-      draRK_scoe = draRK_scoe,
-      glnr_sven = glnr_sven,
-      ohkA_scoe = ohkA_scoe,
-      osdR_2016 = osdR_2016,
-      whiAH_scoe = whiAH_scoe,
-      yague_2013_scoe_diff = yague_2013_scoe_diff,
-      NRRL_metab_RNAseq_sven = NRRL_metab_RNAseq_sven
-    )
-    
-    # Add user data to the list if it exists
-    if (!is.null(user_data)) {
-      data_list[[input$file_intime_name]] <- user_data
-    }
-    
-    # Get selected datasets
-    selected_datasets <- c(input$intime_select_1, input$intime_select_2)
-    selected_datasets <- selected_datasets[selected_datasets != "no data selected"]
-    
-    # Filter and combine the selected datasets
-    selected_data <- data_list[selected_datasets]
-    data_rna_final <- do.call(rbind, selected_data)
-    
-    return(data_rna_final)
-  })
-  
-  
-  
-  
-  #### IN TIME PLOT ####
-  
-  output$intime_plot <- renderPlot({
-    req(changes_applied())
-    
-    raw_data <- dataselection_intime()
-    raw_data <- raw_data %>% filter(add_variable %in% c(input$contrast_intime_1, input$contrast_intime_2))
-    
-    if(input$select_gene_intime != "all"){
-      
-      raw_data <- raw_data %>%
-        filter(gene %in% input$select_gene_intime) 
-    }
-    else{raw_data <- NULL
-      return(raw_data)}
-    
-    
-    # Check if there's data to plot
-    if(nrow(raw_data) == 0) {
-      return(NULL)
-    }
-    
-    raw_data <- raw_data %>%
-      mutate(logFC = ifelse(is.na(logFC), 0, logFC))
-    print(raw_data)
-
-      intime_plot <- ggplot(raw_data, aes(x = time, y = logFC, 
-                                             color = gene, shape = data_name, group = interaction(gene, data_name))) +
-      geom_point(size = 3) +  # Points for each condition
-      geom_line() +           # Connecting lines
-      geom_text(aes(label = gene), 
-                data = raw_data %>% group_by(gene) %>% filter(logFC == max(logFC)), 
-                hjust = -0.2, vjust = -0.5, size = 4) +  # Labeling at max logFC
-      theme_minimal() +
-      labs(title = "Gene Expression Changes from Two Datasets",
-           x = "Condition",
-           y = "Log Fold Change (logFC)",
-           color = "Gene",
-           shape = "Dataset") +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1))
-    return(intime_plot)
-  })
-  
-  
   #### PLOT DOWNLOAD VENN AND HEAT ####
   
   output$download_plot_venn <- downloadHandler(
@@ -1117,7 +1019,9 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       # Explicitly create the plot at the time of download
-      plot <- venn_plot_create()
+      plot <- venn_plot_create(
+        gene_lists = prep_data_venn(),
+        data_set_venn = filter_data_for_venn())
       
       # Save the plot with ggsave
       ggsave(
@@ -1138,7 +1042,9 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       # Get the plot
-      p <- heat_plot_create()  # Your function that creates the tidyheatmap
+      p <- heat_plot_create(
+        heat_data = filter_data_for_heatmap()
+      )  # Your function that creates the tidyheatmap
       
       # For tidyheatmap, we need to use pdf first then convert to png
       # because tidyheatmap is based on ComplexHeatmap
@@ -1166,7 +1072,15 @@ server <- function(input, output, session) {
     contentType = "image/png"
   )
   
-  
+  output$downloadExcel <- downloadHandler(
+    filename = function() {
+      return("data_template.xlsx")
+    },
+    content = function(file) {
+      # Write to Excel
+      writexl::write_xlsx(data_template, file)
+    }
+  )
   
   
   

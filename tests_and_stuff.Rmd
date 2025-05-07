@@ -136,6 +136,6 @@ writeLines(toBibtex(citation("ggvenn")), "ggvenn.bib")
 writeLines(toBibtex(citation("ggupset")), "ggupset.bib")
 writeLines(toBibtex(citation("pdftools")), "pdftools.bib")
 writeLines(toBibtex(citation("png")), "png.bib")
-
+writeLines(toBibtex(citation("stringr")), "png.bib")
 ```
 

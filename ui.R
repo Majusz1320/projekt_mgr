@@ -7,13 +7,13 @@ library(tidyr)
 library(patchwork)
 library(tidyHeatmap)
 library(BiocManager)
-library(plotly)
 library(bslib)
 library(ggvenn)
 library(ggupset)
 library(pdftools)
 library(png)
 library(DT)
+library(stringr)
 source("loading_data.R")
 source('functions.R')
 source('plots_code.R')
@@ -22,6 +22,10 @@ source('plots_code.R')
 
 
 options_app <- c("genome", "RNAplot", "CHIPplot")
+
+text_content1 <- text_help_info_navigation
+
+text_content2 <- "nothing to see here"
 
 
 
@@ -82,7 +86,7 @@ ui <- fluidPage(
                                                             choices = c("no data selected"),
                                                             selectize = TRUE),
                                                 conditionalPanel(condition = 'input.rna_select_1 != "no data selected"',
-                                                                 uiOutput('contrast_1')
+                                                                 uiOutput('comparison_1')
                                                 ),
                                                 selectInput('rna_select_2', 
                                                             label = ' ',  
@@ -90,7 +94,7 @@ ui <- fluidPage(
                                                             choices = c("no data selected"),
                                                             selectize = TRUE),
                                                 conditionalPanel(condition = 'input.rna_select_2 != "no data selected"',
-                                                                 uiOutput('contrast_2')
+                                                                 uiOutput('comparison_2')
                                                 ),
                                                 selectInput('rna_select_3', 
                                                             label = ' ',  
@@ -98,7 +102,7 @@ ui <- fluidPage(
                                                             choices = c("no data selected"),
                                                             selectize = TRUE),
                                                 conditionalPanel(condition = 'input.rna_select_3 != "no data selected"',
-                                                                 uiOutput('contrast_3')
+                                                                 uiOutput('comparison_3')
                                                 )),
                                                 card(card_header("ChIP-seq Plot Data"),
                                                 selectInput('chip_select', 
@@ -107,7 +111,7 @@ ui <- fluidPage(
                                                             choices = c("no data selected"),
                                                             selectize = TRUE),
                                                 conditionalPanel(condition = 'input.chip_select != "no data selected"',
-                                                                 uiOutput('contrast_chip')
+                                                                 uiOutput('comparison_chip')
                                                 ))
                                 ),
                                 accordion_panel("Plot settings",
@@ -119,13 +123,15 @@ ui <- fluidPage(
                                                 
                                 ),
                                 accordion_panel("Upload data",
-                                                fileInput("uploaded_file", "RNA-seq"),
+                                                bslib::input_switch("switch_filetype", label = HTML("Is RNA-seq file in app format?")),
+                                                verbatimTextOutput("switch_value_filetype"),
+                                                fileInput("uploaded_file", "RNA-seq file"),
                                                 conditionalPanel(
                                                   condition = "output.fileUploaded",
                                                   textAreaInput("file_name", "Add name for your file")
                                                 ),
-                                                
-                                                fileInput("uploaded_file_chip", "CHIP-seq"),
+                                              
+                                                fileInput("uploaded_file_chip", "CHIP-seq file"),
                                                 conditionalPanel(
                                                   condition = "output.fileUploaded_chip",
                                                   textAreaInput("file_name_chip", "Add name for your file")
@@ -145,8 +151,11 @@ ui <- fluidPage(
                                                    plotOutput("all_plots", height = '800px')
                                           )),
                               tabsetPanel(type = 'pills',
-                                          tabPanel("RNAseq in table",
+                                          tabPanel("RNAseq on plot",
                                                    DT::DTOutput("rna_table")
+                                          ),
+                                          tabPanel("RNAseq no filter",
+                                                   DT::DTOutput("rna_table_nofilter")
                                           ),
                                           tabPanel("CHIPseq in table",
                                                    DT::DTOutput("chip_table")
@@ -169,7 +178,7 @@ ui <- fluidPage(
                                                                selectize = TRUE),
                                                    conditionalPanel(
                                                      condition = 'input.venn_select_1 != "no data selected"',
-                                                     uiOutput('contrast_venn_1')
+                                                     uiOutput('comparison_venn_1')
                                                    ),
                                                    selectInput('venn_select_2', 
                                                                label = ' ',  
@@ -178,45 +187,13 @@ ui <- fluidPage(
                                                                selectize = TRUE),
                                                    conditionalPanel(
                                                      condition = 'input.venn_select_2 != "no data selected"',
-                                                     uiOutput('contrast_venn_2')
+                                                     uiOutput('comparison_venn_2')
                                                    )),card(card_header("Heatmap gene name input"),
                                                    textAreaInput("gene_list", NULL))
                                           ),
-                                          accordion_panel("Venn/Heat LogFC",
+                                          accordion_panel("Venn LogFC option",
                                                    numericInput("higher_logFC_venn", label = ("higher logFC"), value = 1.5, step = 0.1, min = 0),
                                                    numericInput("lower_logFC_venn", label = ("lower logFC"), value = -1.5, step = 0.1, max = 0)),
-                                          accordion_panel("Intime Options",
-                                                   fileInput("uploaded_intime_file", "Choose a File"),
-                                                   conditionalPanel(
-                                                     condition = "output.fileintimeUploaded",
-                                                     textAreaInput("file_intime_name", "Add name for your file")
-                                                   ),
-                                                   selectizeInput("select_gene_intime", 
-                                                                  label = "Choose gene from list", 
-                                                                  choices = "all",
-                                                                  selected = "all",
-                                                                  multiple = TRUE,
-                                                                  options = list(maxOptions = 10000)),
-                                                   selectInput('intime_select_1', 
-                                                               label = h3('Choose data'), 
-                                                               selected = "no data selected",
-                                                               choices = c("no data selected"),
-                                                               selectize = TRUE),
-                                                   conditionalPanel(
-                                                     condition = 'input.intime_select_1 != "no data selected"',
-                                                     uiOutput('contrast_intime_1')
-                                                   ),
-                                                   selectInput('intime_select_2', 
-                                                               label = ' ',  
-                                                               selected = "no data selected",
-                                                               choices = c("no data selected"),
-                                                               selectize = TRUE),
-                                                   conditionalPanel(
-                                                     condition = 'input.intime_select_2 != "no data selected"',
-                                                     uiOutput('contrast_intime_2')
-                                                   ),
-                                                   
-                                          ),
                                           accordion_panel("Plot download", 
                                                     card("Plot Download Venn",
                                                    downloadButton('download_plot_venn', 'Download png plot'),
@@ -239,20 +216,48 @@ ui <- fluidPage(
                                          plotOutput("venn_plot", height = '800px' ),
                                          DT::DTOutput('venn_table_common'), DT::DTOutput('venn_table_uncommon')), 
                                 tabPanel("Heatmap", plotOutput("heatmap_plot", height = '800px' ),
-                                         DT::DTOutput('heatmap_table')),
-                                tabPanel("In time comparison", plotOutput("intime_plot", height = '800px' )))), width = 12
+                                         DT::DTOutput('heatmap_table')))), width = 12
                         )
                       )
              ),
-             tabPanel("Help&Info",
-                      sidebarLayout(
-                        sidebarPanel(
-                          div(class = "sidebar-scroll")
-                        ),
-                        mainPanel(
-                          div(class = "main-scroll")
-                        )
-                      )
-             )
+             nav_panel("Help&Info",
+            navset_pill(
+            nav_panel(
+               "Usage help",
+               card(
+                 p("Click the button below to download templates for data upload:"),
+                 downloadButton("downloadExcel", "Download File"),
+                 card_header("Tips for using the app"),
+                 card_body(
+                   markdown(text_content1)
+                 )
+               )
+             ),
+             
+            nav_panel(
+              "Data&packages",
+              card(
+                card_header("Packages used in app creation"),
+                card_body(
+                  DT::DTOutput("table_packages")
+                )
+              ),
+              card(
+                card_header("Publications from which data was taken"),
+                card_body(
+                  DT::DTOutput("table_data")
+                )
+              )
+            ),
+             
+             nav_panel(
+               "About",
+               card(
+                 card_header("Additional information about author"),
+                 card_body(
+                   markdown(text_content2)
+                 )
+               )
+             )))
   )
 )

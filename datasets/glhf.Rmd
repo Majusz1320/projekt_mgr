@@ -1548,3 +1548,194 @@ mak <- list(baba, dziad)
 
 mak
 ```
+```{r}
+
+yong <- read.csv("new_data/yeong_2016.txt", sep = "\t")
+yong_logFC <- yong[, c(1, 2, 4, 6, 8, 10, 12)]
+yong_FDR <- yong[, c(1, 3, 5, 7, 9, 11, 13)]
+
+yong_nazwy <- c("gene", "MvsT", "MvsL", "MvsS", "TvsL", "TvsS", "LvsS")
+
+colnames(yong_logFC) <- yong_nazwy
+colnames(yong_FDR) <- yong_nazwy
+
+yong_FDR <- yong_FDR %>% 
+  pivot_longer(
+    cols = !gene, 
+    names_to = "add_variable", 
+    values_to = "FDR"
+  )
+
+yong_logFC <- yong_logFC %>% 
+  pivot_longer(
+    cols = !gene, 
+    names_to = "add_variable", 
+    values_to = "logFC"
+  )
+
+yong <- yong_logFC %>%
+  left_join(yong_FDR, by = c("gene", "add_variable"))
+
+yong$logFC <- gsub(",", ".", yong$logFC)
+yong$FDR <- gsub(",", ".", yong$FDR)
+yong$logFC <- as.numeric(yong$logFC)
+yong$FDR <- as.numeric(yong$FDR)
+
+yong$logFC <- log2(yong$logFC)
+
+
+yong <- yong %>%
+  left_join(data_genome, by = "gene")
+
+```
+
+```{r}
+library(stringr)
+
+#data upload
+data_test <- read.csv("test_no_format.txt", sep = '\t')
+
+#spliting data and removing suffixes
+dt_logFC <- data_test %>%
+  select(gene, contains("logFC")) %>%
+  rename_with(~str_remove(., "logFC"), -1)
+
+dt_FDR <- data_test %>%
+  select(gene, contains("FDR")) %>%
+  rename_with(~str_remove(., "FDR"), -1)
+
+#conversion to tidy
+dt_logFC <- dt_logFC %>% 
+  pivot_longer(
+    cols = !gene, 
+    names_to = "add_variable", 
+    values_to = "logFC"
+  )
+
+dt_FDR <- dt_FDR %>% 
+  pivot_longer(
+    cols = !gene, 
+    names_to = "add_variable", 
+    values_to = "FDR"
+  )
+
+#conversion to numerical
+dt_logFC$logFC <- gsub(",", ".", dt_logFC$logFC)
+dt_FDR$FDR <- gsub(",", ".", dt_FDR$FDR)
+dt_logFC$logFC <- as.numeric(dt_logFC$logFC)
+dt_FDR$FDR <- as.numeric(dt_FDR$FDR)
+
+#joining back into one
+data_in_tidy <- dt_logFC %>%
+  left_join(dt_FDR, by = c("gene", "add_variable"))
+
+```
+
+```{r}
+adpa_rna <- read.csv("new_data/rnaseq_app_test.txt", sep='\t')
+adpa_chip <- read.csv("new_data/adpa_chipseq.txt", sep='\t')
+
+
+merged_data <- adpa_rna %>%
+  left_join(genelist_sven, by = "gene")
+
+merged_data <- na.omit(merged_data)
+merged_data <- merged_data %>% select(gene, logFC, FDR, add_variable, start, end, strand)
+ write.csv(adpa_chip, "final_data/data_chip_seq/adpa_wolanski_sven.csv", row.names = FALSE)
+
+```
+
+```{r}
+
+# Sample text content (replace with your actual text)
+text_content1 <- "
+# Welcome to Page 1
+
+This is the first text page. Replace this content with your own text.
+
+## Section 1
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+## Section 2
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+"
+
+text_content2 <- "
+# Welcome to Page 3
+
+This is the third text page. Replace this content with your own text.
+
+## Important Information
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+## Additional Notes
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+"
+
+ui <- page_navbar(
+  title = "Multi-page App",
+  
+  nav_panel(
+    "Text Page 1",
+    card(
+      card_header("Text Content"),
+      card_body(
+        markdown(text_content1)
+      )
+    )
+  ),
+  
+  nav_panel(
+    "Tables Page",
+    layout_columns(
+      card(
+        card_header("Table 1"),
+        card_body(
+          DTOutput("table1")
+        )
+      ),
+      card(
+        card_header("Table 2"),
+        card_body(
+          DTOutput("table2")
+        )
+      )
+    )
+  ),
+  
+  nav_panel(
+    "Text Page 2",
+    card(
+      card_header("More Text Content"),
+      card_body(
+        markdown(text_content2)
+      )
+    )
+  ),
+  
+  theme = bs_theme(version = 5, bootswatch = "flatly")
+)
+
+server <- function(input, output, session) {
+  # Render the first table
+  output$table1 <- renderDT({
+    datatable(table1, options = list(pageLength = 10))
+  })
+  
+  # Render the second table
+  output$table2 <- renderDT({
+    datatable(table2, options = list(pageLength = 10))
+  })
+}
+
+shinyApp(ui, server)
+
+
+```
+
+```{r}
+
+
+data_template <- read.csv("templates_for_app.txt", sep='\t')
+```
+

@@ -113,6 +113,11 @@ NRRL_metab_RNAseq_sven_load <- function(){
   return(NRRL_metab_RNAseq_sven)
 }
 
+adpA_Wolanski_2025_sven_load <- function(){
+  adpA_Wolanski_2025_sven <- read.csv("datasets/final_data/adpa_wolanski_sven.csv")
+  adpA_Wolanski_2025_sven$data_name <- "adpA_Wolanski_2025_sven"
+  return(adpA_Wolanski_2025_sven)}
+
 #### LIST OF DATA LOAD FUNCTION RNA-SEQ WITH IN-APP DATA NAMES ####
 
 data_in_app <- list(
@@ -135,13 +140,14 @@ data_in_app <- list(
   whiAH_Salerno_2013 = whiAH_scoe_load,
   SolidLiquidDiff_Yague_2013 = yague_2013_scoe_diff_load,
   growth_phases_Yeong_2016 = yeong_2016_load,
-  NRRL_Sekurova_2022_sven = NRRL_metab_RNAseq_sven_load
+  NRRL_Sekurova_2022_sven = NRRL_metab_RNAseq_sven_load,
+  adpA_Wolanski_2025_sven = adpA_Wolanski_2025_sven_load
 )
 
 #### LIST OF SVEN AND SCOE RNA-SEQ IN-APP DATA NAMES ####
 
 data_sven <- c("BldC_Bush_2018_sven", "ECF42_Liu_2018_sven", 
-               "GlnR_Pullan_2011", "NRRL_Sekurova_2022_sven")
+               "GlnR_Pullan_2011", "NRRL_Sekurova_2022_sven", "adpA_Wolanski_2025_sven")
 
 data_scoe <- c("AbrB1_Nieta_2020", "hupAS_Strzalka_2024", "SatKR_Gongerowska_2021", 
                "TopA_Szafran_2019", "AbrC3_rico_2014", "Aor1_Antoraz_2017", 
@@ -170,6 +176,11 @@ hupS_chipseq_szafran_load <- function(){
   return(hupS_chipseq_szafran)
 }
 
+adpA_wolanski_chip_sven_load <- function(){
+  adpA_wolanski_chip_sven <- read.csv("datasets/final_data/data_chip_seq/adpa_wolanski_sven.csv")
+  adpA_wolanski_chip_sven$data_name <- "adpA_chipseq_Wolanski_2025"
+  return(adpA_wolanski_chip_sven)
+}
 
 
 #### LIST OF DATA LOAD FUNCTION CHIP-SEQ WITH IN-APP DATA NAMES ####
@@ -177,67 +188,11 @@ hupS_chipseq_szafran_load <- function(){
 data_load_chipseq <- list(
   HrdB_chipseq_Smidova_2018 = chipseq_smidova_load,
   hupAS_chipseq_Strzalka_2024 = hupAS_strzalka_chipseq_load,
-  SMChupS_Szafran_2021 = hupS_chipseq_szafran_load
+  SMChupS_Szafran_2021 = hupS_chipseq_szafran_load,
+  adpA_chipseq_Wolanski_2025 = adpA_wolanski_chip_sven_load
 )
 
 #### LIST OF SVEN AND SCOE CHIP-SEQ IN-APP DATA NAMES ####
 
-data_chipseq <- c("HrdB_chipseq_Smidova_2018", "hupAS_chipseq_Strzalka_2024", "SMChupS_Szafran_2021")
-
-
-
-
-
-
-
-
-
-#### TO TRZEBA ZMIENIĆ I WGL BO ZAPOMNIAŁEM O CO CHODZI Z TYM JAK MA TEN WYKRES KIEDYŚ WYGLĄDAĆ I Z CZEGO MA BYĆ ITP####
-#### LOADING DATA INTIME ####
-
-abrc3_intime_load <- function(){
-  abrc3 <- read.csv("datasets/final_data/data_intime/abrc3_intime.csv")
-  return(abrc3)
-}
-
-argR_2018_intime_load <- function(){
-  argR_2018 <- read.csv("datasets/final_data/data_intime/argR_2018_intime.csv")
-  return(argR_2018)
-}
-
-draRK_scoe_intime_load <- function(){
-  draRK_scoe <- read.csv("datasets/final_data/data_intime/draRK_scoe_intime.csv")
-  return(draRK_scoe)
-}
-
-ohkA_scoe_intime_load <- function(){
-  ohkA_scoe <- read.csv("datasets/final_data/data_intime/ohkA_scoe_intime.csv")
-  return(ohkA_scoe)
-}
-
-osdR_2016_intime_load <- function(){
-  osdR_2016 <- read.csv("datasets/final_data/data_intime/osdR_2016_intime.csv")
-  return(osdR_2016)
-}
-
-whiAH_scoe_intime_load <- function(){
-  whiAH_scoe <- read.csv("datasets/final_data/data_intime/whiAH_scoe_intime.csv")
-  return(whiAH_scoe)
-}
-
-glnr_sven_intime_load <- function(){
-  glnr_sven <- read.csv("datasets/final_data/data_intime/glnr_sven_intime.csv")
-  return(glnr_sven)
-}
-
-yague_2013_scoe_diff_intime_load <- function(){
-  yague_2013_scoe_diff <- read.csv("datasets/final_data/data_intime/yague_2013_scoe_diff_intime.csv")
-  return(yague_2013_scoe_diff)
-}
-
-NRRL_metab_RNAseq_sven_intime_load <- function(){
-  NRRL_metab_RNAseq_sven <- read.csv("datasets/final_data/data_intime/NRRL_metab_RNAseq_sven_intime.csv")
-  return(NRRL_metab_RNAseq_sven)
-}
-
+data_chipseq <- c("HrdB_chipseq_Smidova_2018", "hupAS_chipseq_Strzalka_2024", "SMChupS_Szafran_2021", "adpA_chipseq_Wolanski_2025")
 
