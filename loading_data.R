@@ -107,10 +107,34 @@ yeong_2016_load <- function(){
   return(yeong_2016)
 }
 
-NRRL_metab_RNAseq_sven_load <- function(){
-  NRRL_metab_RNAseq_sven <- read.csv("datasets/final_data/NRRL_metab_RNAseq_sven.csv")
-  NRRL_metab_RNAseq_sven$data_name <- "NRRL_Sekurova_2022_sven"
-  return(NRRL_metab_RNAseq_sven)
+ETOHschock_Sekurova_2022_sven_load <- function(){
+  ETOHschock_Sekurova_2022_sven <- read.csv("datasets/final_data/ETOHschock_Sekurova_2022_sven.csv")
+  ETOHschock_Sekurova_2022_sven$data_name <- "ETOHschock_Sekurova_2022_sven"
+  return(ETOHschock_Sekurova_2022_sven)
+}
+
+BldB_Avramova_2023_sven_load <- function(){
+  BldB_Avramova_2023_sven <- read.csv("datasets/final_data/BldB_Avramova_2023_sven.csv")
+  BldB_Avramova_2023_sven$data_name <- "BldB_Avramova_2023_sven"
+  return(BldB_Avramova_2023_sven)
+}
+
+MMC_Stratton_2022_sven_load <- function(){
+  MMC_Stratton_2022_sven <- read.csv("datasets/final_data/MMC_Stratton_2022_sven.csv")
+  MMC_Stratton_2022_sven$data_name <- "MMC_Stratton_2022_sven"
+  return(MMC_Stratton_2022_sven)
+}
+
+ccr1_Lei_2024_load <- function(){
+  ccr1_Lei_2024 <- read.csv("datasets/final_data/ccr1_Lei_2024.csv")
+  ccr1_Lei_2024$data_name <- "ccr1_Lei_2024"
+  return(ccr1_Lei_2024)
+}
+
+Gbn_Du_2022_load <- function(){
+  Gbn_Du_2022 <- read.csv("datasets/final_data/Gbn_Du_2022.csv")
+  Gbn_Du_2022$data_name <- "Gbn_Du_2022"
+  return(Gbn_Du_2022)
 }
 
 
@@ -137,20 +161,22 @@ data_in_app <- list(
   whiAH_Salerno_2013 = whiAH_scoe_load,
   SolidLiquidDiff_Yague_2013 = yague_2013_scoe_diff_load,
   growth_phases_Yeong_2016 = yeong_2016_load,
-  NRRL_Sekurova_2022_sven = NRRL_metab_RNAseq_sven_load
+  ETOHschock_Sekurova_2022_sven = ETOHschock_Sekurova_2022_sven_load,
+  BldB_Avramova_2023_sven = BldB_Avramova_2023_sven_load,
+  MMC_Stratton_2022_sven = MMC_Stratton_2022_sven_load,
+  ccr1_Lei_2024 = ccr1_Lei_2024_load,
+  Gbn_Du_2022 = Gbn_Du_2022_load
 )
 
 #### LIST OF SVEN AND SCOE RNA-SEQ IN-APP DATA NAMES ####
 
-data_sven <- c("BldC_Bush_2018_sven", "ECF42_Liu_2018_sven", 
-               "GlnR_Pullan_2011", "NRRL_Sekurova_2022_sven")
+data_sven <- c("BldC_Bush_2018_sven", "BldB_Avramova_2023_sven",  "ECF42_Liu_2018_sven", "GlnR_Pullan_2011", 
+                "ETOHschock_Sekurova_2022_sven", "MMC_Stratton_2022_sven")
 
-data_scoe <- c("AbrB1_Nieta_2020", "hupAS_Strzalka_2024", "SatKR_Gongerowska_2021", 
-               "TopA_Szafran_2019", "AbrC3_rico_2014", "Aor1_Antoraz_2017", 
-               "ArgR_Botas_2018", "BldD_denHengst_2010", "DrarK_Yu_2014", 
-               "OhkA_Lu_2011", "OsdR_Urem_2016", "sigR_Kallifidas_2010",
-               "soxR_Naseer_2014", "whiAH_Salerno_2013", "SolidLiquidDiff_Yague_2013", 
-               "growth_phases_Yeong_2016")
+data_scoe <- c("AbrB1_Nieta_2020",  "AbrC3_rico_2014", "Aor1_Antoraz_2017", 
+               "ArgR_Botas_2018", "BldD_denHengst_2010", "ccr1_Lei_2024", "DrarK_Yu_2014","Gbn_Du_2022", "growth_phases_Yeong_2016", "hupAS_Strzalka_2024", 
+               "OhkA_Lu_2011", "OsdR_Urem_2016", "SatKR_Gongerowska_2021", "sigR_Kallifidas_2010", "SolidLiquidDiff_Yague_2013",
+               "soxR_Naseer_2014", "TopA_Szafran_2019", "whiAH_Salerno_2013")
 
 #### LOADING CHIP_SEQ ####
 
@@ -172,6 +198,11 @@ hupS_chipseq_szafran_load <- function(){
   return(hupS_chipseq_szafran)
 }
 
+Gbn_chipseq_Du_2022_load <- function(){
+  Gbn_chipseq_Du_2022 <- read.csv("datasets/final_data/data_chip_seq/Gbn_chipseq_Du_2022.csv")
+  Gbn_chipseq_Du_2022$data_name <- "Gbn_chipseq_Du_2022"
+  return(Gbn_chipseq_Du_2022)
+}
 
 
 
@@ -180,10 +211,11 @@ hupS_chipseq_szafran_load <- function(){
 data_load_chipseq <- list(
   HrdB_chipseq_Smidova_2018 = chipseq_smidova_load,
   hupAS_chipseq_Strzalka_2024 = hupAS_strzalka_chipseq_load,
-  SMChupS_Szafran_2021 = hupS_chipseq_szafran_load
+  SMChupS_Szafran_2021 = hupS_chipseq_szafran_load,
+  Gbn_chipseq_Du_2022 = Gbn_chipseq_Du_2022_load
 )
 
 #### LIST OF SVEN AND SCOE CHIP-SEQ IN-APP DATA NAMES ####
 
-data_chipseq <- c("HrdB_chipseq_Smidova_2018", "hupAS_chipseq_Strzalka_2024", "SMChupS_Szafran_2021")
+data_chipseq <- c("HrdB_chipseq_Smidova_2018", "hupAS_chipseq_Strzalka_2024", "SMChupS_Szafran_2021", "Gbn_chipseq_Du_2022")
 

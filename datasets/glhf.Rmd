@@ -412,6 +412,9 @@ merged_data <- argR_2018 %>%
 ```
 ```{r}
  genelist_sven <- read.csv("sven_genes_vnz.txt", sep = '')
+
+genelist_sven <- genelist_sven %>% select(gene, start, end, strand)
+
 ```
 
 ```{r}
@@ -1737,5 +1740,57 @@ shinyApp(ui, server)
 
 
 data_template <- read.csv("templates_for_app.txt", sep='\t')
+```
+
+```{r}
+MMC_rnaseq <- read.csv("new_data/MMC_rnaseq.txt", sep=' ')
+bldB_rnaseq <- read.csv("new_data/bldB_rnaseq.txt", sep=' ')
+ccr1_rnaseq <- read.csv("new_data/ccr1_rnaseq.txt", sep=' ')
+ethanol_sekurowa_sven <- read.csv("new_data/ethanol.txt", sep=' ')
+gbn_chipseq <- read.csv("new_data/gbn_chipseq.txt", sep='\t')
+gbn_rnaseq <- read.csv("new_data/gbn_rnaseq.txt", sep=' ')
+
+
+df <- read.csv("new_data/gbn_rnaseq.txt", sep = ' ', header = TRUE, stringsAsFactors = FALSE)
+
+ write.csv(bldB_rnaseq, "final_data/BldB_Avramova_2023_sven.csv", row.names = FALSE)
+ write.csv(MMC_rnaseq, "final_data/MMC_Stratton_2022_sven.csv", row.names = FALSE)
+ write.csv(ccr1_rnaseq, "final_data/ccr1_Lei_2024.csv", row.names = FALSE)
+ write.csv(ethanol_sekurowa_sven, "final_data/ETOHschock_Sekurova_2022_sven.csv", row.names = FALSE)
+ write.csv(gbn_rnaseq, "final_data/Gbn_Du_2022.csv", row.names = FALSE)
+ write.csv(gbn_chipseq, "final_data/data_chip_seq/Gbn_chipseq_Du_2022.csv", row.names = FALSE)
+
+
+
+```
+
+```{r}
+MMC_rnaseq <- MMC_rnaseq %>%
+  left_join(genelist_sven, by = "gene") 
+bldB_rnaseq <- bldB_rnaseq %>%
+  left_join(genelist_sven, by = "gene")
+ccr1_rnaseq <- ccr1_rnaseq %>%
+  left_join(data_genome, by = "gene")
+ethanol_sekurowa_sven <- ethanol_sekurowa_sven %>%
+  left_join(genelist_sven, by = "gene")
+gbn_rnaseq <- gbn_rnaseq %>%
+  left_join(data_genome, by = "gene")
+
+MMC_rnaseq <- na.omit(MMC_rnaseq)
+bldB_rnaseq <- na.omit(bldB_rnaseq)
+ccr1_rnaseq <- na.omit(ccr1_rnaseq)
+ethanol_sekurowa_sven <- na.omit(ethanol_sekurowa_sven)
+gbn_rnaseq <- na.omit(gbn_rnaseq)
+  
+write.csv(bldB_rnaseq, "final_data/BldB_Avramova_2023_sven.csv", row.names = FALSE)
+ write.csv(MMC_rnaseq, "final_data/MMC_Stratton_2022_sven.csv", row.names = FALSE)
+ write.csv(ccr1_rnaseq, "final_data/ccr1_Lei_2024.csv", row.names = FALSE)
+ write.csv(ethanol_sekurowa_sven, "final_data/ETOHschock_Sekurova_2022_sven.csv", row.names = FALSE)
+ write.csv(gbn_rnaseq, "final_data/Gbn_Du_2022.csv", row.names = FALSE)
+
+
+
+
+
 ```
 
