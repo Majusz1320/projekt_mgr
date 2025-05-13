@@ -673,6 +673,7 @@ server <- function(input, output, session) {
     req(changes_applied())
     
     table_data1 <- dataselection_rnaseq_before_LHfilter()
+    table_data1$logFC <- round(table_data1$logFC, 2)
     return(table_data1)
   })
   output$rna_table_nofilter <- DT::renderDT({
@@ -1005,7 +1006,22 @@ server <- function(input, output, session) {
       heat_data = filter_data_for_heatmap()
     ) })
   
-  output$heatmap_table <- renderDataTable({filter_data_for_heatmap()})
+  
+  tableInput_heatmap <- reactive({
+    
+    req(changes_applied())
+    
+    table_data1 <- filter_data_for_heatmap()
+    table_data1$logFC <- round(table_data1$logFC, 2)
+    return(table_data1)
+  })
+  
+  
+  output$heatmap_table <- DT::renderDT({
+    table_data <- tableInput_heatmap()
+    rownames(table_data) <- NULL
+    return(table_data)
+    })
   
   
   
