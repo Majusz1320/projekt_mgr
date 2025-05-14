@@ -18,7 +18,12 @@ Investigation of SoxR targets (Naseer et al., 2014).	soxR deletion mutant vs WT	
 Identification of new genes involved in sporulation (Salerno et al., 2013).	whiA or whiH deletion mutants vs WT	Microarray	S. coelicolor	whiAH_Salerno_2013
 Transcriptomic analysis of sporulating solid vs liquid cultures (Yague et al., 2013).	Solid vs liquid culture	Microarray	S. coelicolor	SolidLiquidDiff_Yague_2013
 Detailed analysis of transcriptional and translational processes (Jeong et al., 2016).	Different life cycle stages	RNA-seq	S. coelicolor	growth_phases_Yeong_2016
-Impact of ethanol shock on transcription and metabolism (Sekurova et al., 2022).	Cells under ethanol shock vs WT	RNA-seq	S. venezuelae	NRRL_Sekurova_2022_sven
+Impact of ethanol shock on transcription and metabolism (Sekurova et al., 2022).	Cells under ethanol shock vs WT	RNA-seq	S. venezuelae	ETOHshock_Sekurova_2022_sven
+Global impact of BldB on cell expression regulation (Avramova et al., 2023)	BldB deletion mutant vs WT	RNA-seq	S. venezuelae	BldB_Avramova_2023_sven
+LexA regulator response to DNA damage-induced stress using mitomycin C (Stratton et al., 2022)	MMC-treated cells vs WT	RNA-seq	S. venezuelae	MMC_Stratton_2022_sven
+Impact of ccr1 on bacterial secondary metabolism (Lei et al., 2024)	ccr1 deletion mutant vs WT	RNA-seq	S. coelicolor	ccr1_Lei_2024
+Role of Gbn (GATC-binding NAP) in Streptomyces development (Du et al., 2022)	gbn deletion mutants vs WT	RNA-seq	S. coelicolor	Gbn_Du_2022
+Role of Gbn (GATC-binding NAP) in Streptomyces development (Du et al., 2022)	—	ChIP-seq	S. coelicolor	Gbn_chipseq_Du_2022
 Analysis of HrdB regulon during vegetative growth (Smidova et al., 2019).	---	ChIP-seq	S. coelicolor	HrdB_chipseq_Smidova_2018
 TopA and HupA cooperation in chromosome organization during growth (Strzalka et al., 2022).	---	ChIP-seq	S. coelicolor	hupAS_chipseq_Strzalka_2024
 Chromosome spatial rearrangement during sporulation (Szafran et al., 2021).	---	ChIP-seq	S. venezuelae	SMChupS_Szafran_2021
