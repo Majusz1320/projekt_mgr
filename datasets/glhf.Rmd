@@ -6,7 +6,6 @@ data_genome <- read.csv("genes_scoelicolor.txt", sep = '')
 ```
 
 ```{r}
-
 merged_data <- file_of_interest %>%
   left_join(data_genome, by = "gene")
   
@@ -1791,6 +1790,125 @@ write.csv(bldB_rnaseq, "final_data/BldB_Avramova_2023_sven.csv", row.names = FAL
 
 
 
+
+```
+
+```{r}
+
+szafran <- read.csv("final_data/data_szafran2019.csv")
+
+nazwy_zmiennych_szafran <- unique(szafran$add_variable)
+
+nazwy_zmiennych_szafran
+
+szafran$add_variable <- gsub("M145PS04", "PS04M145", szafran$add_variable)
+szafran$add_variable <- gsub("M145PS04novobiocyna", "PS04M145novobiocyna", szafran$add_variable)
+szafran$add_variable <- gsub("M145PS04thio", "PS04M145thio", szafran$add_variable)
+
+write.csv(szafran, "final_data/data_szafran2019.csv", row.names = FALSE)
+```
+
+```{r}
+martyna <- read.csv("new_data/satkr_martyna.txt", sep = '\t')
+
+martyna <- martyna %>% select(gene, FDR, foldodwrot, add_variable)
+
+martyna$FDR <- gsub(",", ".", martyna$FDR)
+martyna$foldodwrot <- gsub(",", ".", martyna$foldodwrot)
+
+martyna$FDR <- as.numeric(martyna$FDR)
+martyna$fold <- as.numeric(martyna$fold)
+martyna$foldodwrot <- as.numeric(martyna$foldodwrot)
+
+is.na(martyna$foldodwrot == NA)
+
+
+martyna$logFC <- log2(martyna$foldodwrot)
+
+martyna <- martyna %>% select(gene, FDR, logFC, add_variable)
+
+martyna <- martyna %>%
+  left_join(data_genome, by = "gene")
+
+
+write.csv(martyna, "final_data/RNAseq_Martyna.csv", row.names = FALSE)
+
+```
+
+```{r}
+martyna <- read.csv("final_data/RNAseq_Martyna.csv")
+
+colnames(martyna)
+
+nazwy_martyna <- unique(martyna$add_variable)
+nazwy_martyna
+
+#"PS04vsMGP10" "PS04vsMGP11" "PS04vsMGP12" "PS04vsMGP14" "PS04vsMGHM5" "M145vsMGM10" "M145vsMGM11" "M145vsMGM12" "M145vsMGM14"
+#"MGP10vsPS04" "MGP11vsPS04" "MGP12vsPS04" "MGP14vsPS04" "MGHM5vsPS04" "MGM10vsM145" "MGM11vsM145" "MGM12vsM145" "MGM14vsM145"
+
+martyna$add_variable <- gsub("PS04vsMGP10", "MGP10vsPS04", martyna$add_variable)
+martyna$add_variable <- gsub("PS04vsMGP11", "MGP11vsPS04", martyna$add_variable)
+martyna$add_variable <- gsub("PS04vsMGP12", "MGP12vsPS04", martyna$add_variable)
+martyna$add_variable <- gsub("PS04vsMGP14", "MGP14vsPS04", martyna$add_variable)
+martyna$add_variable <- gsub("PS04vsMGHM5", "MGHM5vsPS04", martyna$add_variable)
+martyna$add_variable <- gsub("M145vsMGM10", "MGM10vsM145", martyna$add_variable)
+martyna$add_variable <- gsub("M145vsMGM11", "MGM11vsM145", martyna$add_variable)
+martyna$add_variable <- gsub("M145vsMGM12", "MGM12vsM145", martyna$add_variable)
+martyna$add_variable <- gsub("M145vsMGM14", "MGM14vsM145", martyna$add_variable)
+
+
+
+write.csv(martyna, "final_data/RNAseq_Martyna.csv", row.names = FALSE)
+
+```
+```{r}
+
+create_empty_rnaseq_df <-   data.frame(
+    gene = NA_character_,
+    logFC = NA_real_,
+    FDR = NA_real_,
+    add_variable = NA_character_,
+    start = NA_integer_,
+    end = NA_integer_,
+    width = NA_integer_,
+    strand = NA_character_,
+    data_name = NA_character_,
+    stringsAsFactors = FALSE
+  )
+
+```
+
+```{r}
+ chipseq_smirdova <- read.csv("final_data/data_chip_seq/chipseq_smirdova.txt", sep = '\t')
+  write.csv(chipseq_smirdova, "final_data/data_chip_seq/chipseq_smirdova.csv", row.names = FALSE)
+
+  
+  
+```
+
+
+
+```{r}
+strzalka <- read.csv("final_data/data_chip_seq/hupAS_strzalka/data_hupA_chipseq_macs.txt", sep = ' ')
+
+strzalka$chrom <- "Chromosome"
+strzalka <- strzalka %>% select(chrom, start, end, rodzaj)
+colnames(strzalka) <- c("chrom", "chromStart", "chromEnd", "name")
+
+ write.csv(strzalka, "final_data/data_chip_seq/hupAS_strzalka_chipseq.csv", row.names = FALSE)
+
+```
+```{r}
+strzalka <- read.csv("final_data/data_chip_seq/hupAS_strzalka_chipseq.csv")
+
+
+```
+
+```{r}
+
+data_template <- read.csv("templates_for_app.txt", sep='\t')  
+
+read_xlsx("datasets/templates_for_app.xlsx")
 
 ```
 
